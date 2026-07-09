@@ -6,6 +6,7 @@ const navConfig = {
   super_admin: [
     { key: 'super-dashboard', label: 'Dashboard', icon: Home },
     { key: 'companies', label: 'Company Verification', icon: ShieldCheck },
+    { key: 'verification-requests', label: 'Car & Doc Verification', icon: ShieldCheck },
   ],
   admin: [
     { key: 'admin-dashboard', label: 'Dashboard', icon: Home },

@@ -117,4 +117,26 @@ export const seedState = {
       createdAt: new Date(Date.now() - 86400000).toISOString(),
     }
   ],
+  verificationRequests: [
+    {
+      id: 'vreq_1',
+      companyId: 'company_1',
+      userName: 'Ramesh Kumar',
+      userEmail: 'ramesh@demo.com',
+      userPhone: '+91 99999 88888',
+      document: {
+        name: 'driving_license.pdf',
+        type: 'application/pdf',
+        size: 85000,
+        url: '',
+        uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+      },
+      carName: 'Mahindra Thar',
+      registrationNo: 'DL3CA1234',
+      carImages: [],
+      status: 'pending',
+      rejectionReason: '',
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+    }
+  ],
 };
