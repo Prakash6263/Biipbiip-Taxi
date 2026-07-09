@@ -79,11 +79,8 @@ const Login = ({ setActivePage }) => {
 
         {/* Right Side: Form Inputs */}
         <div className="w-full md:w-1/2 p-6 sm:p-10 flex flex-col justify-center">
-          <div className="mb-6 text-center">
-            <h1 className="text-4xl font-black tracking-wider text-[#031E3C]">
-              BIIP<span className="text-[#00D6CC]">BIIP</span>
-            </h1>
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mt-1">Car Rental & Taxi Admin Panel</p>
+          <div className="mb-6 flex flex-col items-center text-center">
+            <img src="/logo.png" alt="BIIPBIIP Logo" className="h-16 w-16 mb-3 rounded-2xl object-cover shadow-lg" />
           </div>
 
           <div className="mb-6 flex rounded-2xl bg-slate-100 p-1">

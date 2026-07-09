@@ -15,7 +15,6 @@ const SuperAdminDashboard = ({ setActivePage }) => {
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Super Admin</p>
           <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Company Verification Dashboard</h2>
-          <p className="mt-2 text-slate-500">Admins ki company registration requests yahan review aur verify hoti hain.</p>
         </div>
         <button onClick={() => setActivePage('companies')} className="rounded-2xl bg-[#00D6CC] px-5 py-3 font-bold text-white hover:opacity-90 transition">
           Review Companies

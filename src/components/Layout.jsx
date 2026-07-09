@@ -25,12 +25,9 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
     <div className="flex h-full flex-col text-white" style={{ backgroundColor: '#031E3C' }}>
       <div className="border-b border-white/10 p-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl text-[#031E3C]" style={{ backgroundColor: '#00D6CC' }}>
-            <Car size={24} />
-          </div>
+          <img src="/logo.png" alt="BIIPBIIP Logo" className="h-11 w-11 rounded-xl object-cover shadow-sm" />
           <div>
-            <h1 className="text-lg font-bold">Viamo</h1>
-            <p className="text-xs text-slate-400">Car Rental Panel</p>
+            <h1 className="text-lg font-bold">biip-biip</h1>
           </div>
         </div>
       </div>
@@ -122,7 +119,10 @@ const Layout = ({ activePage, setActivePage, children }) => {
               <button onClick={() => setOpen(true)} className="rounded-xl border border-slate-200 p-2 text-slate-700">
                 <Menu size={20} />
               </button>
-              <p className="font-bold text-slate-950">Viamo</p>
+              <div className="flex items-center gap-2">
+                <img src="/logo.png" alt="BIIPBIIP Logo" className="h-7 w-7 rounded-lg object-cover" />
+                <p className="font-bold text-slate-950">BIIPBIIP</p>
+              </div>
               <span className="w-9" />
             </div>
           </header>

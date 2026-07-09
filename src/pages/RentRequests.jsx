@@ -36,16 +36,14 @@ const RentRequests = () => {
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Admin</p>
           <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Rent Requests</h2>
-          <p className="mt-2 text-slate-500">User office par documents dega. Admin yahan upload karke verify/approve karega.</p>
         </div>
 
         {/* View Mode Toggle */}
         <div className="flex items-center gap-1 self-start rounded-2xl border border-slate-200 bg-white p-1">
           <button
             onClick={() => setViewMode('table')}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
-              viewMode === 'table' ? 'bg-[#00D6CC] text-white shadow-sm' : 'text-slate-600 hover:text-slate-950'
-            }`}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${viewMode === 'table' ? 'bg-[#00D6CC] text-white shadow-sm' : 'text-slate-600 hover:text-slate-950'
+              }`}
             title="Table View"
           >
             <Table size={16} />
@@ -53,9 +51,8 @@ const RentRequests = () => {
           </button>
           <button
             onClick={() => setViewMode('card')}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
-              viewMode === 'card' ? 'bg-[#00D6CC] text-white shadow-sm' : 'text-slate-600 hover:text-slate-950'
-            }`}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${viewMode === 'card' ? 'bg-[#00D6CC] text-white shadow-sm' : 'text-slate-600 hover:text-slate-950'
+              }`}
             title="Card View"
           >
             <LayoutGrid size={16} />
@@ -69,9 +66,8 @@ const RentRequests = () => {
           <button
             key={item}
             onClick={() => setFilter(item)}
-            className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${
-              filter === item ? 'bg-[#00D6CC] text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
-            }`}
+            className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${filter === item ? 'bg-[#00D6CC] text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
+              }`}
           >
             {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
           </button>
@@ -219,11 +215,10 @@ const RentRequests = () => {
                               )}
                               <button
                                 onClick={() => toggleExpand(request.id)}
-                                className={`flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                                  isExpanded
+                                className={`flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold transition ${isExpanded
                                     ? 'bg-slate-100 text-slate-800'
                                     : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:ring-slate-300'
-                                }`}
+                                  }`}
                               >
                                 <span>{isExpanded ? 'Hide Details' : 'Manage Docs'}</span>
                                 {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}

@@ -17,7 +17,6 @@ const CompanyVerification = () => {
       <div>
         <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Super Admin</p>
         <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Company Verification</h2>
-        <p className="mt-2 text-slate-500">Admin companies ke uploaded documents review karke verify ya reject karein.</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -25,9 +24,8 @@ const CompanyVerification = () => {
           <button
             key={item}
             onClick={() => setFilter(item)}
-            className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${
-              filter === item ? 'bg-[#00D6CC] text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
-            }`}
+            className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${filter === item ? 'bg-[#00D6CC] text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
+              }`}
           >
             {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
           </button>
