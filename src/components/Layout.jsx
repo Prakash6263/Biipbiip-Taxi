@@ -6,7 +6,7 @@ const navConfig = {
   super_admin: [
     { key: 'super-dashboard', label: 'Dashboard', icon: Home },
     { key: 'companies', label: 'Company Verification', icon: ShieldCheck },
-    { key: 'verification-requests', label: 'Car & Doc Verification', icon: ShieldCheck },
+    { key: 'verification-requests', label: 'Driver Verification', icon: ShieldCheck },
   ],
   admin: [
     { key: 'admin-dashboard', label: 'Dashboard', icon: Home },
@@ -36,7 +36,7 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
       <nav className="flex-1 space-y-1 p-4">
         {items.map((item) => {
           const Icon = item.icon;
-          const active = activePage === item.key;
+          const active = activePage === item.key || (item.key === 'verification-requests' && activePage === 'verification-detail');
           return (
             <button
               key={item.key}

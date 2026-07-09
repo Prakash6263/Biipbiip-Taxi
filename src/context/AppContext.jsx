@@ -4,7 +4,15 @@ import { loadState, saveState, uid } from '../utils/storage';
 
 const AppContext = createContext(null);
 
-const initialState = () => loadState() || seedState;
+const initialState = () => {
+  const loaded = loadState();
+  if (!loaded) return seedState;
+  return {
+    ...seedState,
+    ...loaded,
+    verificationRequests: loaded.verificationRequests || seedState.verificationRequests || [],
+  };
+};
 
 export const AppProvider = ({ children }) => {
   const [state, setState] = useState(initialState);
@@ -178,6 +186,24 @@ export const AppProvider = ({ children }) => {
     });
   };
 
+  const approveVerificationRequest = (requestId) => {
+    setState((prev) => ({
+      ...prev,
+      verificationRequests: (prev.verificationRequests || []).map((req) =>
+        req.id === requestId ? { ...req, status: 'verified', rejectionReason: '' } : req
+      ),
+    }));
+  };
+
+  const rejectVerificationRequest = (requestId, reason) => {
+    setState((prev) => ({
+      ...prev,
+      verificationRequests: (prev.verificationRequests || []).map((req) =>
+        req.id === requestId ? { ...req, status: 'rejected', rejectionReason: reason || 'Documents not clear.' } : req
+      ),
+    }));
+  };
+
   const resetDemoData = () => {
     setState(seedState);
     setCurrentUser(null);
@@ -201,6 +227,8 @@ export const AppProvider = ({ children }) => {
       approveRentalRequest,
       rejectRentalRequest,
       markReturned,
+      approveVerificationRequest,
+      rejectVerificationRequest,
       resetDemoData,
     }),
     [state, currentUser],

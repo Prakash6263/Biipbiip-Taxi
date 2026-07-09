@@ -9,10 +9,11 @@ import Login from './pages/Login';
 import RentRequests from './pages/RentRequests';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import VerificationRequests from './pages/VerificationRequests';
+import VerificationRequestDetail from './pages/VerificationRequestDetail';
 
 const allowedPages = {
   public: ['login'],
-  super_admin: ['super-dashboard', 'companies', 'verification-requests'],
+  super_admin: ['super-dashboard', 'companies', 'verification-requests', 'verification-detail'],
   admin: ['admin-dashboard', 'cars', 'requests', 'company-profile'],
 };
 
@@ -25,6 +26,7 @@ const defaultPage = {
 const App = () => {
   const { currentUser } = useApp();
   const [activePage, setActivePage] = useState(() => (currentUser ? defaultPage[currentUser.role] : 'login'));
+  const [selectedVerificationId, setSelectedVerificationId] = useState(null);
   const role = currentUser?.role || 'public';
 
   useEffect(() => {
@@ -42,7 +44,21 @@ const App = () => {
       case 'companies':
         return <CompanyVerification />;
       case 'verification-requests':
-        return <VerificationRequests />;
+        return (
+          <VerificationRequests
+            onShowDetail={(id) => {
+              setSelectedVerificationId(id);
+              setActivePage('verification-detail');
+            }}
+          />
+        );
+      case 'verification-detail':
+        return (
+          <VerificationRequestDetail
+            verificationId={selectedVerificationId}
+            setActivePage={setActivePage}
+          />
+        );
       case 'admin-dashboard':
         return <AdminDashboard setActivePage={setActivePage} />;
       case 'cars':
@@ -52,7 +68,7 @@ const App = () => {
       case 'company-profile':
         return <CompanyProfile />;
     }
-  }, [activePage]);
+  }, [activePage, selectedVerificationId]);
 
   return (
     <Layout activePage={activePage} setActivePage={setActivePage}>
