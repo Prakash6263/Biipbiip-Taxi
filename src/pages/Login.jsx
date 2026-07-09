@@ -61,8 +61,8 @@ const Login = ({ setActivePage }) => {
   };
 
   return (
-    <div className="grid min-h-[calc(100vh-4rem)] gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft sm:p-8">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
+      <section className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-5 shadow-soft sm:p-8">
         <div className="mb-6 flex rounded-2xl bg-slate-100 p-1">
           <button onClick={() => setMode('login')} className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold transition-all ${mode === 'login' ? 'bg-[#00D6CC] text-white shadow-sm' : 'text-slate-500'}`}>
             Login

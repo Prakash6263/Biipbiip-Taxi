@@ -8,23 +8,22 @@ import CompanyVerification from './pages/CompanyVerification';
 import Login from './pages/Login';
 import RentRequests from './pages/RentRequests';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
-import RequestCar from './pages/RequestCar';
 
 const allowedPages = {
-  public: ['request-car', 'login'],
+  public: ['login'],
   super_admin: ['super-dashboard', 'companies'],
   admin: ['admin-dashboard', 'cars', 'requests', 'company-profile'],
 };
 
 const defaultPage = {
-  public: 'request-car',
+  public: 'login',
   super_admin: 'super-dashboard',
   admin: 'admin-dashboard',
 };
 
 const App = () => {
   const { currentUser } = useApp();
-  const [activePage, setActivePage] = useState(() => (currentUser ? defaultPage[currentUser.role] : 'request-car'));
+  const [activePage, setActivePage] = useState(() => (currentUser ? defaultPage[currentUser.role] : 'login'));
   const role = currentUser?.role || 'public';
 
   useEffect(() => {
@@ -49,8 +48,6 @@ const App = () => {
         return <RentRequests />;
       case 'company-profile':
         return <CompanyProfile />;
-      case 'request-car':
-        return <RequestCar setActivePage={setActivePage} />;
     }
   }, [activePage]);
 
