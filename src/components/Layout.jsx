@@ -89,6 +89,10 @@ const Layout = ({ activePage, setActivePage, children }) => {
   const items = useMemo(() => navConfig[role] || navConfig.public, [role]);
   const showSidebar = !!currentUser;
 
+  if (!currentUser) {
+    return <div className="min-h-screen">{children}</div>;
+  }
+
   return (
     <div className="min-h-screen bg-white lg:flex">
       {showSidebar && (
