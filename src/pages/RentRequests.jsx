@@ -44,7 +44,7 @@ const RentRequests = () => {
           <button
             onClick={() => setViewMode('table')}
             className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
-              viewMode === 'table' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-600 hover:text-slate-950'
+              viewMode === 'table' ? 'bg-[#00D6CC] text-white shadow-sm' : 'text-slate-600 hover:text-slate-950'
             }`}
             title="Table View"
           >
@@ -54,7 +54,7 @@ const RentRequests = () => {
           <button
             onClick={() => setViewMode('card')}
             className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
-              viewMode === 'card' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-600 hover:text-slate-950'
+              viewMode === 'card' ? 'bg-[#00D6CC] text-white shadow-sm' : 'text-slate-600 hover:text-slate-950'
             }`}
             title="Card View"
           >
@@ -70,7 +70,7 @@ const RentRequests = () => {
             key={item}
             onClick={() => setFilter(item)}
             className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${
-              filter === item ? 'bg-slate-950 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
+              filter === item ? 'bg-[#00D6CC] text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
             }`}
           >
             {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
@@ -121,7 +121,7 @@ const RentRequests = () => {
                         onChange={(event) => setDocs({ ...docs, [request.id]: event.target.files })}
                         className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-950"
                       />
-                      <button onClick={() => uploadDocs(request.id)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">
+                      <button onClick={() => uploadDocs(request.id)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#00D6CC] px-5 py-3 text-sm font-bold text-white hover:opacity-90 transition">
                         <UploadCloud size={17} /> Upload
                       </button>
                     </div>
@@ -151,7 +151,7 @@ const RentRequests = () => {
                     <button
                       onClick={() => markReturned(request.id)}
                       disabled={request.status !== 'active'}
-                      className="rounded-2xl bg-slate-950 px-5 py-2.5 text-sm font-bold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                      className="rounded-2xl bg-[#00D6CC] px-5 py-2.5 text-sm font-bold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 transition"
                     >
                       Mark Returned
                     </button>
@@ -212,7 +212,7 @@ const RentRequests = () => {
                               {request.status === 'active' && (
                                 <button
                                   onClick={() => markReturned(request.id)}
-                                  className="rounded-xl bg-slate-950 px-3 py-1.5 text-xs font-bold text-white hover:bg-slate-800 transition"
+                                  className="rounded-xl bg-[#00D6CC] px-3 py-1.5 text-xs font-bold text-white hover:opacity-90 transition"
                                 >
                                   Mark Returned
                                 </button>
@@ -261,7 +261,7 @@ const RentRequests = () => {
                                     />
                                     <button
                                       onClick={() => uploadDocs(request.id)}
-                                      className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-950 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 transition"
+                                      className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#00D6CC] px-4 py-2 text-xs font-bold text-white hover:opacity-90 transition"
                                     >
                                       <UploadCloud size={14} /> Upload
                                     </button>
@@ -292,7 +292,7 @@ const RentRequests = () => {
                                   <button
                                     onClick={() => markReturned(request.id)}
                                     disabled={request.status !== 'active'}
-                                    className="rounded-xl bg-slate-950 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300 transition"
+                                    className="rounded-xl bg-[#00D6CC] px-4 py-2 text-xs font-bold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 transition"
                                   >
                                     Mark Returned
                                   </button>

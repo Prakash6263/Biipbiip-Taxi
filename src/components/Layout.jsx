@@ -48,7 +48,7 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
               }}
               className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${active ? '' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                 }`}
-              style={active ? { backgroundColor: '#00D6CC', color: '#031E3C' } : {}}
+              style={active ? { backgroundColor: '#00D6CC', color: '#ffffff' } : {}}
             >
               <Icon size={18} />
               {item.label}

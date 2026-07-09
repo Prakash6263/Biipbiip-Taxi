@@ -67,7 +67,7 @@ const CarManagement = () => {
         {company?.status === 'verified' && (showAddForm || viewingCarId) && (
           <button
             onClick={handleBackToCars}
-            className="flex items-center gap-2 self-start rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800 transition"
+            className="flex items-center gap-2 self-start rounded-2xl bg-[#00D6CC] px-5 py-3 text-sm font-bold text-white hover:opacity-90 transition"
           >
             <ArrowLeft size={16} />
             <span>Back to Cars</span>
@@ -76,7 +76,7 @@ const CarManagement = () => {
         {company?.status === 'verified' && !showAddForm && !viewingCarId && (
           <button
             onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 self-start rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800 transition"
+            className="flex items-center gap-2 self-start rounded-2xl bg-[#00D6CC] px-5 py-3 text-sm font-bold text-white hover:opacity-90 transition"
           >
             <Plus size={16} />
             <span>Add New Car</span>
@@ -161,7 +161,7 @@ const CarManagement = () => {
             </div>
           </div>
           <div className="flex gap-3 pt-2">
-            <button disabled={loading} className="rounded-2xl bg-slate-950 px-6 py-3 font-bold text-white hover:bg-slate-800 disabled:opacity-60 transition">
+            <button disabled={loading} className="rounded-2xl bg-[#00D6CC] px-6 py-3 font-bold text-white hover:opacity-90 disabled:opacity-60 disabled:bg-slate-300 disabled:text-slate-500 transition">
               {loading ? 'Adding...' : 'Add Car'}
             </button>
             <button

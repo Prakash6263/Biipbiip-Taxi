@@ -6,7 +6,7 @@ const StatCard = ({ title, value, icon: Icon, hint }) => (
         <p className="mt-2 text-3xl font-bold text-slate-950">{value}</p>
       </div>
       {Icon ? (
-        <div className="rounded-2xl bg-slate-900 p-3 text-white">
+        <div className="rounded-2xl bg-[#00D6CC] p-3 text-white">
           <Icon size={22} />
         </div>
       ) : null}
