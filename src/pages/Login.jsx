@@ -62,32 +62,12 @@ const Login = ({ setActivePage }) => {
 
   return (
     <div className="grid min-h-[calc(100vh-4rem)] gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-      <section className="rounded-3xl bg-slate-950 p-8 text-white shadow-soft lg:p-10">
-        <div className="inline-flex rounded-2xl bg-white/10 p-3">
-          <ShieldCheck size={34} />
-        </div>
-        <h2 className="mt-6 text-3xl font-bold tracking-tight sm:text-5xl">Super Admin aur Admin panel ready demo.</h2>
-        <p className="mt-4 max-w-2xl text-slate-300">
-          Is project mein company registration, document upload, super admin verification, car upload, user rent request, admin document verification aur car handover workflow included hai.
-        </p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl bg-white/10 p-4">
-            <p className="text-sm text-slate-400">Super Admin</p>
-            <p className="mt-1 font-semibold">super@rental.com / 123456</p>
-          </div>
-          <div className="rounded-2xl bg-white/10 p-4">
-            <p className="text-sm text-slate-400">Admin</p>
-            <p className="mt-1 font-semibold">admin@demo.com / 123456</p>
-          </div>
-        </div>
-      </section>
-
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft sm:p-8">
         <div className="mb-6 flex rounded-2xl bg-slate-100 p-1">
-          <button onClick={() => setMode('login')} className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold ${mode === 'login' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-500'}`}>
+          <button onClick={() => setMode('login')} className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold transition-all ${mode === 'login' ? 'bg-[#00D6CC] text-white shadow-sm' : 'text-slate-500'}`}>
             Login
           </button>
-          <button onClick={() => setMode('register')} className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold ${mode === 'register' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-500'}`}>
+          <button onClick={() => setMode('register')} className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold transition-all ${mode === 'register' ? 'bg-[#00D6CC] text-white shadow-sm' : 'text-slate-500'}`}>
             Register Company
           </button>
         </div>
@@ -119,7 +99,7 @@ const Login = ({ setActivePage }) => {
               <label className="text-sm font-semibold text-slate-700">Password</label>
               <input type="password" value={loginForm.password} onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })} className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950" required />
             </div>
-            <button className="w-full rounded-2xl bg-slate-950 px-5 py-3 font-bold text-white hover:bg-slate-800">Login</button>
+            <button className="w-full rounded-2xl bg-[#00D6CC] px-5 py-3 font-bold text-white hover:opacity-90 transition">Login</button>
           </form>
         ) : (
           <form onSubmit={submitRegister} className="space-y-4">
@@ -162,7 +142,7 @@ const Login = ({ setActivePage }) => {
               <label className="text-sm font-semibold text-slate-700">Address</label>
               <textarea value={registerForm.address} onChange={(event) => setRegisterForm({ ...registerForm, address: event.target.value })} className="mt-2 min-h-24 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950" required />
             </div>
-            <button disabled={loading} className="w-full rounded-2xl bg-slate-950 px-5 py-3 font-bold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
+            <button disabled={loading} className="w-full rounded-2xl bg-[#00D6CC] px-5 py-3 font-bold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 transition">
               {loading ? 'Registering...' : 'Register Company'}
             </button>
           </form>
