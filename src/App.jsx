@@ -8,6 +8,7 @@ import CompanyVerification from './pages/CompanyVerification';
 import Login from './pages/Login';
 import RentRequests from './pages/RentRequests';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import RequestCar from './pages/RequestCar';
 
 const allowedPages = {
   public: ['request-car', 'login'],
@@ -49,6 +50,7 @@ const App = () => {
       case 'company-profile':
         return <CompanyProfile />;
       case 'request-car':
+        return <RequestCar setActivePage={setActivePage} />;
     }
   }, [activePage]);
 
