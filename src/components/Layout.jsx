@@ -22,10 +22,10 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
   const { currentUser, logout, resetDemoData } = useApp();
 
   return (
-    <div className="flex h-full flex-col bg-slate-950 text-white">
+    <div className="flex h-full flex-col text-white" style={{ backgroundColor: '#031E3C' }}>
       <div className="border-b border-white/10 p-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-slate-950">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl text-[#031E3C]" style={{ backgroundColor: '#00D6CC' }}>
             <Car size={24} />
           </div>
           <div>
@@ -46,8 +46,9 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
                 setActivePage(item.key);
                 closeMobile?.();
               }}
-              className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${active ? 'bg-white text-slate-950' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+              className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${active ? '' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                 }`}
+              style={active ? { backgroundColor: '#00D6CC', color: '#031E3C' } : {}}
             >
               <Icon size={18} />
               {item.label}
@@ -89,7 +90,7 @@ const Layout = ({ activePage, setActivePage, children }) => {
   const showSidebar = !!currentUser;
 
   return (
-    <div className="min-h-screen bg-slate-50 lg:flex">
+    <div className="min-h-screen bg-white lg:flex">
       {showSidebar && (
         <aside className="hidden w-72 shrink-0 lg:block">
           <div className="fixed inset-y-0 w-72">
@@ -112,7 +113,7 @@ const Layout = ({ activePage, setActivePage, children }) => {
 
       <main className="min-w-0 flex-1">
         {showSidebar && (
-          <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur lg:hidden">
+          <header className="sticky top-0 z-30 border-b bg-white/90 backdrop-blur lg:hidden" style={{ borderBottomColor: '#00D6CC', borderBottomWidth: '2px' }}>
             <div className="flex items-center justify-between px-4 py-3">
               <button onClick={() => setOpen(true)} className="rounded-xl border border-slate-200 p-2 text-slate-700">
                 <Menu size={20} />
