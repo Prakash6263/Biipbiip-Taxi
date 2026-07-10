@@ -26,10 +26,7 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
     <div className="flex h-full flex-col text-white" style={{ backgroundColor: '#031E3C' }}>
       <div className="border-b border-white/10 p-5">
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="BIIPBIIP Logo" className="h-11 w-11 rounded-xl object-cover shadow-sm" />
-          <div>
-            <h1 className="text-lg font-bold">biip-biip</h1>
-          </div>
+          <img src="/logo.png" alt="BIIPBIIP Logo" className="h-8 w-25 rounded-xl object-cover shadow-sm" />
         </div>
       </div>
 
