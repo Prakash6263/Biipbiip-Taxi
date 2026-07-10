@@ -26,9 +26,6 @@ const AdminDashboard = ({ setActivePage }) => {
           <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Welcome, {currentUser?.name}</h2>
           <p className="mt-2 text-slate-500">Company status: <Badge status={company?.status || 'pending'} /></p>
         </div>
-        <button onClick={() => setActivePage('cars')} disabled={company?.status !== 'verified'} className="rounded-2xl bg-[#00D6CC] px-5 py-3 font-bold text-white hover:opacity-90 transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500">
-          Add New Car
-        </button>
       </div>
 
       {company?.status !== 'verified' ? (
