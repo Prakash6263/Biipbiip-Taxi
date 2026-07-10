@@ -88,18 +88,102 @@ const VerificationRequestDetail = ({ verificationId, setActivePage }) => {
             </div>
           </div>
 
-          {/* ID Proof Document Card */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-4">
+          {/* Submitted Documents Card */}
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-6">
             <h3 className="text-base font-bold text-slate-950 border-b border-slate-100 pb-3">
-              Submitted ID Proof
+              Submitted Documents
             </h3>
-            {req.document ? (
-              <div className="rounded-2xl border border-slate-100 p-2 bg-slate-50/50">
-                <FilePreview files={[req.document]} />
+            
+            <div className="grid gap-4 sm:grid-cols-3">
+              {/* National ID */}
+              <div className="flex flex-col justify-between rounded-2xl border border-slate-100 p-4 bg-slate-50/50 hover:border-slate-200 transition space-y-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="rounded-xl bg-sky-50 p-2 text-sky-600">
+                      <User size={18} />
+                    </div>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">National ID</span>
+                  </div>
+                  
+                  {req.nationalId?.front || req.nationalId?.back ? (
+                    <div className="space-y-4">
+                      {req.nationalId.front && (
+                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Front Side</span>
+                          <p className="text-sm font-semibold text-slate-850 truncate">{req.nationalId.front.name}</p>
+                          <FilePreview files={[req.nationalId.front]} />
+                        </div>
+                      )}
+                      {req.nationalId.back && (
+                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Back Side</span>
+                          <p className="text-sm font-semibold text-slate-850 truncate">{req.nationalId.back.name}</p>
+                          <FilePreview files={[req.nationalId.back]} />
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400 italic">Not Uploaded</p>
+                  )}
+                </div>
               </div>
-            ) : (
-              <p className="text-sm text-slate-500 italic">No document uploaded</p>
-            )}
+
+              {/* Driver License */}
+              <div className="flex flex-col justify-between rounded-2xl border border-slate-100 p-4 bg-slate-50/50 hover:border-slate-200 transition space-y-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="rounded-xl bg-emerald-50 p-2 text-emerald-600">
+                      <ShieldAlert size={18} />
+                    </div>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Driver License</span>
+                  </div>
+                  
+                  {req.driverLicense?.front || req.driverLicense?.back || req.document ? (
+                    <div className="space-y-4">
+                      {(req.driverLicense?.front || req.document) && (
+                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Front Side</span>
+                          <p className="text-sm font-semibold text-slate-850 truncate">{(req.driverLicense?.front || req.document).name}</p>
+                          <FilePreview files={[req.driverLicense?.front || req.document]} />
+                        </div>
+                      )}
+                      {req.driverLicense?.back && (
+                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Back Side</span>
+                          <p className="text-sm font-semibold text-slate-850 truncate">{req.driverLicense.back.name}</p>
+                          <FilePreview files={[req.driverLicense.back]} />
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400 italic">Not Uploaded</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Vehicle Registration */}
+              <div className="flex flex-col justify-between rounded-2xl border border-slate-100 p-4 bg-slate-50/50 hover:border-slate-200 transition space-y-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="rounded-xl bg-violet-50 p-2 text-violet-600">
+                      <Car size={18} />
+                    </div>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Vehicle Registration</span>
+                  </div>
+                  {req.vehicleRegistration ? (
+                    <div className="space-y-4">
+                      <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Registration / Ownership Doc</span>
+                        <p className="text-sm font-semibold text-slate-850 truncate">{req.vehicleRegistration.name}</p>
+                        <FilePreview files={[req.vehicleRegistration]} />
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400 italic">Not Uploaded</p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Car Specifications Details */}

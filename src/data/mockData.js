@@ -131,9 +131,61 @@ export const seedState = {
         url: '',
         uploadedAt: new Date(Date.now() - 86400000).toISOString(),
       },
+      nationalId: {
+        front: {
+          name: 'national_id_front.pdf',
+          type: 'application/pdf',
+          size: 115000,
+          url: '',
+          uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+        },
+        back: {
+          name: 'national_id_back.pdf',
+          type: 'application/pdf',
+          size: 108000,
+          url: '',
+          uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+        }
+      },
+      driverLicense: {
+        front: {
+          name: 'driver_license_front.pdf',
+          type: 'application/pdf',
+          size: 92000,
+          url: '',
+          uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+        },
+        back: {
+          name: 'driver_license_back.pdf',
+          type: 'application/pdf',
+          size: 89000,
+          url: '',
+          uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+        }
+      },
+      vehicleRegistration: {
+        name: 'vehicle_registration.pdf',
+        type: 'application/pdf',
+        size: 105000,
+        url: '',
+        uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+      },
       carName: 'Mahindra Thar',
       registrationNo: 'DL3CA1234',
-      carImages: [],
+      carImages: [
+        {
+          url: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800',
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=800',
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=800',
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=800',
+        }
+      ],
       status: 'pending',
       rejectionReason: '',
       createdAt: new Date(Date.now() - 86400000).toISOString(),
