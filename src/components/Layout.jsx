@@ -117,9 +117,8 @@ const Layout = ({ activePage, setActivePage, children }) => {
               <button onClick={() => setOpen(true)} className="rounded-xl border border-slate-200 p-2 text-slate-700">
                 <Menu size={20} />
               </button>
-              <div className="flex items-center gap-2">
-                <img src="/logo.png" alt="BIIPBIIP Logo" className="h-7 w-7 rounded-lg object-cover" />
-                <p className="font-bold text-slate-950">BIIPBIIP</p>
+              <div className="flex items-center gap-2 bg-[#031E3C] px-3 py-1 rounded-xl shadow-sm">
+                <img src="/logo.png" alt="BIIPBIIP Logo" className="h-6 object-contain" />
               </div>
               <span className="w-9" />
             </div>
