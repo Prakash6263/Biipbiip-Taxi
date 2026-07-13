@@ -206,7 +206,7 @@ const Login = ({ setActivePage }) => {
         {/* Right Side: Form Inputs */}
         <div className="w-full md:w-1/2 p-4 sm:p-5 flex flex-col justify-center">
           <div className="mb-2 flex flex-col items-center text-center">
-            <img src="/logo.png" alt="BIIPBIIP Logo" className="h-10 w-10 mb-1.5 rounded-2xl object-cover shadow-lg" />
+            <img src="/logo.png" alt="BIIPBIIP Logo" className="h-10 w-25 mb-1.5 rounded-2xl object-cover shadow-lg" />
           </div>
 
           <div className="mb-3 flex rounded-2xl bg-slate-100 p-1">
