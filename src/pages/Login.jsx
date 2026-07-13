@@ -63,23 +63,23 @@ const Login = ({ setActivePage }) => {
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-10 bg-[#031E3C] overflow-hidden">
       <style>{`
-        @keyframes driveLeftToRight {
+        @keyframes driveRightToLeft {
           0% {
-            transform: translateX(-420px);
+            transform: translateX(100vw);
           }
           100% {
-            transform: translateX(100vw);
+            transform: translateX(-420px);
           }
         }
         .animate-drive-car {
-          animation: driveLeftToRight 16s linear infinite;
+          animation: driveRightToLeft 16s linear infinite;
         }
         @keyframes spinWheel {
           0% {
             transform: rotate(0deg);
           }
           100% {
-            transform: rotate(360deg);
+            transform: rotate(-360deg);
           }
         }
         .animate-spin-wheel {
@@ -106,77 +106,89 @@ const Login = ({ setActivePage }) => {
       <div className="absolute bottom-16 left-0 right-0 h-[2px] bg-slate-700/20 w-full pointer-events-none"></div>
 
       {/* Moving Car */}
-      <div className="absolute bottom-[26px] left-0 pointer-events-none z-0 w-[300px] sm:w-[380px] opacity-40 animate-drive-car filter drop-shadow-[0_4px_20px_rgba(0,214,204,0.45)]">
+      <div className="absolute bottom-[60px] left-0 pointer-events-none z-0 w-[300px] sm:w-[380px] opacity-40 animate-drive-car filter drop-shadow-[0_4px_20px_rgba(0,214,204,0.45)]">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 100" className="w-full h-auto">
           <defs>
-            <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#00A8A0" />
-              <stop offset="50%" stopColor="#00D6CC" />
-              <stop offset="100%" stopColor="#00F3E8" />
+            <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#00D6CC" />
+              <stop offset="100%" stopColor="#00D6CC" />
             </linearGradient>
             <linearGradient id="windowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#1E293B" />
-              <stop offset="100%" stopColor="#0F172A" />
+              <stop offset="0%" stopColor="#E0F2FE" />
+              <stop offset="100%" stopColor="#7DD3FC" />
             </linearGradient>
-            <linearGradient id="wheelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#475569" />
-              <stop offset="100%" stopColor="#0F172A" />
+            <linearGradient id="beamGrad" x1="100%" y1="50%" x2="0%" y2="50%">
+              <stop offset="0%" stopColor="#FFF275" stopOpacity="0.85" />
+              <stop offset="30%" stopColor="#FFF275" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#FFF275" stopOpacity="0" />
             </linearGradient>
           </defs>
 
           {/* Shadow under the car */}
-          <ellipse cx="120" cy="85" rx="98" ry="5" fill="rgba(0,0,0,0.5)" />
+          <ellipse cx="120" cy="85" rx="98" ry="4" fill="rgba(0,0,0,0.4)" />
 
           {/* Car chassis with suspension bounce */}
           <g className="animate-car-suspension">
-            {/* Main chassis and cabin */}
-            <path d="M15,65 L18,50 Q22,38 45,35 L75,35 Q90,15 135,15 L180,15 Q210,30 220,48 L228,52 Q235,55 235,65 L230,78 C228,82 220,82 215,82 L195,82 A18,18 0 0,0 161,82 L80,82 A18,18 0 0,0 46,82 L25,82 C20,82 15,80 15,65 Z" fill="url(#bodyGrad)" />
+            {/* Main red body chassis */}
+            <path d="M 24,78 C 12,78 10,64 16,56 L 28,48 C 32,45 42,43 74,42 L 105,16 L 195,16 Q 206,16 216,36 L 225,62 C 228,68 228,78 214,78 L 198,78 A 21,21 0 0,0 156,78 L 84,78 A 21,21 0 0,0 42,78 Z" fill="url(#bodyGrad)" stroke="#1A1A1A" strokeWidth="2.5" strokeLinejoin="round" />
 
-            {/* Taxi Sign on top */}
-            <path d="M120,15 L140,15 L135,5 L125,5 Z" fill="#FFC107" />
-            <rect x="126" y="8" width="8" height="4" fill="#000" />
-            <text x="128" y="13" fontSize="5" fontWeight="bold" fill="#000" fontFamily="sans-serif">TAXI</text>
+            {/* Wheel Arch Fenders */}
+            <path d="M 38,78 A 25,25 0 0,1 88,78" fill="none" stroke="#1A1A1A" strokeWidth="1.5" />
+            <path d="M 152,78 A 25,25 0 0,1 202,78" fill="none" stroke="#1A1A1A" strokeWidth="1.5" />
+
+            {/* Taxi Sign */}
+            <g transform="translate(132, 5)">
+              <path d="M5,11 L25,11 L21,3 L9,3 Z" fill="#FFB300" stroke="#1A1A1A" strokeWidth="1.8" strokeLinejoin="round" />
+              <text x="15" y="9.5" fontSize="6" fontWeight="900" fill="#000" fontFamily="system-ui, sans-serif" textAnchor="middle">TAXI</text>
+            </g>
 
             {/* Windows */}
-            <path d="M80,38 L130,38 L130,20 L95,20 Z" fill="url(#windowGrad)" opacity="0.9" />
-            <path d="M136,38 L175,38 Q188,38 194,30 L176,20 L136,20 Z" fill="url(#windowGrad)" opacity="0.9" />
+            <path d="M 83,40 L 107,20 L 148,20 L 148,40 Z" fill="url(#windowGrad)" stroke="#1A1A1A" strokeWidth="2" strokeLinejoin="round" />
+            <path d="M 153,40 L 153,20 L 192,20 Q 200,20 205,32 L 208,40 Z" fill="url(#windowGrad)" stroke="#1A1A1A" strokeWidth="2" strokeLinejoin="round" />
 
-            {/* Window divider lines */}
-            <line x1="133" y1="20" x2="133" y2="38" stroke="#00D6CC" strokeWidth="1.5" opacity="0.7" />
+            {/* Window Glass Gloss Highlights */}
+            <path d="M 88,38 L 108,22 L 125,22 C 110,30 95,36 88,38 Z" fill="#FFFFFF" opacity="0.6" />
+            <path d="M 156,22 L 180,22 C 170,30 162,35 156,38 Z" fill="#FFFFFF" opacity="0.6" />
 
-            {/* Door handles */}
-            <rect x="100" y="48" width="10" height="2" rx="1" fill="#1E293B" />
-            <rect x="150" y="48" width="10" height="2" rx="1" fill="#1E293B" />
+            {/* Door Handle */}
+            <rect x="130" y="47" width="12" height="4" rx="2" fill="#E2E8F0" stroke="#1A1A1A" strokeWidth="1.5" />
 
-            {/* Front Headlight */}
-            <path d="M228,52 Q234,55 228,62 Z" fill="#FFF" />
-            {/* Glowing Light Beam */}
-            <polygon points="231,54 280,45 280,75 231,61" fill="rgba(0, 243, 232, 0.15)" filter="blur(2px)" />
+            {/* Side Mirror */}
+            <path d="M 75,41 Q 72,36 68,36 Q 64,36 67,42 Z" fill="#FF3B30" stroke="#1A1A1A" strokeWidth="1.5" />
 
-            {/* Taillight on the left (back) */}
-            <path d="M15,54 Q12,56 15,60 Z" fill="#FF3B30" />
+            {/* Front Headlight (Oval) */}
+            <ellipse cx="20" cy="54" rx="4" ry="7" transform="rotate(-15, 20, 54)" fill="#E0F2FE" stroke="#1A1A1A" strokeWidth="2" />
+            <ellipse cx="19" cy="52" rx="1.5" ry="3" transform="rotate(-15, 19, 52)" fill="#FFF" />
+
+            {/* Glowing Headlight Beam */}
+            <polygon points="18,54 -120,25 -120,95 18,58" fill="url(#beamGrad)" opacity="0.35" style={{ mixBlendMode: 'screen' }} />
+
+            {/* Taillight */}
+            <path d="M 221,48 C 224,48 225,52 223,55 C 221,58 218,58 218,55 Z" fill="#FF8A80" stroke="#1A1A1A" strokeWidth="1.5" />
+            <path d="M 221,49 C 222,49 223,51 222,53 Z" fill="#FFF" />
+
+            {/* Side Indicator */}
+            <rect x="35" y="52" width="6" height="3" rx="1.5" fill="#FF9100" stroke="#1A1A1A" strokeWidth="1.2" />
           </g>
 
-          {/* Wheels - Front Wheel (centered at 178, 80) */}
-          <g className="animate-spin-wheel" style={{ transformOrigin: '178px 80px' }}>
-            <circle cx="178" cy="80" r="16" fill="url(#wheelGrad)" stroke="#00D6CC" strokeWidth="2.5" />
-            <circle cx="178" cy="80" r="6" fill="#E2E8F0" />
-            {/* Rims / Spokes */}
-            <line x1="178" y1="64" x2="178" y2="96" stroke="#00D6CC" strokeWidth="2" />
-            <line x1="162" y1="80" x2="194" y2="80" stroke="#00D6CC" strokeWidth="2" />
-            <line x1="167" y1="69" x2="189" y2="91" stroke="#E2E8F0" strokeWidth="1.5" opacity="0.8" />
-            <line x1="167" y1="91" x2="189" y2="69" stroke="#E2E8F0" strokeWidth="1.5" opacity="0.8" />
+          {/* Wheels - Front Wheel (centered at 177, 78) */}
+          <g className="animate-spin-wheel" style={{ transformOrigin: '177px 78px' }}>
+            <circle cx="177" cy="78" r="18" fill="#1A1A1A" />
+            <circle cx="177" cy="78" r="12.5" fill="#E2E8F0" stroke="#1A1A1A" strokeWidth="2" />
+            {/* Spokes */}
+            <path d="M 177,60 L 177,96 M 159,78 L 195,78 M 164,65 L 190,91 M 164,91 L 190,65" stroke="#1A1A1A" strokeWidth="2.5" />
+            <circle cx="177" cy="78" r="5" fill="#94A3B8" stroke="#1A1A1A" strokeWidth="1.5" />
+            <circle cx="177" cy="78" r="2" fill="#FFF" />
           </g>
 
-          {/* Wheels - Back Wheel (centered at 63, 80) */}
-          <g className="animate-spin-wheel" style={{ transformOrigin: '63px 80px' }}>
-            <circle cx="63" cy="80" r="16" fill="url(#wheelGrad)" stroke="#00D6CC" strokeWidth="2.5" />
-            <circle cx="63" cy="80" r="6" fill="#E2E8F0" />
-            {/* Rims / Spokes */}
-            <line x1="63" y1="64" x2="63" y2="96" stroke="#00D6CC" strokeWidth="2" />
-            <line x1="47" y1="80" x2="79" y2="80" stroke="#00D6CC" strokeWidth="2" />
-            <line x1="52" y1="69" x2="74" y2="91" stroke="#E2E8F0" strokeWidth="1.5" opacity="0.8" />
-            <line x1="52" y1="91" x2="74" y2="69" stroke="#E2E8F0" strokeWidth="1.5" opacity="0.8" />
+          {/* Wheels - Back Wheel (centered at 63, 78) */}
+          <g className="animate-spin-wheel" style={{ transformOrigin: '63px 78px' }}>
+            <circle cx="63" cy="78" r="18" fill="#1A1A1A" />
+            <circle cx="63" cy="78" r="12.5" fill="#E2E8F0" stroke="#1A1A1A" strokeWidth="2" />
+            {/* Spokes */}
+            <path d="M 63,60 L 63,96 M 45,78 L 81,78 M 50,65 L 76,91 M 50,91 L 76,65" stroke="#1A1A1A" strokeWidth="2.5" />
+            <circle cx="63" cy="78" r="5" fill="#94A3B8" stroke="#1A1A1A" strokeWidth="1.5" />
+            <circle cx="63" cy="78" r="2" fill="#FFF" />
           </g>
         </svg>
       </div>
