@@ -183,11 +183,11 @@ const Login = ({ setActivePage }) => {
 
       <section className="relative z-10 flex w-full max-w-2xl overflow-hidden rounded-3xl border border-slate-100 bg-white/98 backdrop-blur-sm shadow-2xl">
         {/* Left Side: Image */}
-        <div className="hidden md:flex md:w-1/2 items-center justify-center bg-slate-50 border-r border-slate-100 p-3">
+        <div className="hidden md:flex md:w-1/2 bg-slate-50 border-r border-slate-100 overflow-hidden items-center justify-center p-4">
           <img
             src="/login-banner.png"
             alt="Book Fast Taxi Login Banner"
-            className="max-h-[240px] object-contain rounded-2xl transition-transform hover:scale-102 duration-300"
+            className="w-full h-auto max-h-full object-contain transition-transform hover:scale-102 duration-300"
           />
         </div>
 
