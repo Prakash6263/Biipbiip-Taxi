@@ -10,10 +10,12 @@ import RentRequests from './pages/RentRequests';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import VerificationRequests from './pages/VerificationRequests';
 import VerificationRequestDetail from './pages/VerificationRequestDetail';
+import CompanyList from './pages/CompanyList';
+import DriverList from './pages/DriverList';
 
 const allowedPages = {
   public: ['login'],
-  super_admin: ['super-dashboard', 'companies', 'verification-requests', 'verification-detail'],
+  super_admin: ['super-dashboard', 'companies', 'companies-list', 'companies-verification', 'drivers-list', 'drivers-verification', 'verification-requests', 'verification-detail'],
   admin: ['admin-dashboard', 'cars', 'requests', 'company-profile'],
 };
 
@@ -41,8 +43,14 @@ const App = () => {
         return <Login setActivePage={setActivePage} />;
       case 'super-dashboard':
         return <SuperAdminDashboard setActivePage={setActivePage} />;
+      case 'companies-list':
+        return <CompanyList />;
+      case 'companies-verification':
       case 'companies':
         return <CompanyVerification />;
+      case 'drivers-list':
+        return <DriverList />;
+      case 'drivers-verification':
       case 'verification-requests':
         return (
           <VerificationRequests

@@ -1,12 +1,28 @@
-import { Building2, Car, ClipboardList, Home, LogOut, Menu, RefreshCcw, ShieldCheck, UserPlus, X } from 'lucide-react';
+import { Building2, Car, ClipboardList, Home, LogOut, Menu, RefreshCcw, ShieldCheck, UserPlus, X, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 
 const navConfig = {
   super_admin: [
     { key: 'super-dashboard', label: 'Dashboard', icon: Home },
-    { key: 'companies', label: 'Company Verification', icon: ShieldCheck },
-    { key: 'verification-requests', label: 'Driver Verification', icon: ShieldCheck },
+    {
+      key: 'company-group',
+      label: 'Company',
+      icon: Building2,
+      submenu: [
+        { key: 'companies-list', label: 'Company' },
+        { key: 'companies-verification', label: 'Document and verification' },
+      ],
+    },
+    {
+      key: 'driver-group',
+      label: 'Driver',
+      icon: Users,
+      submenu: [
+        { key: 'drivers-list', label: 'Users' },
+        { key: 'drivers-verification', label: 'Document and verification' },
+      ],
+    },
   ],
   admin: [
     { key: 'admin-dashboard', label: 'Dashboard', icon: Home },
@@ -21,6 +37,11 @@ const navConfig = {
 
 const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
   const { currentUser, logout, resetDemoData } = useApp();
+  const [expanded, setExpanded] = useState({});
+
+  const toggleGroup = (key) => {
+    setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
     <div className="flex h-full flex-col text-white" style={{ backgroundColor: '#031E3C' }}>
@@ -30,8 +51,54 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 space-y-1.5 p-4 overflow-y-auto">
         {items.map((item) => {
+          if (item.submenu) {
+            const Icon = item.icon;
+            const hasActiveSub = item.submenu.some(
+              (sub) => activePage === sub.key || (sub.key === 'drivers-verification' && activePage === 'verification-detail')
+            );
+            const isOpen = expanded[item.key] ?? hasActiveSub;
+
+            return (
+              <div key={item.key} className="space-y-1">
+                <button
+                  onClick={() => toggleGroup(item.key)}
+                  className="flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-semibold transition text-slate-300 hover:bg-white/10 hover:text-white"
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon size={18} />
+                    {item.label}
+                  </div>
+                  {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+
+                {isOpen && (
+                  <div className="pl-4 space-y-1 border-l border-white/10 ml-6">
+                    {item.submenu.map((sub) => {
+                      const subActive = activePage === sub.key || (sub.key === 'drivers-verification' && activePage === 'verification-detail');
+                      return (
+                        <button
+                          key={sub.key}
+                          onClick={() => {
+                            setActivePage(sub.key);
+                            closeMobile?.();
+                          }}
+                          className={`flex w-full items-center gap-3 rounded-xl px-4 py-2 text-left text-xs font-semibold transition ${
+                            subActive ? '' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                          }`}
+                          style={subActive ? { backgroundColor: '#00D6CC', color: '#ffffff' } : {}}
+                        >
+                          {sub.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
           const Icon = item.icon;
           const active = activePage === item.key || (item.key === 'verification-requests' && activePage === 'verification-detail');
           return (

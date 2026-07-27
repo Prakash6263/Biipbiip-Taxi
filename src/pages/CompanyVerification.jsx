@@ -4,13 +4,25 @@ import EmptyState from '../components/EmptyState';
 import FilePreview from '../components/FilePreview';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils/storage';
+import { Search } from 'lucide-react';
 
 const CompanyVerification = () => {
   const { state, verifyCompany, rejectCompany } = useApp();
   const [reason, setReason] = useState({});
   const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
 
-  const companies = state.companies.filter((company) => (filter === 'all' ? true : company.status === filter));
+  const companies = state.companies.filter((company) => {
+    const matchesSearch =
+      company.companyName.toLowerCase().includes(search.toLowerCase()) ||
+      company.ownerName.toLowerCase().includes(search.toLowerCase()) ||
+      company.email.toLowerCase().includes(search.toLowerCase()) ||
+      (company.gstNumber && company.gstNumber.toLowerCase().includes(search.toLowerCase()));
+
+    const matchesFilter = filter === 'all' ? true : company.status === filter;
+
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="space-y-6">
@@ -19,17 +31,30 @@ const CompanyVerification = () => {
         <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Company Verification</h2>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {['all', 'pending', 'verified', 'rejected'].map((item) => (
-          <button
-            key={item}
-            onClick={() => setFilter(item)}
-            className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${filter === item ? 'bg-[#00D6CC] text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
-              }`}
-          >
-            {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
-          </button>
-        ))}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-2">
+          {['all', 'pending', 'verified', 'rejected'].map((item) => (
+            <button
+              key={item}
+              onClick={() => setFilter(item)}
+              className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${filter === item ? 'bg-[#00D6CC] text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
+                }`}
+            >
+              {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative w-full max-w-xs">
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search documents..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] focus:ring-1 focus:ring-[#00D6CC] transition"
+          />
+        </div>
       </div>
 
       {companies.length ? (
