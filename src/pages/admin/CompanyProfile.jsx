@@ -1,7 +1,7 @@
-import Badge from '../components/Badge';
-import FilePreview from '../components/FilePreview';
-import { useApp } from '../context/AppContext';
-import { formatDate } from '../utils/storage';
+import Badge from '../../components/Badge';
+import FilePreview from '../../components/FilePreview';
+import { useApp } from '../../context/AppContext';
+import { formatDate } from '../../utils/storage';
 
 const CompanyProfile = () => {
   const { state, currentUser } = useApp();

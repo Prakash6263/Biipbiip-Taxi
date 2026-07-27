@@ -1,9 +1,9 @@
 import { Car, ClipboardCheck, Clock3, IndianRupee } from 'lucide-react';
-import Badge from '../components/Badge';
-import EmptyState from '../components/EmptyState';
-import StatCard from '../components/StatCard';
-import { useApp } from '../context/AppContext';
-import { currency, formatDate } from '../utils/storage';
+import Badge from '../../components/Badge';
+import EmptyState from '../../components/EmptyState';
+import StatCard from '../../components/StatCard';
+import { useApp } from '../../context/AppContext';
+import { currency, formatDate } from '../../utils/storage';
 
 const AdminDashboard = ({ setActivePage }) => {
   const { state, currentUser } = useApp();

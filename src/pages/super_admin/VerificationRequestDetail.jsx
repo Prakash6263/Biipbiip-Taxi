@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import Badge from '../components/Badge';
-import FilePreview from '../components/FilePreview';
-import { useApp } from '../context/AppContext';
-import { formatDate } from '../utils/storage';
+import Badge from '../../components/Badge';
+import FilePreview from '../../components/FilePreview';
+import { useApp } from '../../context/AppContext';
+import { formatDate } from '../../utils/storage';
 import { User, Car, Phone, Mail, ArrowLeft, ShieldAlert } from 'lucide-react';
 
 const VerificationRequestDetail = ({ verificationId, setActivePage }) => {

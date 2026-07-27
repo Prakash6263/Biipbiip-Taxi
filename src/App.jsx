@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import Layout from './components/Layout';
 import { useApp } from './context/AppContext';
-import AdminDashboard from './pages/AdminDashboard';
-import CarManagement from './pages/CarManagement';
-import CompanyProfile from './pages/CompanyProfile';
-import CompanyVerification from './pages/CompanyVerification';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import CarManagement from './pages/admin/CarManagement';
+import CompanyProfile from './pages/admin/CompanyProfile';
+import CompanyVerification from './pages/super_admin/CompanyVerification';
 import Login from './pages/Login';
-import RentRequests from './pages/RentRequests';
-import SuperAdminDashboard from './pages/SuperAdminDashboard';
-import VerificationRequests from './pages/VerificationRequests';
-import VerificationRequestDetail from './pages/VerificationRequestDetail';
-import CompanyList from './pages/CompanyList';
-import DriverList from './pages/DriverList';
+import RentRequests from './pages/admin/RentRequests';
+import SuperAdminDashboard from './pages/super_admin/SuperAdminDashboard';
+import VerificationRequests from './pages/super_admin/VerificationRequests';
+import VerificationRequestDetail from './pages/super_admin/VerificationRequestDetail';
+import CompanyList from './pages/super_admin/CompanyList';
+import DriverList from './pages/super_admin/DriverList';
 
 const allowedPages = {
   public: ['login'],

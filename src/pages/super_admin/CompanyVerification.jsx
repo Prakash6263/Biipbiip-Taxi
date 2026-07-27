@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import Badge from '../components/Badge';
-import EmptyState from '../components/EmptyState';
-import FilePreview from '../components/FilePreview';
-import { useApp } from '../context/AppContext';
-import { formatDate } from '../utils/storage';
+import Badge from '../../components/Badge';
+import EmptyState from '../../components/EmptyState';
+import FilePreview from '../../components/FilePreview';
+import { useApp } from '../../context/AppContext';
+import { formatDate } from '../../utils/storage';
 import { Search } from 'lucide-react';
 
 const CompanyVerification = () => {

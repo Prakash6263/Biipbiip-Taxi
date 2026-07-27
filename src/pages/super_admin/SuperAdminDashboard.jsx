@@ -1,8 +1,8 @@
 import { Building2, Car, CheckCircle2, Clock3 } from 'lucide-react';
-import Badge from '../components/Badge';
-import StatCard from '../components/StatCard';
-import { useApp } from '../context/AppContext';
-import { formatDate } from '../utils/storage';
+import Badge from '../../components/Badge';
+import StatCard from '../../components/StatCard';
+import { useApp } from '../../context/AppContext';
+import { formatDate } from '../../utils/storage';
 
 const SuperAdminDashboard = ({ setActivePage }) => {
   const { state } = useApp();

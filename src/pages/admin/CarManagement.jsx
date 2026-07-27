@@ -1,9 +1,9 @@
 import { ImagePlus, Trash2, Plus, ArrowLeft, Eye } from 'lucide-react';
 import { useState } from 'react';
-import Badge from '../components/Badge';
-import EmptyState from '../components/EmptyState';
-import { useApp } from '../context/AppContext';
-import { currency, readFileAsDataUrl } from '../utils/storage';
+import Badge from '../../components/Badge';
+import EmptyState from '../../components/EmptyState';
+import { useApp } from '../../context/AppContext';
+import { currency, readFileAsDataUrl } from '../../utils/storage';
 
 const defaultForm = {
   name: '',

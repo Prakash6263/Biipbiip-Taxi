@@ -1,10 +1,10 @@
 import { Fragment, useState } from 'react';
 import { UploadCloud, ChevronDown, ChevronUp } from 'lucide-react';
-import Badge from '../components/Badge';
-import EmptyState from '../components/EmptyState';
-import FilePreview from '../components/FilePreview';
-import { useApp } from '../context/AppContext';
-import { currency, formatDate, readFileAsDataUrl } from '../utils/storage';
+import Badge from '../../components/Badge';
+import EmptyState from '../../components/EmptyState';
+import FilePreview from '../../components/FilePreview';
+import { useApp } from '../../context/AppContext';
+import { currency, formatDate, readFileAsDataUrl } from '../../utils/storage';
 
 const RentRequests = () => {
   const { state, currentUser, uploadUserDocuments, approveRentalRequest, rejectRentalRequest, markReturned } = useApp();
