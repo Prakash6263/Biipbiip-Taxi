@@ -9,6 +9,7 @@ import CompanyProfile from './pages/admin/CompanyProfile';
 import RentRequests from './pages/admin/RentRequests';
 import CompanyList from './pages/super_admin/CompanyList';
 import CompanyVerification from './pages/super_admin/CompanyVerification';
+import CompanyVerificationDetail from './pages/super_admin/CompanyVerificationDetail';
 import DriverList from './pages/super_admin/DriverList';
 import SuperAdminDashboard from './pages/super_admin/SuperAdminDashboard';
 import VerificationRequestDetail from './pages/super_admin/VerificationRequestDetail';
@@ -37,6 +38,7 @@ const ROLE_CONFIG = {
       'companies',
       'companies-list',
       'companies-verification',
+      'company-verification-detail',
       'drivers-list',
       'drivers-verification',
       'verification-requests',
@@ -64,6 +66,9 @@ const App = () => {
   const [selectedVerificationId, setSelectedVerificationId] =
     useState(null);
 
+  const [selectedCompanyId, setSelectedCompanyId] =
+    useState(null);
+
   useEffect(() => {
     const hasAccess = roleConfig.allowedPages.includes(activePage);
 
@@ -76,6 +81,14 @@ const App = () => {
     (verificationId) => {
       setSelectedVerificationId(verificationId);
       setActivePage('verification-detail');
+    },
+    []
+  );
+
+  const handleShowCompanyDetail = useCallback(
+    (companyId) => {
+      setSelectedCompanyId(companyId);
+      setActivePage('company-verification-detail');
     },
     []
   );
@@ -98,9 +111,23 @@ const App = () => {
       'super-dashboard': (
         <SuperAdminDashboard setActivePage={setActivePage} />
       ),
-      companies: <CompanyVerification />,
+      companies: (
+        <CompanyVerification
+          onShowDetail={handleShowCompanyDetail}
+        />
+      ),
       'companies-list': <CompanyList />,
-      'companies-verification': <CompanyVerification />,
+      'companies-verification': (
+        <CompanyVerification
+          onShowDetail={handleShowCompanyDetail}
+        />
+      ),
+      'company-verification-detail': (
+        <CompanyVerificationDetail
+          companyId={selectedCompanyId}
+          setActivePage={setActivePage}
+        />
+      ),
       'drivers-list': <DriverList />,
       'drivers-verification': (
         <VerificationRequests
@@ -124,8 +151,10 @@ const App = () => {
   }, [
     activePage,
     handleShowVerificationDetail,
+    handleShowCompanyDetail,
     roleConfig.defaultPage,
     selectedVerificationId,
+    selectedCompanyId,
   ]);
 
   return (

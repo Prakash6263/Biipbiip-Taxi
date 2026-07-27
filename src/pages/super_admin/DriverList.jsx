@@ -35,11 +35,10 @@ const DriverList = () => {
             <button
               key={item}
               onClick={() => setFilter(item)}
-              className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${
-                filter === item
+              className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${filter === item
                   ? 'bg-[#00D6CC] text-white shadow-sm'
                   : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
-              }`}
+                }`}
             >
               {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
             </button>
@@ -64,7 +63,7 @@ const DriverList = () => {
             <table className="w-full min-w-[900px] border-collapse text-left text-sm text-slate-500">
               <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
                 <tr>
-                  <th scope="col" className="px-6 py-4 font-bold">User / Driver</th>
+                  <th scope="col" className="px-6 py-4 font-bold">Driver</th>
                   <th scope="col" className="px-6 py-4 font-bold">Contact Info</th>
                   <th scope="col" className="px-6 py-4 font-bold">Car Details</th>
                   <th scope="col" className="px-6 py-4 font-bold">Status</th>

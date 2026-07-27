@@ -56,7 +56,10 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
           if (item.submenu) {
             const Icon = item.icon;
             const hasActiveSub = item.submenu.some(
-              (sub) => activePage === sub.key || (sub.key === 'drivers-verification' && activePage === 'verification-detail')
+              (sub) =>
+                activePage === sub.key ||
+                (sub.key === 'drivers-verification' && activePage === 'verification-detail') ||
+                (sub.key === 'companies-verification' && activePage === 'company-verification-detail')
             );
             const isOpen = expanded[item.key] ?? hasActiveSub;
 
@@ -76,7 +79,10 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
                 {isOpen && (
                   <div className="pl-4 space-y-1 border-l border-white/10 ml-6">
                     {item.submenu.map((sub) => {
-                      const subActive = activePage === sub.key || (sub.key === 'drivers-verification' && activePage === 'verification-detail');
+                      const subActive =
+                        activePage === sub.key ||
+                        (sub.key === 'drivers-verification' && activePage === 'verification-detail') ||
+                        (sub.key === 'companies-verification' && activePage === 'company-verification-detail');
                       return (
                         <button
                           key={sub.key}

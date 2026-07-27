@@ -65,7 +65,7 @@ const VerificationRequests = ({ onShowDetail }) => {
             <table className="w-full min-w-[700px] text-left text-sm">
               <thead className="border-b border-slate-200 bg-slate-50/50 text-xs font-bold uppercase tracking-wider text-slate-700">
                 <tr>
-                  <th className="px-6 py-4">User / Driver</th>
+                  <th className="px-6 py-4"> Driver</th>
                   <th className="px-6 py-4">Car Details</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4">Date</th>
