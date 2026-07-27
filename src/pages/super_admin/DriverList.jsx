@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
 import { Search, User, Car, Phone, Mail } from 'lucide-react';
 
-const DriverList = () => {
+const DriverList = ({ onShowDetail }) => {
   const { state } = useApp();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
@@ -68,6 +68,7 @@ const DriverList = () => {
                   <th scope="col" className="px-6 py-4 font-bold">Car Details</th>
                   <th scope="col" className="px-6 py-4 font-bold">Status</th>
                   <th scope="col" className="px-6 py-4 font-bold">Registered</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -112,6 +113,14 @@ const DriverList = () => {
                     </td>
                     <td className="px-6 py-4 text-xs text-slate-500">
                       {formatDate(req.createdAt)}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => onShowDetail?.(req.id)}
+                        className="rounded-xl bg-[#00D6CC] text-white hover:opacity-90 px-4 py-2 text-xs font-bold transition shadow-sm"
+                      >
+                        Show Details
+                      </button>
                     </td>
                   </tr>
                 ))}

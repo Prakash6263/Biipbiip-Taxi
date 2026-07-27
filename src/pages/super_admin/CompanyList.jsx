@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
 import { Search, Building2, MapPin, Phone, Mail } from 'lucide-react';
 
-const CompanyList = () => {
+const CompanyList = ({ onShowDetail }) => {
   const { state } = useApp();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
@@ -68,6 +68,7 @@ const CompanyList = () => {
                   <th scope="col" className="px-6 py-4 font-bold">Contact & Address</th>
                   <th scope="col" className="px-6 py-4 font-bold">GST Number</th>
                   <th scope="col" className="px-6 py-4 font-bold">Status</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -112,6 +113,14 @@ const CompanyList = () => {
                     </td>
                     <td className="px-6 py-4">
                       <Badge status={company.status} />
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => onShowDetail?.(company.id)}
+                        className="rounded-xl bg-[#00D6CC] text-white hover:opacity-90 px-4 py-2 text-xs font-bold transition shadow-sm"
+                      >
+                        Show Details
+                      </button>
                     </td>
                   </tr>
                 ))}

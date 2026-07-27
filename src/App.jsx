@@ -116,7 +116,11 @@ const App = () => {
           onShowDetail={handleShowCompanyDetail}
         />
       ),
-      'companies-list': <CompanyList />,
+      'companies-list': (
+        <CompanyList
+          onShowDetail={handleShowCompanyDetail}
+        />
+      ),
       'companies-verification': (
         <CompanyVerification
           onShowDetail={handleShowCompanyDetail}
@@ -128,7 +132,11 @@ const App = () => {
           setActivePage={setActivePage}
         />
       ),
-      'drivers-list': <DriverList />,
+      'drivers-list': (
+        <DriverList
+          onShowDetail={handleShowVerificationDetail}
+        />
+      ),
       'drivers-verification': (
         <VerificationRequests
           onShowDetail={handleShowVerificationDetail}
