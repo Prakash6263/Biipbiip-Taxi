@@ -10,8 +10,8 @@ const navConfig = {
       label: 'Company',
       icon: Building2,
       submenu: [
-        { key: 'companies-list', label: 'Company' },
-        { key: 'companies-verification', label: 'Document and verification' },
+        { key: 'companies-list', label: 'Companies' },
+        { key: 'companies-verification', label: 'Document & Verification' },
       ],
     },
     {
@@ -19,8 +19,8 @@ const navConfig = {
       label: 'Driver',
       icon: Users,
       submenu: [
-        { key: 'drivers-list', label: 'Users' },
-        { key: 'drivers-verification', label: 'Document and verification' },
+        { key: 'drivers-list', label: 'Drivers' },
+        { key: 'drivers-verification', label: 'Document & Verification' },
       ],
     },
   ],
