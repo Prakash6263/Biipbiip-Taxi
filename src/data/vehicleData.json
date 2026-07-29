@@ -1,0 +1,173 @@
+{
+  "brandModels": {
+    "Maruti": [
+      "Alto",
+      "Swift",
+      "Dzire",
+      "Baleno",
+      "Brezza",
+      "Ertiga",
+      "Wagon R",
+      "Celerio",
+      "Ignis",
+      "XL6",
+      "Jimny",
+      "Grand Vitara"
+    ],
+    "Hyundai": [
+      "i10",
+      "i20",
+      "Venue",
+      "Creta",
+      "Alcazar",
+      "Tucson",
+      "Verna",
+      "Aura",
+      "Exter",
+      "Ioniq 5"
+    ],
+    "Tata": [
+      "Tiago",
+      "Altroz",
+      "Nexon",
+      "Punch",
+      "Harrier",
+      "Safari",
+      "Tigor",
+      "Curvv"
+    ],
+    "Mahindra": [
+      "Thar",
+      "Scorpio",
+      "Scorpio N",
+      "XUV300",
+      "XUV400",
+      "XUV700",
+      "Bolero",
+      "BE 6"
+    ],
+    "Honda": [
+      "Amaze",
+      "City",
+      "City Hybrid",
+      "Elevate",
+      "Jazz",
+      "WR-V"
+    ],
+    "Toyota": [
+      "Glanza",
+      "Urban Cruiser",
+      "Hyryder",
+      "Innova Crysta",
+      "Innova HyCross",
+      "Fortuner",
+      "Camry"
+    ],
+    "Kia": [
+      "Sonet",
+      "Seltos",
+      "Carens",
+      "EV6",
+      "EV9"
+    ],
+    "Renault": [
+      "Kwid",
+      "Triber",
+      "Kiger"
+    ],
+    "Nissan": [
+      "Magnite"
+    ],
+    "Skoda": [
+      "Slavia",
+      "Kushaq",
+      "Superb",
+      "Kodiaq",
+      "Octavia"
+    ],
+    "Volkswagen": [
+      "Polo",
+      "Vento",
+      "Taigun",
+      "Tiguan",
+      "Virtus"
+    ],
+    "MG": [
+      "Hector",
+      "Hector Plus",
+      "Astor",
+      "ZS EV",
+      "Comet EV",
+      "Gloster"
+    ],
+    "Ford": [
+      "EcoSport",
+      "Figo",
+      "Freestyle",
+      "Endeavour"
+    ],
+    "Jeep": [
+      "Compass",
+      "Meridian",
+      "Wrangler"
+    ],
+    "BMW": [
+      "3 Series",
+      "5 Series",
+      "7 Series",
+      "X1",
+      "X3",
+      "X5",
+      "X7",
+      "M3",
+      "M5"
+    ],
+    "Mercedes": [
+      "A-Class",
+      "C-Class",
+      "E-Class",
+      "S-Class",
+      "GLA",
+      "GLC",
+      "GLE",
+      "GLS"
+    ],
+    "Audi": [
+      "A3",
+      "A4",
+      "A6",
+      "Q3",
+      "Q5",
+      "Q7",
+      "Q8",
+      "e-tron"
+    ],
+    "Other": [
+      "Other"
+    ]
+  },
+  "carColors": [
+    "Pearl White",
+    "Solid White",
+    "Polar White",
+    "Metallic Silver",
+    "Graphite Grey",
+    "Midnight Grey",
+    "Jet Black",
+    "Phantom Black",
+    "Fire Red",
+    "Crimson Red",
+    "Cayenne Orange",
+    "Royal Blue",
+    "Cobalt Blue",
+    "Starry Night Blue",
+    "Forest Green",
+    "Turquoise",
+    "Mint Green",
+    "Burgundy",
+    "Bronze",
+    "Sand Beige",
+    "Champagne Gold",
+    "Other"
+  ]
+}

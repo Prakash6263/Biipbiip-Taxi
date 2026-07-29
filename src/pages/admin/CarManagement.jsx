@@ -4,6 +4,12 @@ import Badge from '../../components/Badge';
 import EmptyState from '../../components/EmptyState';
 import { useApp } from '../../context/AppContext';
 import { currency, readFileAsDataUrl } from '../../utils/storage';
+import vehicleData from '../../data/vehicleData.json';
+
+/* ── Vehicle data (from vehicleData.json) ───────────────────────── */
+const BRAND_MODELS = vehicleData.brandModels;
+const VEHICLE_BRANDS = Object.keys(BRAND_MODELS);
+const CAR_COLORS = vehicleData.carColors;
 
 const defaultForm = {
   name: '',
@@ -258,22 +264,31 @@ const CarManagement = () => {
                 />
               </FormField>
               <FormField label="Vehicle Brand">
-                <input
+                <select
                   value={form.brand}
-                  onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                  onChange={(e) => setForm({ ...form, brand: e.target.value, model: '' })}
                   className={inputCls}
-                  placeholder="e.g. Honda"
                   required
-                />
+                >
+                  <option value="">— Select Brand —</option>
+                  {VEHICLE_BRANDS.map((b) => (
+                    <option key={b} value={b}>{b}</option>
+                  ))}
+                </select>
               </FormField>
               <FormField label="Vehicle Model">
-                <input
+                <select
                   value={form.model}
                   onChange={(e) => setForm({ ...form, model: e.target.value })}
                   className={inputCls}
-                  placeholder="e.g. City ZX"
                   required
-                />
+                  disabled={!form.brand}
+                >
+                  <option value="">{form.brand ? '— Select Model —' : '— Select Brand first —'}</option>
+                  {(BRAND_MODELS[form.brand] || []).map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
               </FormField>
               <FormField label="Manufacturing Year">
                 <input
@@ -287,13 +302,17 @@ const CarManagement = () => {
                 />
               </FormField>
               <FormField label="Color">
-                <input
+                <select
                   value={form.color}
                   onChange={(e) => setForm({ ...form, color: e.target.value })}
                   className={inputCls}
-                  placeholder="e.g. Pearl White"
                   required
-                />
+                >
+                  <option value="">— Select Color —</option>
+                  {CAR_COLORS.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
               </FormField>
               <FormField label="VIN Number">
                 <input
