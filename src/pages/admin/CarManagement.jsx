@@ -1,5 +1,5 @@
-import { ImagePlus, Trash2, Plus, ArrowLeft, Eye } from 'lucide-react';
-import { useState } from 'react';
+import { ImagePlus, Trash2, Plus, ArrowLeft, Eye, X, FileText, CheckCircle } from 'lucide-react';
+import { useState, useRef } from 'react';
 import Badge from '../../components/Badge';
 import EmptyState from '../../components/EmptyState';
 import { useApp } from '../../context/AppContext';
@@ -14,8 +14,12 @@ const defaultForm = {
   fuelType: 'Petrol',
   transmission: 'Manual',
   seats: 5,
+  doors: 4,
   pricePerDay: '',
   mileage: '',
+  color: '',
+  vinNumber: '',
+  ac: true,
   description: '',
 };
 
@@ -23,16 +27,95 @@ const CarManagement = () => {
   const { state, currentUser, addCar, updateCarStatus, deleteCar } = useApp();
   const company = state.companies.find((item) => item.id === currentUser?.companyId);
   const cars = state.cars.filter((car) => car.companyId === company?.id);
+
   const [form, setForm] = useState(defaultForm);
-  const [imageFile, setImageFile] = useState(null);
+  // Multiple vehicle photos (up to 6)
+  const [photoFiles, setPhotoFiles] = useState([]); // array of File
+  const [photoPreviews, setPhotoPreviews] = useState([]); // array of data URLs
+  // Document uploads
+  const [insuranceFile, setInsuranceFile] = useState(null);
+  const [regCardFile, setRegCardFile] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [viewingCarId, setViewingCarId] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
+  const photoInputRef = useRef(null);
+
   const selectedCar = cars.find((car) => car.id === viewingCarId);
   const carToDelete = cars.find((car) => car.id === deleteConfirmId);
 
+  /* ── Photo helpers ───────────────────────────────────────────────── */
+  const handlePhotoAdd = async (files) => {
+    const remaining = 6 - photoFiles.length;
+    const toAdd = Array.from(files).slice(0, remaining);
+    if (!toAdd.length) return;
+
+    const previews = await Promise.all(
+      toAdd.map(
+        (f) =>
+          new Promise((res) => {
+            const reader = new FileReader();
+            reader.onload = (e) => res(e.target.result);
+            reader.readAsDataURL(f);
+          }),
+      ),
+    );
+
+    setPhotoFiles((prev) => [...prev, ...toAdd]);
+    setPhotoPreviews((prev) => [...prev, ...previews]);
+  };
+
+  const removePhoto = (index) => {
+    setPhotoFiles((prev) => prev.filter((_, i) => i !== index));
+    setPhotoPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  /* ── Submit ──────────────────────────────────────────────────────── */
+  const submitCar = async (event) => {
+    event.preventDefault();
+    if (company?.status !== 'verified') return;
+    setLoading(true);
+
+    // Upload all photos
+    const uploadedPhotos = await Promise.all(
+      photoFiles.map((f) => readFileAsDataUrl(f).then((r) => r?.url || '')),
+    );
+
+    // Upload documents
+    const insuranceUrl = insuranceFile
+      ? (await readFileAsDataUrl(insuranceFile))?.url || ''
+      : '';
+    const regCardUrl = regCardFile
+      ? (await readFileAsDataUrl(regCardFile))?.url || ''
+      : '';
+
+    addCar({
+      ...form,
+      companyId: company.id,
+      year: Number(form.year),
+      seats: Number(form.seats),
+      doors: Number(form.doors),
+      pricePerDay: Number(form.pricePerDay),
+      // First photo is the "main" image for backward compat
+      image: uploadedPhotos[0] || '',
+      photos: uploadedPhotos,
+      insuranceInvoice: insuranceUrl,
+      registrationCardImage: regCardUrl,
+    });
+
+    setForm(defaultForm);
+    setPhotoFiles([]);
+    setPhotoPreviews([]);
+    setInsuranceFile(null);
+    setRegCardFile(null);
+    event.target.reset();
+    setLoading(false);
+    setShowAddForm(false);
+  };
+
+  /* ── Delete ──────────────────────────────────────────────────────── */
   const handleDeleteConfirm = () => {
     if (deleteConfirmId) {
       deleteCar(deleteConfirmId);
@@ -41,34 +124,15 @@ const CarManagement = () => {
     }
   };
 
-  const submitCar = async (event) => {
-    event.preventDefault();
-    if (company?.status !== 'verified') return;
-    setLoading(true);
-    const uploadedImage = imageFile ? await readFileAsDataUrl(imageFile) : null;
-    addCar({
-      ...form,
-      companyId: company.id,
-      year: Number(form.year),
-      seats: Number(form.seats),
-      pricePerDay: Number(form.pricePerDay),
-      image: uploadedImage?.url || '',
-    });
-    setForm(defaultForm);
-    setImageFile(null);
-    event.target.reset();
-    setLoading(false);
-    setShowAddForm(false); // Go back to table view after adding
-  };
-
   const handleBackToCars = () => {
     setShowAddForm(false);
     setViewingCarId(null);
   };
 
+  /* ── Render ──────────────────────────────────────────────────────── */
   return (
     <div className="space-y-8">
-      {/* Header section with Dynamic Action Button */}
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Admin</p>
@@ -94,84 +158,288 @@ const CarManagement = () => {
         )}
       </div>
 
+      {/* ── Not verified ─────────────────────────────────────────────── */}
       {company?.status !== 'verified' ? (
         <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-amber-900">
           <h3 className="font-bold">Company verified nahi hai</h3>
           <p className="mt-1 text-sm">Super Admin verification ke baad hi cars add karna allowed hai.</p>
         </div>
+
+      /* ── Add New Car Form ──────────────────────────────────────────── */
       ) : showAddForm ? (
-        /* ADD NEW CAR FORM VIEW */
-        <form onSubmit={submitCar} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-6">
+        <form onSubmit={submitCar} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-8">
           <div className="border-b border-slate-100 pb-4">
             <h3 className="text-xl font-bold text-slate-950">Add New Car Details</h3>
             <p className="text-sm text-slate-500 mt-1">Car details aur specification enter karein.</p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <label className="text-sm font-semibold text-slate-700">Car Name</label>
-              <input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition" required />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-slate-700">Brand</label>
-              <input value={form.brand} onChange={(event) => setForm({ ...form, brand: event.target.value })} className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition" required />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-slate-700">Model</label>
-              <input value={form.model} onChange={(event) => setForm({ ...form, model: event.target.value })} className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition" required />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-slate-700">Year</label>
-              <input type="number" value={form.year} onChange={(event) => setForm({ ...form, year: event.target.value })} className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition" required />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-slate-700">Registration No.</label>
-              <input value={form.registrationNo} onChange={(event) => setForm({ ...form, registrationNo: event.target.value.toUpperCase() })} className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition" required />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-slate-700">Fuel Type</label>
-              <select value={form.fuelType} onChange={(event) => setForm({ ...form, fuelType: event.target.value })} className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition">
-                <option>Petrol</option>
-                <option>Diesel</option>
-                <option>CNG</option>
-                <option>Electric</option>
-                <option>Hybrid</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-slate-700">Transmission</label>
-              <select value={form.transmission} onChange={(event) => setForm({ ...form, transmission: event.target.value })} className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition">
-                <option>Manual</option>
-                <option>Automatic</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-slate-700">Seats</label>
-              <input type="number" min="2" value={form.seats} onChange={(event) => setForm({ ...form, seats: event.target.value })} className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition" required />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-slate-700">Price / Day</label>
-              <input type="number" min="1" value={form.pricePerDay} onChange={(event) => setForm({ ...form, pricePerDay: event.target.value })} className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition" required />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-slate-700">Mileage</label>
-              <input value={form.mileage} onChange={(event) => setForm({ ...form, mileage: event.target.value })} className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition" placeholder="18 km/l" />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="text-sm font-semibold text-slate-700">Car Image</label>
-              <label className="mt-2 flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500 hover:border-slate-950 hover:bg-slate-50 transition">
-                <ImagePlus size={18} />
-                <span className="truncate">{imageFile?.name || 'Upload image'}</span>
-                <input type="file" accept="image/*" onChange={(event) => setImageFile(event.target.files?.[0])} className="hidden" />
+          {/* ── Vehicle Photos (up to 6) ─────────────────────────────── */}
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-bold text-slate-700">
+                Vehicle Photos <span className="text-slate-400 font-normal">(up to 6)</span>
               </label>
+              {photoFiles.length < 6 && (
+                <button
+                  type="button"
+                  onClick={() => photoInputRef.current?.click()}
+                  className="flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-200 transition"
+                >
+                  <ImagePlus size={13} /> Add Photo
+                </button>
+              )}
             </div>
-            <div className="sm:col-span-2 lg:col-span-4">
-              <label className="text-sm font-semibold text-slate-700">Description</label>
-              <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} className="mt-2 min-h-24 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition" />
+
+            {/* Hidden file input */}
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => handlePhotoAdd(e.target.files)}
+            />
+
+            {/* Photo grid */}
+            {photoPreviews.length > 0 ? (
+              <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+                {photoPreviews.map((src, idx) => (
+                  <div key={idx} className="relative group aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
+                    <img src={src} alt={`Photo ${idx + 1}`} className="h-full w-full object-cover" />
+                    {idx === 0 && (
+                      <span className="absolute bottom-1 left-1 rounded-md bg-[#00D6CC] px-1.5 py-0.5 text-[9px] font-bold text-white uppercase tracking-wide">
+                        Main
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(idx)}
+                      className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-rose-600 text-white opacity-0 group-hover:opacity-100 transition"
+                    >
+                      <X size={11} />
+                    </button>
+                  </div>
+                ))}
+                {photoFiles.length < 6 && (
+                  <button
+                    type="button"
+                    onClick={() => photoInputRef.current?.click()}
+                    className="aspect-square rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center gap-1 text-slate-400 hover:border-[#00D6CC] hover:text-[#00D6CC] transition"
+                  >
+                    <ImagePlus size={20} />
+                    <span className="text-[10px] font-semibold">Add</span>
+                  </button>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 py-10 text-slate-400 hover:border-[#00D6CC] hover:text-[#00D6CC] transition"
+              >
+                <ImagePlus size={32} />
+                <p className="text-sm font-semibold">Click to add vehicle photos</p>
+                <p className="text-xs">PNG, JPG, WEBP • Max 6 photos</p>
+              </button>
+            )}
+          </section>
+
+          {/* ── Basic Info ──────────────────────────────────────────── */}
+          <section className="space-y-4">
+            <SectionHeading>Basic Information</SectionHeading>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <FormField label="Car Name">
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className={inputCls}
+                  placeholder="e.g. Honda City ZX"
+                  required
+                />
+              </FormField>
+              <FormField label="Vehicle Brand">
+                <input
+                  value={form.brand}
+                  onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                  className={inputCls}
+                  placeholder="e.g. Honda"
+                  required
+                />
+              </FormField>
+              <FormField label="Vehicle Model">
+                <input
+                  value={form.model}
+                  onChange={(e) => setForm({ ...form, model: e.target.value })}
+                  className={inputCls}
+                  placeholder="e.g. City ZX"
+                  required
+                />
+              </FormField>
+              <FormField label="Manufacturing Year">
+                <input
+                  type="number"
+                  min="1990"
+                  max={new Date().getFullYear() + 1}
+                  value={form.year}
+                  onChange={(e) => setForm({ ...form, year: e.target.value })}
+                  className={inputCls}
+                  required
+                />
+              </FormField>
+              <FormField label="Color">
+                <input
+                  value={form.color}
+                  onChange={(e) => setForm({ ...form, color: e.target.value })}
+                  className={inputCls}
+                  placeholder="e.g. Pearl White"
+                  required
+                />
+              </FormField>
+              <FormField label="VIN Number">
+                <input
+                  value={form.vinNumber}
+                  onChange={(e) => setForm({ ...form, vinNumber: e.target.value.toUpperCase() })}
+                  className={inputCls}
+                  placeholder="17-char VIN"
+                  maxLength={17}
+                />
+              </FormField>
+              <FormField label="Registration No.">
+                <input
+                  value={form.registrationNo}
+                  onChange={(e) => setForm({ ...form, registrationNo: e.target.value.toUpperCase() })}
+                  className={inputCls}
+                  placeholder="e.g. MH01AB1234"
+                  required
+                />
+              </FormField>
+              <FormField label="Per Day Charge (₹)">
+                <input
+                  type="number"
+                  min="1"
+                  value={form.pricePerDay}
+                  onChange={(e) => setForm({ ...form, pricePerDay: e.target.value })}
+                  className={inputCls}
+                  placeholder="e.g. 2000"
+                  required
+                />
+              </FormField>
             </div>
-          </div>
+          </section>
+
+          {/* ── Specifications ──────────────────────────────────────── */}
+          <section className="space-y-4">
+            <SectionHeading>Specifications</SectionHeading>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <FormField label="Fuel Type">
+                <select
+                  value={form.fuelType}
+                  onChange={(e) => setForm({ ...form, fuelType: e.target.value })}
+                  className={inputCls}
+                >
+                  <option>Petrol</option>
+                  <option>Diesel</option>
+                  <option>CNG</option>
+                  <option>Electric</option>
+                  <option>Hybrid</option>
+                </select>
+              </FormField>
+              <FormField label="Transmission">
+                <select
+                  value={form.transmission}
+                  onChange={(e) => setForm({ ...form, transmission: e.target.value })}
+                  className={inputCls}
+                >
+                  <option>Manual</option>
+                  <option>Automatic</option>
+                </select>
+              </FormField>
+              <FormField label="No. of Seats">
+                <input
+                  type="number"
+                  min="2"
+                  max="14"
+                  value={form.seats}
+                  onChange={(e) => setForm({ ...form, seats: e.target.value })}
+                  className={inputCls}
+                  required
+                />
+              </FormField>
+              <FormField label="No. of Doors">
+                <input
+                  type="number"
+                  min="2"
+                  max="6"
+                  value={form.doors}
+                  onChange={(e) => setForm({ ...form, doors: e.target.value })}
+                  className={inputCls}
+                  required
+                />
+              </FormField>
+              <FormField label="Mileage">
+                <input
+                  value={form.mileage}
+                  onChange={(e) => setForm({ ...form, mileage: e.target.value })}
+                  className={inputCls}
+                  placeholder="e.g. 18 km/l"
+                />
+              </FormField>
+
+              {/* AC Toggle */}
+              <FormField label="Air Conditioning">
+                <div className="mt-2 flex gap-3">
+                  <ToggleChip
+                    active={form.ac === true}
+                    onClick={() => setForm({ ...form, ac: true })}
+                    label="AC"
+                  />
+                  <ToggleChip
+                    active={form.ac === false}
+                    onClick={() => setForm({ ...form, ac: false })}
+                    label="Non-AC"
+                  />
+                </div>
+              </FormField>
+            </div>
+          </section>
+
+          {/* ── Documents ───────────────────────────────────────────── */}
+          <section className="space-y-4">
+            <SectionHeading>Documents</SectionHeading>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FileUploadField
+                label="Insurance Invoice"
+                file={insuranceFile}
+                accept="image/*,.pdf"
+                onChange={(f) => setInsuranceFile(f)}
+                hint="PDF or Image"
+              />
+              <FileUploadField
+                label="Registration Card Image"
+                file={regCardFile}
+                accept="image/*,.pdf"
+                onChange={(f) => setRegCardFile(f)}
+                hint="PDF or Image"
+              />
+            </div>
+          </section>
+
+          {/* ── Description ─────────────────────────────────────────── */}
+          <section className="space-y-3">
+            <SectionHeading>Description</SectionHeading>
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className={`${inputCls} min-h-24 resize-none`}
+              placeholder="Enter a brief description about this vehicle..."
+            />
+          </section>
+
           <div className="flex gap-3 pt-2">
-            <button disabled={loading} className="rounded-2xl bg-[#00D6CC] px-6 py-3 font-bold text-white hover:opacity-90 disabled:opacity-60 disabled:bg-slate-300 disabled:text-slate-500 transition">
+            <button
+              disabled={loading}
+              className="rounded-2xl bg-[#00D6CC] px-6 py-3 font-bold text-white hover:opacity-90 disabled:opacity-60 disabled:bg-slate-300 disabled:text-slate-500 transition"
+            >
               {loading ? 'Adding...' : 'Add Car'}
             </button>
             <button
@@ -183,18 +451,22 @@ const CarManagement = () => {
             </button>
           </div>
         </form>
+
+      /* ── Single Car Detail View ─────────────────────────────────────── */
       ) : viewingCarId && selectedCar ? (
-        /* SINGLE CAR DETAIL VIEW (NEW PAGE VIEW) */
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-6">
+          {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4 gap-4">
             <div>
               <h3 className="text-2xl font-bold text-slate-950">{selectedCar.name}</h3>
-              <p className="text-sm text-slate-500 mt-1">{selectedCar.brand} • {selectedCar.model} • {selectedCar.year}</p>
+              <p className="text-sm text-slate-500 mt-1">
+                {selectedCar.brand} • {selectedCar.model} • {selectedCar.year}
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <select
                 value={selectedCar.status}
-                onChange={(event) => updateCarStatus(selectedCar.id, event.target.value)}
+                onChange={(e) => updateCarStatus(selectedCar.id, e.target.value)}
                 className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold outline-none focus:border-slate-950 cursor-pointer"
               >
                 <option value="available">Available</option>
@@ -209,48 +481,89 @@ const CarManagement = () => {
             </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-[1.5fr_2fr]">
-            {/* Left: Car Image */}
-            <div className="h-72 w-full overflow-hidden rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center">
-              {selectedCar.image ? (
-                <img src={selectedCar.image} alt={selectedCar.name} className="h-full w-full object-cover" />
-              ) : (
-                <div className="text-center text-slate-400">
-                  <ImagePlus size={48} className="mx-auto" />
-                  <p className="mt-2 text-sm font-semibold">No Image Available</p>
+          {/* Photos gallery */}
+          {(selectedCar.photos?.length > 0 || selectedCar.image) && (
+            <div className="space-y-3">
+              {/* Main photo */}
+              <div className="h-64 w-full overflow-hidden rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center">
+                <img
+                  src={selectedCar.photos?.[0] || selectedCar.image}
+                  alt={selectedCar.name}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              {/* Thumbnail strip */}
+              {selectedCar.photos?.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {selectedCar.photos.map((src, i) => (
+                    <div
+                      key={i}
+                      className="h-16 w-20 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100"
+                    >
+                      <img src={src} alt={`Photo ${i + 1}`} className="h-full w-full object-cover" />
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
+          )}
+          {!selectedCar.photos?.length && !selectedCar.image && (
+            <div className="h-48 rounded-2xl bg-slate-100 border border-slate-200 flex flex-col items-center justify-center text-slate-400">
+              <ImagePlus size={40} className="mx-auto" />
+              <p className="mt-2 text-sm font-semibold">No Image Available</p>
+            </div>
+          )}
 
-            {/* Right: Detailed Info */}
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <InfoCard label="Registration No." value={selectedCar.registrationNo} />
-                <InfoCard label="Fuel Type" value={selectedCar.fuelType} />
-                <InfoCard label="Transmission" value={selectedCar.transmission} />
-                <InfoCard label="Seats" value={`${selectedCar.seats} Seats`} />
-                <InfoCard label="Price / Day" value={currency(selectedCar.pricePerDay)} />
-                <InfoCard label="Mileage" value={selectedCar.mileage || '—'} />
-                <div className="col-span-2">
-                  <InfoCard label="Current Status" value={<Badge status={selectedCar.status} />} />
-                </div>
-              </div>
-
-              <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Description</h4>
-                <p className="mt-2 text-sm text-slate-700 leading-relaxed">
-                  {selectedCar.description || 'No description provided for this car.'}
-                </p>
-              </div>
+          {/* Details grid */}
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <InfoCard label="Registration No." value={selectedCar.registrationNo} />
+            <InfoCard label="Fuel Type" value={selectedCar.fuelType} />
+            <InfoCard label="Transmission" value={selectedCar.transmission} />
+            <InfoCard label="No. of Seats" value={`${selectedCar.seats} Seats`} />
+            <InfoCard label="No. of Doors" value={`${selectedCar.doors || '—'} Doors`} />
+            <InfoCard label="Manufacturing Year" value={selectedCar.year} />
+            <InfoCard label="Mileage" value={selectedCar.mileage || '—'} />
+            <InfoCard label="Color" value={selectedCar.color || '—'} />
+            <InfoCard label="Per Day Charge" value={currency(selectedCar.pricePerDay)} />
+            <InfoCard label="AC" value={selectedCar.ac === false ? 'Non-AC' : 'AC'} />
+            <InfoCard label="VIN Number" value={selectedCar.vinNumber || '—'} />
+            <div className="col-span-2">
+              <InfoCard label="Current Status" value={<Badge status={selectedCar.status} />} />
             </div>
           </div>
+
+          {/* Documents */}
+          {(selectedCar.insuranceInvoice || selectedCar.registrationCardImage) && (
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Documents</h4>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {selectedCar.insuranceInvoice && (
+                  <DocPreviewCard label="Insurance Invoice" src={selectedCar.insuranceInvoice} />
+                )}
+                {selectedCar.registrationCardImage && (
+                  <DocPreviewCard label="Registration Card" src={selectedCar.registrationCardImage} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Description */}
+          <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Description</h4>
+            <p className="mt-2 text-sm text-slate-700 leading-relaxed">
+              {selectedCar.description || 'No description provided for this car.'}
+            </p>
+          </div>
         </div>
+
+      /* ── Cars Table View ────────────────────────────────────────────── */
       ) : (
-        /* UPLOADED CARS TABLE VIEW */
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-slate-950">Uploaded Cars</h3>
-            <span className="text-xs text-slate-500 font-semibold">{cars.length} active {cars.length === 1 ? 'car' : 'cars'}</span>
+            <span className="text-xs text-slate-500 font-semibold">
+              {cars.length} active {cars.length === 1 ? 'car' : 'cars'}
+            </span>
           </div>
 
           {cars.length ? (
@@ -273,8 +586,12 @@ const CarManagement = () => {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="h-12 w-16 shrink-0 overflow-hidden rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200">
-                              {car.image ? (
-                                <img src={car.image} alt={car.name} className="h-full w-full object-cover" />
+                              {car.image || car.photos?.[0] ? (
+                                <img
+                                  src={car.photos?.[0] || car.image}
+                                  alt={car.name}
+                                  className="h-full w-full object-cover"
+                                />
                               ) : (
                                 <div className="text-slate-400">
                                   <ImagePlus size={16} />
@@ -289,15 +606,15 @@ const CarManagement = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 font-semibold text-slate-700">
-                          {car.registrationNo}
-                        </td>
+                        <td className="px-6 py-4 font-semibold text-slate-700">{car.registrationNo}</td>
                         <td className="px-6 py-4">
                           <div className="text-slate-800 font-medium">
                             {car.fuelType} • {car.transmission}
                           </div>
                           <div className="text-xs text-slate-500 mt-0.5">
-                            {car.seats} Seats {car.mileage ? `• ${car.mileage}` : ''}
+                            {car.seats} Seats • {car.doors || '—'} Doors
+                            {car.ac === false ? ' • Non-AC' : ' • AC'}
+                            {car.mileage ? ` • ${car.mileage}` : ''}
                           </div>
                         </td>
                         <td className="px-6 py-4 font-bold text-slate-950">
@@ -306,7 +623,7 @@ const CarManagement = () => {
                         <td className="px-6 py-4">
                           <select
                             value={car.status}
-                            onChange={(event) => updateCarStatus(car.id, event.target.value)}
+                            onChange={(e) => updateCarStatus(car.id, e.target.value)}
                             className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold outline-none focus:border-slate-950 cursor-pointer"
                           >
                             <option value="available">Available</option>
@@ -340,6 +657,7 @@ const CarManagement = () => {
           )}
         </section>
       )}
+
       {/* DELETE CONFIRMATION MODAL */}
       {deleteConfirmId && (
         <div
@@ -351,12 +669,9 @@ const CarManagement = () => {
             className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl border border-slate-200"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Icon */}
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 border border-rose-100 mx-auto">
               <Trash2 size={26} className="text-rose-600" />
             </div>
-
-            {/* Text */}
             <div className="mt-4 text-center">
               <h3 className="text-xl font-bold text-slate-950">Delete Car?</h3>
               <p className="mt-2 text-sm text-slate-500 leading-relaxed">
@@ -364,8 +679,6 @@ const CarManagement = () => {
                 This action cannot be undone.
               </p>
             </div>
-
-            {/* Buttons */}
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setDeleteConfirmId(null)}
@@ -387,11 +700,91 @@ const CarManagement = () => {
   );
 };
 
+/* ── Helper sub-components ──────────────────────────────────────────── */
+
+const inputCls =
+  'mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-950 bg-slate-50 focus:bg-white transition text-sm';
+
+const SectionHeading = ({ children }) => (
+  <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2">
+    {children}
+  </h4>
+);
+
+const FormField = ({ label, children }) => (
+  <div>
+    <label className="text-sm font-semibold text-slate-700">{label}</label>
+    {children}
+  </div>
+);
+
+const ToggleChip = ({ active, onClick, label }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`flex items-center gap-1.5 rounded-xl border px-4 py-2 text-sm font-bold transition ${
+      active
+        ? 'border-[#00D6CC] bg-[#00D6CC]/10 text-[#00B5B0]'
+        : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'
+    }`}
+  >
+    {active && <CheckCircle size={14} />}
+    {label}
+  </button>
+);
+
+const FileUploadField = ({ label, file, accept, onChange, hint }) => (
+  <div>
+    <label className="text-sm font-semibold text-slate-700">{label}</label>
+    <label className="mt-2 flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500 hover:border-[#00D6CC] hover:bg-[#00D6CC]/5 transition">
+      <FileText size={18} className={file ? 'text-[#00D6CC]' : ''} />
+      <div className="flex-1 overflow-hidden">
+        <p className="truncate font-medium">{file ? file.name : `Upload ${label}`}</p>
+        {!file && <p className="text-xs text-slate-400 mt-0.5">{hint}</p>}
+      </div>
+      {file && <CheckCircle size={16} className="shrink-0 text-[#00D6CC]" />}
+      <input
+        type="file"
+        accept={accept}
+        className="hidden"
+        onChange={(e) => onChange(e.target.files?.[0] || null)}
+      />
+    </label>
+  </div>
+);
+
 const InfoCard = ({ label, value }) => (
   <div className="rounded-2xl bg-slate-50 p-3 border border-slate-100/50">
     <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{label}</p>
     <div className="mt-1 text-sm font-bold text-slate-950">{value}</div>
   </div>
 );
+
+const DocPreviewCard = ({ label, src }) => {
+  const isPdf = src?.startsWith('data:application/pdf') || src?.endsWith('.pdf');
+  return (
+    <div className="rounded-2xl border border-slate-200 overflow-hidden">
+      {isPdf ? (
+        <a
+          href={src}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-3 bg-slate-50 p-4 hover:bg-slate-100 transition"
+        >
+          <FileText size={24} className="text-[#00D6CC]" />
+          <div>
+            <p className="text-sm font-bold text-slate-800">{label}</p>
+            <p className="text-xs text-slate-500">Click to view PDF</p>
+          </div>
+        </a>
+      ) : (
+        <div className="space-y-2">
+          <img src={src} alt={label} className="h-40 w-full object-cover" />
+          <p className="px-3 pb-3 text-xs font-bold text-slate-500 uppercase tracking-wide">{label}</p>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default CarManagement;
