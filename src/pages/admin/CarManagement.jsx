@@ -28,8 +28,18 @@ const CarManagement = () => {
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [viewingCarId, setViewingCarId] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const selectedCar = cars.find((car) => car.id === viewingCarId);
+  const carToDelete = cars.find((car) => car.id === deleteConfirmId);
+
+  const handleDeleteConfirm = () => {
+    if (deleteConfirmId) {
+      deleteCar(deleteConfirmId);
+      if (viewingCarId === deleteConfirmId) handleBackToCars();
+      setDeleteConfirmId(null);
+    }
+  };
 
   const submitCar = async (event) => {
     event.preventDefault();
@@ -191,10 +201,7 @@ const CarManagement = () => {
                 <option value="booked">Booked</option>
               </select>
               <button
-                onClick={() => {
-                  deleteCar(selectedCar.id);
-                  handleBackToCars();
-                }}
+                onClick={() => setDeleteConfirmId(selectedCar.id)}
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-100 transition"
               >
                 <Trash2 size={15} /> Delete Car
@@ -315,7 +322,7 @@ const CarManagement = () => {
                               <Eye size={13} /> View
                             </button>
                             <button
-                              onClick={() => deleteCar(car.id)}
+                              onClick={() => setDeleteConfirmId(car.id)}
                               className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 transition"
                             >
                               <Trash2 size={13} /> Delete
@@ -332,6 +339,49 @@ const CarManagement = () => {
             <EmptyState title="No cars uploaded" message="Verified company ke baad admin cars upload kar sakta hai." />
           )}
         </section>
+      )}
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteConfirmId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setDeleteConfirmId(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl border border-slate-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Icon */}
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 border border-rose-100 mx-auto">
+              <Trash2 size={26} className="text-rose-600" />
+            </div>
+
+            {/* Text */}
+            <div className="mt-4 text-center">
+              <h3 className="text-xl font-bold text-slate-950">Delete Car?</h3>
+              <p className="mt-2 text-sm text-slate-500 leading-relaxed">
+                <span className="font-semibold text-slate-800">{carToDelete?.name}</span> will be permanently deleted.
+                This action cannot be undone.
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setDeleteConfirmId(null)}
+                className="flex-1 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="flex-1 rounded-2xl bg-rose-600 px-4 py-3 text-sm font-bold text-white hover:bg-rose-700 transition"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
