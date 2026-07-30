@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { seedState } from '../data/mockData';
 import { loadState, saveState, uid } from '../utils/storage';
-import { registerCompanyApi, loginCompanyApi, fetchCompanyCarsApi, loginSuperAdminApi, fetchAllDriversApi, updateDriverStatusApi } from '../utils/api';
+import { registerCompanyApi, loginCompanyApi, fetchCompanyCarsApi, loginSuperAdminApi, fetchAllDriversApi, updateDriverStatusApi, fetchAllCompaniesApi, updateCompanyStatusApi } from '../utils/api';
 
 const AppContext = createContext(null);
 
@@ -43,6 +43,7 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (currentUser && currentUser.role === 'super_admin' && currentUser.token) {
       syncAllDrivers(currentUser.token);
+      syncAllCompanies(currentUser.token);
     }
   }, [currentUser?.token, currentUser?.role]);
 
@@ -69,6 +70,7 @@ export const AppProvider = ({ children }) => {
 
       setCurrentUser(superAdminUser);
       syncAllDrivers(userData.token);
+      syncAllCompanies(userData.token);
       return { ok: true, role: 'super_admin' };
     }
 
@@ -218,7 +220,16 @@ export const AppProvider = ({ children }) => {
     return { ok: true };
   };
 
-  const verifyCompany = (companyId) => {
+  const verifyCompany = async (companyId) => {
+    if (currentUser && currentUser.role === 'super_admin' && currentUser.token) {
+      const apiResult = await updateCompanyStatusApi(companyId, 'APPROVED', currentUser.token);
+      if (apiResult.success) {
+        await syncAllCompanies(currentUser.token);
+        return;
+      }
+      console.error('Failed to verify company on backend:', apiResult.message);
+    }
+
     setState((prev) => ({
       ...prev,
       companies: prev.companies.map((company) =>
@@ -227,7 +238,16 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
-  const rejectCompany = (companyId, reason) => {
+  const rejectCompany = async (companyId, reason) => {
+    if (currentUser && currentUser.role === 'super_admin' && currentUser.token) {
+      const apiResult = await updateCompanyStatusApi(companyId, 'REJECTED', currentUser.token);
+      if (apiResult.success) {
+        await syncAllCompanies(currentUser.token);
+        return;
+      }
+      console.error('Failed to reject company on backend:', apiResult.message);
+    }
+
     setState((prev) => ({
       ...prev,
       companies: prev.companies.map((company) =>
@@ -363,6 +383,56 @@ export const AppProvider = ({ children }) => {
     setState((prev) => ({
       ...prev,
       verificationRequests: formattedRequests,
+    }));
+  };
+
+  const syncAllCompanies = async (token) => {
+    const apiResult = await fetchAllCompaniesApi(token);
+    if (!apiResult.success) {
+      console.error('Failed to sync companies from backend:', apiResult.message);
+      return;
+    }
+
+    const backendCompanies = apiResult.companies || [];
+    const formattedCompanies = backendCompanies.map((company) => {
+      const formattedDocs = (company.documents || []).map((doc, idx) => {
+        if (typeof doc === 'string') {
+          return {
+            name: doc.split('/').pop() || `document_${idx + 1}.png`,
+            url: doc.startsWith('http') ? doc : `https://node.aitechnotech.in/biip/api/v1/uploads/company/${doc}`,
+            uploadedAt: company.createdAt || new Date().toISOString(),
+          };
+        }
+        return doc;
+      });
+
+      let status = 'pending';
+      if (company.isVerified) {
+        status = 'verified';
+      } else if (company.rejectionReason) {
+        status = 'rejected';
+      }
+
+      return {
+        id: company._id,
+        adminId: company._id,
+        companyName: company.companyName || 'Unnamed Company',
+        ownerName: company.ownerName || 'Unnamed Owner',
+        email: company.email || '',
+        phone: company.phoneNumber || '',
+        address: company.address || '',
+        city: company.city || '',
+        gstNumber: company.gstNumber || '',
+        status,
+        rejectionReason: company.rejectionReason || '',
+        documents: formattedDocs,
+        createdAt: company.createdAt || new Date().toISOString(),
+      };
+    });
+
+    setState((prev) => ({
+      ...prev,
+      companies: formattedCompanies,
     }));
   };
 
