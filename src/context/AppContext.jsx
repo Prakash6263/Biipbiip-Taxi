@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { seedState } from '../data/mockData';
 import { loadState, saveState, uid } from '../utils/storage';
-import { registerCompanyApi, loginCompanyApi, fetchCompanyCarsApi } from '../utils/api';
+import { registerCompanyApi, loginCompanyApi, fetchCompanyCarsApi, loginSuperAdminApi, fetchAllDriversApi, updateDriverStatusApi } from '../utils/api';
 
 const AppContext = createContext(null);
 
@@ -40,7 +40,41 @@ export const AppProvider = ({ children }) => {
     }
   }, [currentUser?.token]);
 
+  useEffect(() => {
+    if (currentUser && currentUser.role === 'super_admin' && currentUser.token) {
+      syncAllDrivers(currentUser.token);
+    }
+  }, [currentUser?.token, currentUser?.role]);
+
   const login = async ({ email, password, role }) => {
+    if (role === 'super_admin') {
+      const apiResult = await loginSuperAdminApi(email, password);
+      if (!apiResult.success) {
+        return { ok: false, message: apiResult.message };
+      }
+
+      const userData = apiResult.userData;
+      const superAdminUser = {
+        id: userData._id,
+        name: `${userData.firstName} ${userData.lastName}`,
+        email: userData.email,
+        role: 'super_admin',
+        token: userData.token
+      };
+
+      setState((prev) => {
+        const nextUsers = prev.users.filter((u) => u.email.toLowerCase() !== email.toLowerCase());
+        return {
+          ...prev,
+          users: [...nextUsers, superAdminUser],
+        };
+      });
+
+      setCurrentUser(superAdminUser);
+      syncAllDrivers(userData.token);
+      return { ok: true };
+    }
+
     if (role === 'admin') {
       const apiResult = await loginCompanyApi(email, password);
       if (!apiResult.success) {
@@ -252,6 +286,86 @@ export const AppProvider = ({ children }) => {
     });
   };
 
+  const syncAllDrivers = async (token) => {
+    const apiResult = await fetchAllDriversApi(token);
+    if (!apiResult.success) {
+      console.error('Failed to sync drivers from backend:', apiResult.message);
+      return;
+    }
+
+    const backendDrivers = apiResult.drivers || [];
+    const formattedRequests = backendDrivers.map((driver) => {
+      const userName = driver.user ? `${driver.user.firstName || ''} ${driver.user.lastName || ''}`.trim() : 'Unnamed Driver';
+      const userEmail = driver.user?.email || '';
+      const userPhone = driver.user ? `${driver.user.countryCode || ''} ${driver.user.phoneNumber || ''}`.trim() : '';
+
+      const mapDocument = (url, defaultName) => {
+        if (!url) return null;
+        let formattedUrl = url;
+        if (typeof url === 'string' && !url.startsWith('http')) {
+          formattedUrl = `https://node.aitechnotech.in/biip/api/v1/uploads/driver/${url}`;
+        }
+        return {
+          name: typeof url === 'string' ? url.split('/').pop() : defaultName,
+          url: formattedUrl,
+          uploadedAt: driver.createdAt || new Date().toISOString(),
+        };
+      };
+
+      const nationalId = {
+        front: mapDocument(driver.nationalIdFront, 'national_id_front.jpg'),
+        back: mapDocument(driver.nationalIdBack, 'national_id_back.jpg'),
+      };
+
+      const driverLicense = {
+        front: mapDocument(driver.driverLicenseFront, 'driver_license_front.jpg'),
+        back: mapDocument(driver.driverLicenseBack, 'driver_license_back.jpg'),
+      };
+
+      const vehicleRegistration = mapDocument(driver.vehicleRegistrationFront, 'vehicle_registration_front.jpg');
+      const vehicleRegistrationBack = mapDocument(driver.vehicleRegistrationBack, 'vehicle_registration_back.jpg');
+
+      let status = 'pending';
+      const backendStatus = String(driver.verificationStatus || '').toUpperCase();
+      if (backendStatus === 'APPROVED' || backendStatus === 'VERIFIED') {
+        status = 'verified';
+      } else if (backendStatus === 'REJECTED') {
+        status = 'rejected';
+      }
+
+      const carImages = (driver.vehiclePhotos || []).map((photo) => {
+        let formattedPhotoUrl = photo;
+        if (typeof photo === 'string' && !photo.startsWith('http')) {
+          formattedPhotoUrl = `https://node.aitechnotech.in/biip/api/v1/uploads/driver/${photo}`;
+        }
+        return { url: formattedPhotoUrl };
+      });
+
+      return {
+        id: driver._id,
+        companyId: driver.companyId || '',
+        userName,
+        userEmail,
+        userPhone,
+        nationalId,
+        driverLicense,
+        vehicleRegistration,
+        vehicleRegistrationBack,
+        carName: `${driver.brand || ''} ${driver.vehicleName || ''}`.trim() || 'Unknown Vehicle',
+        registrationNo: driver.vehicleRegistrationNumber || '',
+        carImages,
+        status,
+        rejectionReason: driver.rejectionReason || '',
+        createdAt: driver.createdAt || new Date().toISOString(),
+      };
+    });
+
+    setState((prev) => ({
+      ...prev,
+      verificationRequests: formattedRequests,
+    }));
+  };
+
   const addCar = (backendCar) => {
     const formattedPhotos = (backendCar.vehiclePhotos || []).map((photo) =>
       photo.startsWith('http') ? photo : `https://node.aitechnotech.in/biip/uploads/company-car/${photo}`
@@ -402,7 +516,17 @@ export const AppProvider = ({ children }) => {
     });
   };
 
-  const approveVerificationRequest = (requestId) => {
+  const approveVerificationRequest = async (requestId) => {
+    if (currentUser && currentUser.role === 'super_admin' && currentUser.token) {
+      const apiResult = await updateDriverStatusApi(requestId, 'APPROVED', currentUser.token);
+      if (!apiResult.success) {
+        console.error('Failed to approve driver on backend:', apiResult.message);
+        return;
+      }
+      await syncAllDrivers(currentUser.token);
+      return;
+    }
+
     setState((prev) => ({
       ...prev,
       verificationRequests: (prev.verificationRequests || []).map((req) =>
@@ -411,7 +535,17 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
-  const rejectVerificationRequest = (requestId, reason) => {
+  const rejectVerificationRequest = async (requestId, reason) => {
+    if (currentUser && currentUser.role === 'super_admin' && currentUser.token) {
+      const apiResult = await updateDriverStatusApi(requestId, 'REJECTED', currentUser.token);
+      if (!apiResult.success) {
+        console.error('Failed to reject driver on backend:', apiResult.message);
+        return;
+      }
+      await syncAllDrivers(currentUser.token);
+      return;
+    }
+
     setState((prev) => ({
       ...prev,
       verificationRequests: (prev.verificationRequests || []).map((req) =>

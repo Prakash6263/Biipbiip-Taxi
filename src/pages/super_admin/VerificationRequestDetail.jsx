@@ -170,13 +170,22 @@ const VerificationRequestDetail = ({ verificationId, setActivePage }) => {
                     </div>
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Vehicle Registration</span>
                   </div>
-                  {req.vehicleRegistration ? (
+                  {req.vehicleRegistration || req.vehicleRegistrationBack ? (
                     <div className="space-y-4">
-                      <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Registration / Ownership Doc</span>
-                        <p className="text-sm font-semibold text-slate-850 truncate">{req.vehicleRegistration.name}</p>
-                        <FilePreview files={[req.vehicleRegistration]} />
-                      </div>
+                      {req.vehicleRegistration && (
+                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Front Side</span>
+                          <p className="text-sm font-semibold text-slate-850 truncate">{req.vehicleRegistration.name}</p>
+                          <FilePreview files={[req.vehicleRegistration]} />
+                        </div>
+                      )}
+                      {req.vehicleRegistrationBack && (
+                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Back Side</span>
+                          <p className="text-sm font-semibold text-slate-850 truncate">{req.vehicleRegistrationBack.name}</p>
+                          <FilePreview files={[req.vehicleRegistrationBack]} />
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <p className="text-xs text-slate-400 italic">Not Uploaded</p>

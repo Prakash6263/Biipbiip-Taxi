@@ -255,5 +255,108 @@ export const updateCarApi = async (data, token) => {
   }
 };
 
+export const loginSuperAdminApi = async (email, password) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/login`, {
+      method: 'POST',
+      headers: {
+        'accept': '*/*',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const resJson = await response.json();
+
+    if (!response.ok || !resJson.success) {
+      return {
+        success: false,
+        message: resJson.message || 'Super Admin login failed from server',
+      };
+    }
+
+    return {
+      success: true,
+      userData: resJson.data.userData,
+      message: resJson.message,
+    };
+  } catch (error) {
+    console.error('API Error in loginSuperAdminApi:', error);
+    return {
+      success: false,
+      message: error.message || 'Network error occurred during login.',
+    };
+  }
+};
+
+export const fetchAllDriversApi = async (token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/all/drivers`, {
+      method: 'GET',
+      headers: {
+        'accept': '*/*',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const resJson = await response.json();
+
+    if (!response.ok || !resJson.success) {
+      return {
+        success: false,
+        message: resJson.message || 'Fetching drivers failed from server',
+      };
+    }
+
+    return {
+      success: true,
+      drivers: resJson.data.drivers,
+      message: resJson.message,
+    };
+  } catch (error) {
+    console.error('API Error in fetchAllDriversApi:', error);
+    return {
+      success: false,
+      message: error.message || 'Network error occurred during fetching drivers.',
+    };
+  }
+};
+
+export const updateDriverStatusApi = async (driverId, status, token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/driver/update/status`, {
+      method: 'PATCH',
+      headers: {
+        'accept': '*/*',
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ driverId, status }),
+    });
+
+    const resJson = await response.json();
+
+    if (!response.ok || !resJson.success) {
+      return {
+        success: false,
+        message: resJson.message || 'Updating driver status failed from server',
+      };
+    }
+
+    return {
+      success: true,
+      driver: resJson.data.driver,
+      message: resJson.message,
+    };
+  } catch (error) {
+    console.error('API Error in updateDriverStatusApi:', error);
+    return {
+      success: false,
+      message: error.message || 'Network error occurred during updating driver status.',
+    };
+  }
+};
+
+
 
 

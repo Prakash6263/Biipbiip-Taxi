@@ -233,7 +233,10 @@ const Login = ({ setActivePage }) => {
                   onChange={(event) => {
                     const nextRole = event.target.value;
                     setRole(nextRole);
-                    setLoginForm({ email: nextRole === 'super_admin' ? 'super@rental.com' : 'admin@demo.com', password: '123456' });
+                    setLoginForm({
+                      email: nextRole === 'super_admin' ? 'superadmin@biipbiip.com' : 'admin@demo.com',
+                      password: nextRole === 'super_admin' ? 'superadmin' : '123456'
+                    });
                   }}
                   className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-[#00D6CC] transition"
                 >
