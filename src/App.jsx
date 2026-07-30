@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Layout from './components/Layout';
 import { useApp } from './context/AppContext';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import CarManagement from './pages/admin/CarManagement';
 import CompanyProfile from './pages/admin/CompanyProfile';
@@ -18,7 +19,7 @@ import VerificationRequests from './pages/super_admin/VerificationRequests';
 const ROLE_CONFIG = {
   public: {
     defaultPage: 'login',
-    allowedPages: ['login'],
+    allowedPages: ['login', 'register'],
   },
 
   admin: {
@@ -97,6 +98,9 @@ const App = () => {
     const pages = {
       login: (
         <Login setActivePage={setActivePage} />
+      ),
+      register: (
+        <Register setActivePage={setActivePage} />
       ),
 
       // Admin pages

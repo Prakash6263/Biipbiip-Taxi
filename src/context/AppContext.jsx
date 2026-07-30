@@ -46,14 +46,11 @@ export const AppProvider = ({ children }) => {
     }
   }, [currentUser?.token, currentUser?.role]);
 
-  const login = async ({ email, password, role }) => {
-    if (role === 'super_admin') {
-      const apiResult = await loginSuperAdminApi(email, password);
-      if (!apiResult.success) {
-        return { ok: false, message: apiResult.message };
-      }
-
-      const userData = apiResult.userData;
+  const login = async ({ email, password }) => {
+    // 1. Try Super Admin Login first
+    const superAdminResult = await loginSuperAdminApi(email, password);
+    if (superAdminResult.success) {
+      const userData = superAdminResult.userData;
       const superAdminUser = {
         id: userData._id,
         name: `${userData.firstName} ${userData.lastName}`,
@@ -72,16 +69,13 @@ export const AppProvider = ({ children }) => {
 
       setCurrentUser(superAdminUser);
       syncAllDrivers(userData.token);
-      return { ok: true };
+      return { ok: true, role: 'super_admin' };
     }
 
-    if (role === 'admin') {
-      const apiResult = await loginCompanyApi(email, password);
-      if (!apiResult.success) {
-        return { ok: false, message: apiResult.message };
-      }
-
-      const companyData = apiResult.companyData;
+    // 2. Try Admin (Company) Login
+    const companyResult = await loginCompanyApi(email, password);
+    if (companyResult.success) {
+      const companyData = companyResult.companyData;
       const adminId = companyData._id;
       const companyId = companyData._id;
 
@@ -134,15 +128,21 @@ export const AppProvider = ({ children }) => {
 
       setCurrentUser(newAdmin);
       syncCompanyCars(companyData.token);
-      return { ok: true };
+      return { ok: true, role: 'admin' };
     }
 
-    const user = state.users.find(
-      (item) => item.email.toLowerCase() === email.toLowerCase() && item.password === password && item.role === role,
+    // 3. Fallback to mock users check
+    const mockUser = state.users.find(
+      (item) => item.email.toLowerCase() === email.toLowerCase() && item.password === password
     );
-    if (!user) return { ok: false, message: 'Invalid credentials or incorrect role.' };
-    setCurrentUser(user);
-    return { ok: true };
+    if (mockUser) {
+      setCurrentUser(mockUser);
+      return { ok: true, role: mockUser.role };
+    }
+
+    // If both backend logins and mock login fail, return the error message
+    const combinedMessage = companyResult.message || superAdminResult.message || 'Invalid credentials or incorrect role.';
+    return { ok: false, message: combinedMessage };
   };
 
   const logout = () => setCurrentUser(null);
