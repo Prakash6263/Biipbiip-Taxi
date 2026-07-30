@@ -31,7 +31,7 @@ const AdminDashboard = ({ setActivePage }) => {
       {company?.status !== 'verified' ? (
         <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-amber-900">
           <h3 className="font-bold">Verification pending</h3>
-          <p className="mt-1 text-sm">Super Admin company documents verify karega. Verification ke baad aap cars upload kar sakte hain.</p>
+          <p className="mt-1 text-sm">The Super Admin will verify your company documents. You can upload cars after verification.</p>
         </div>
       ) : null}
 
@@ -76,7 +76,7 @@ const AdminDashboard = ({ setActivePage }) => {
             </table>
           </div>
         ) : (
-          <EmptyState title="No rent requests" message="User request submit karega to yahan show hoga." />
+          <EmptyState title="No rent requests" message="Rental requests submitted by users will appear here." />
         )}
       </section>
     </div>

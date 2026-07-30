@@ -1,6 +1,6 @@
 import { Inbox } from 'lucide-react';
 
-const EmptyState = ({ title = 'No data found', message = 'Abhi tak koi record available nahi hai.' }) => (
+const EmptyState = ({ title = 'No data found', message = 'No records are available yet.' }) => (
   <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-600">
       <Inbox size={26} />

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { seedState } from '../data/mockData';
 import { loadState, saveState, uid } from '../utils/storage';
+import { registerCompanyApi, loginCompanyApi } from '../utils/api';
 
 const AppContext = createContext(null);
 
@@ -33,39 +34,137 @@ export const AppProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-  const login = ({ email, password, role }) => {
+  const login = async ({ email, password, role }) => {
+    if (role === 'admin') {
+      const apiResult = await loginCompanyApi(email, password);
+      if (!apiResult.success) {
+        return { ok: false, message: apiResult.message };
+      }
+
+      const companyData = apiResult.companyData;
+      const adminId = companyData._id;
+      const companyId = companyData._id;
+
+      const newAdmin = {
+        id: adminId,
+        name: companyData.adminName,
+        email: companyData.email,
+        password,
+        role: 'admin',
+        companyId,
+        token: companyData.token
+      };
+
+      const formattedDocs = (companyData.documents || []).map((doc) => {
+        if (typeof doc === 'string') {
+          return {
+            name: doc.split('/').pop() || doc,
+            url: doc.startsWith('http') ? doc : `https://node.aitechnotech.in/biip/uploads/${doc}`,
+            uploadedAt: new Date().toISOString(),
+          };
+        }
+        return doc;
+      });
+
+      const newCompany = {
+        id: companyId,
+        adminId,
+        companyName: companyData.companyName,
+        ownerName: companyData.ownerName,
+        email: companyData.email,
+        phone: companyData.phoneNumber,
+        address: companyData.address,
+        city: companyData.city || '',
+        gstNumber: companyData.gstNumber,
+        status: companyData.isVerified ? 'verified' : 'pending',
+        rejectionReason: '',
+        documents: formattedDocs,
+        createdAt: new Date().toISOString(),
+      };
+
+      setState((prev) => {
+        const nextUsers = prev.users.filter((u) => u.email.toLowerCase() !== email.toLowerCase());
+        const nextCompanies = prev.companies.filter((c) => c.id !== companyId);
+        return {
+          ...prev,
+          users: [...nextUsers, newAdmin],
+          companies: [...nextCompanies, newCompany],
+        };
+      });
+
+      setCurrentUser(newAdmin);
+      return { ok: true };
+    }
+
     const user = state.users.find(
       (item) => item.email.toLowerCase() === email.toLowerCase() && item.password === password && item.role === role,
     );
-    if (!user) return { ok: false, message: 'Invalid credentials ya role galat hai.' };
+    if (!user) return { ok: false, message: 'Invalid credentials or incorrect role.' };
     setCurrentUser(user);
     return { ok: true };
   };
 
   const logout = () => setCurrentUser(null);
 
-  const registerCompany = ({ adminName, email, password, company }) => {
+  const registerCompany = async ({ adminName, email, password, company, rawDocuments }) => {
     const existing = state.users.some((user) => user.email.toLowerCase() === email.toLowerCase());
-    if (existing) return { ok: false, message: 'Is email se account already exist karta hai.' };
+    if (existing) return { ok: false, message: 'This email is already registered.' };
+
+    const apiResult = await registerCompanyApi({
+      adminName,
+      email,
+      password,
+      companyName: company.companyName,
+      ownerName: company.ownerName,
+      phoneNumber: company.phone,
+      address: company.address,
+      city: company.city,
+      gstNumber: company.gstNumber,
+      documents: rawDocuments,
+    });
+
+    if (!apiResult.success) {
+      return { ok: false, message: apiResult.message };
+    }
+
+    const backendCompany = apiResult.company;
 
     const adminId = uid('admin');
-    const companyId = uid('company');
+    const companyId = backendCompany._id || uid('company');
     const newAdmin = {
       id: adminId,
-      name: adminName,
-      email,
+      name: backendCompany.adminName || adminName,
+      email: backendCompany.email || email,
       password,
       role: 'admin',
       companyId,
     };
 
+    const formattedDocs = (backendCompany.documents || []).map((doc) => {
+      if (typeof doc === 'string') {
+        return {
+          name: doc,
+          url: doc.startsWith('http') ? doc : `https://node.aitechnotech.in/biip/uploads/${doc}`,
+          uploadedAt: backendCompany.createdAt || new Date().toISOString(),
+        };
+      }
+      return doc;
+    });
+
     const newCompany = {
       id: companyId,
       adminId,
-      ...company,
-      status: 'pending',
+      companyName: backendCompany.companyName,
+      ownerName: backendCompany.ownerName,
+      email: backendCompany.email,
+      phone: backendCompany.phoneNumber,
+      address: backendCompany.address,
+      city: backendCompany.city,
+      gstNumber: backendCompany.gstNumber,
+      status: backendCompany.isVerified ? 'verified' : 'pending',
       rejectionReason: '',
-      createdAt: new Date().toISOString(),
+      documents: formattedDocs,
+      createdAt: backendCompany.createdAt || new Date().toISOString(),
     };
 
     setState((prev) => ({

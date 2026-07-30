@@ -10,7 +10,7 @@ const CompanyProfile = () => {
   if (!company) {
     return (
       <div className="rounded-3xl border border-rose-200 bg-rose-50 p-6 text-rose-800">
-        Company profile nahi mila. Please dobara login karein.
+        Company profile not found. Please log in again.
       </div>
     );
   }
@@ -39,7 +39,7 @@ const CompanyProfile = () => {
 
         {company.status === 'pending' ? (
           <div className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">
-            Super Admin documents verify karega. Verification ke baad cars add karna enable ho jayega.
+            The Super Admin will verify your documents. Once verified, you will be able to add cars.
           </div>
         ) : null}
 
@@ -47,6 +47,7 @@ const CompanyProfile = () => {
           <Info label="Owner Name" value={company.ownerName} />
           <Info label="Email" value={company.email} />
           <Info label="Phone" value={company.phone} />
+          <Info label="City" value={company.city || '—'} />
           <Info label="GST Number" value={company.gstNumber || '—'} />
           <div className="md:col-span-2">
             <Info label="Address" value={company.address} />

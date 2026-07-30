@@ -73,6 +73,10 @@ const CompanyVerificationDetail = ({ companyId, setActivePage }) => {
                   {company.gstNumber || '—'}
                 </p>
               </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400 font-medium">City</p>
+                <p className="text-sm font-semibold text-slate-950">{company.city || '—'}</p>
+              </div>
               <div className="sm:col-span-2 space-y-1">
                 <p className="text-xs text-slate-400 font-medium">Address</p>
                 <div className="flex items-start gap-2 text-sm text-slate-700">

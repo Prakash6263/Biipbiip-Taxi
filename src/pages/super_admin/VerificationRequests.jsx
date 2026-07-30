@@ -121,7 +121,7 @@ const VerificationRequests = ({ onShowDetail }) => {
           </div>
         </div>
       ) : (
-        <EmptyState title="No verification requests found" message="Kuch bhi requests is filter ke liye available nahi hai." />
+        <EmptyState title="No verification requests found" message="No requests found matching this filter." />
       )}
     </div>
   );

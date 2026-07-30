@@ -111,7 +111,7 @@ const CompanyVerification = ({ onShowDetail }) => {
           </table>
         </div>
       ) : (
-        <EmptyState title="No companies found" message="Selected filter ke liye koi company nahi mili." />
+        <EmptyState title="No companies found" message="No companies found for the selected filter." />
       )}
     </div>
   );

@@ -137,7 +137,7 @@ const RentRequests = () => {
 
                               <div className="rounded-2xl border border-slate-200 bg-white p-4">
                                 <h4 className="font-bold text-slate-950 text-sm">Upload documents after office verification</h4>
-                                <p className="mt-1 text-xs text-slate-500">Driving license, Aadhaar, address proof jaise documents upload karein.</p>
+                                <p className="mt-1 text-xs text-slate-500">Upload documents such as Driving License, Aadhaar, and Address Proof.</p>
                                 <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
                                   <input
                                     type="file"
@@ -184,7 +184,7 @@ const RentRequests = () => {
                                 </button>
                                 {!request.userDocuments?.length && request.status === 'pending' && (
                                   <span className="text-xs font-semibold text-amber-700 self-center">
-                                    Approve button document upload ke baad enable hoga.
+                                    The approve button will be enabled after documents are uploaded.
                                   </span>
                                 )}
                               </div>
@@ -200,7 +200,7 @@ const RentRequests = () => {
           </div>
         </div>
       ) : (
-        <EmptyState title="No requests found" message="Filter change karein ya user se new request submit karwayein." />
+        <EmptyState title="No requests found" message="Try changing the filters or submit a new request." />
       )}
     </div>
   );

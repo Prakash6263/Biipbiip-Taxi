@@ -129,7 +129,7 @@ const DriverList = ({ onShowDetail }) => {
           </div>
         </div>
       ) : (
-        <EmptyState title="No users found" message="Koi user filter and search details se match nahi hua." />
+        <EmptyState title="No users found" message="No users match the selected filters and search details." />
       )}
     </div>
   );

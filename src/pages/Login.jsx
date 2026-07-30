@@ -18,13 +18,17 @@ const Login = ({ setActivePage }) => {
     phone: '',
     address: '',
     gstNumber: '',
+    city: '',
   });
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const submitLogin = (event) => {
+  const submitLogin = async (event) => {
     event.preventDefault();
-    const result = login({ ...loginForm, role });
+    setLoading(true);
+    setMessage('');
+    const result = await login({ ...loginForm, role });
+    setLoading(false);
     if (!result.ok) {
       setMessage(result.message);
       return;
@@ -36,8 +40,7 @@ const Login = ({ setActivePage }) => {
     event.preventDefault();
     setLoading(true);
     setMessage('');
-    const docs = await Promise.all(Array.from(documents).map(readFileAsDataUrl));
-    const result = registerCompany({
+    const result = await registerCompany({
       adminName: registerForm.adminName,
       email: registerForm.email,
       password: registerForm.password,
@@ -48,8 +51,9 @@ const Login = ({ setActivePage }) => {
         phone: registerForm.phone,
         address: registerForm.address,
         gstNumber: registerForm.gstNumber,
-        documents: docs.filter(Boolean),
+        city: registerForm.city,
       },
+      rawDocuments: documents,
     });
     setLoading(false);
 
@@ -274,6 +278,10 @@ const Login = ({ setActivePage }) => {
                 <div>
                   <label className="text-xs font-semibold text-white">Phone</label>
                   <input value={registerForm.phone} onChange={(event) => setRegisterForm({ ...registerForm, phone: event.target.value })} className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-[#00D6CC] transition" required />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-white">City</label>
+                  <input value={registerForm.city} onChange={(event) => setRegisterForm({ ...registerForm, city: event.target.value })} className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-[#00D6CC] transition" required />
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-white">GST Number</label>

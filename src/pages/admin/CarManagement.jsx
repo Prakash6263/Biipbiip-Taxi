@@ -167,8 +167,8 @@ const CarManagement = () => {
       {/* ── Not verified ─────────────────────────────────────────────── */}
       {company?.status !== 'verified' ? (
         <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-amber-900">
-          <h3 className="font-bold">Company verified nahi hai</h3>
-          <p className="mt-1 text-sm">Super Admin verification ke baad hi cars add karna allowed hai.</p>
+          <h3 className="font-bold">Company is not verified</h3>
+          <p className="mt-1 text-sm">Adding cars is allowed only after Super Admin verification.</p>
         </div>
 
       /* ── Add New Car Form ──────────────────────────────────────────── */
@@ -176,7 +176,7 @@ const CarManagement = () => {
         <form onSubmit={submitCar} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-8">
           <div className="border-b border-slate-100 pb-4">
             <h3 className="text-xl font-bold text-slate-950">Add New Car Details</h3>
-            <p className="text-sm text-slate-500 mt-1">Car details aur specification enter karein.</p>
+            <p className="text-sm text-slate-500 mt-1">Enter car details and specifications.</p>
           </div>
 
           {/* ── Vehicle Photos (up to 6) ─────────────────────────────── */}
@@ -672,7 +672,7 @@ const CarManagement = () => {
               </div>
             </div>
           ) : (
-            <EmptyState title="No cars uploaded" message="Verified company ke baad admin cars upload kar sakta hai." />
+            <EmptyState title="No cars uploaded" message="Cars can be uploaded after the company is verified." />
           )}
         </section>
       )}

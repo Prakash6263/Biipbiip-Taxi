@@ -129,7 +129,7 @@ const CompanyList = ({ onShowDetail }) => {
           </div>
         </div>
       ) : (
-        <EmptyState title="No companies found" message="Koi company filter and search details se match nahi hui." />
+        <EmptyState title="No companies found" message="No companies match the selected filters and search details." />
       )}
     </div>
   );
