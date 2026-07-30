@@ -4,6 +4,7 @@ import Badge from '../../components/Badge';
 import EmptyState from '../../components/EmptyState';
 import { useApp } from '../../context/AppContext';
 import { currency, readFileAsDataUrl } from '../../utils/storage';
+import { addCarApi, updateCarApi } from '../../utils/api';
 import vehicleData from '../../data/vehicleData.json';
 
 /* ── Vehicle data (from vehicleData.json) ───────────────────────── */
@@ -30,7 +31,7 @@ const defaultForm = {
 };
 
 const CarManagement = () => {
-  const { state, currentUser, addCar, updateCarStatus, deleteCar } = useApp();
+  const { state, currentUser, addCar, updateCar, updateCarStatus, deleteCar } = useApp();
   const company = state.companies.find((item) => item.id === currentUser?.companyId);
   const cars = state.cars.filter((car) => car.companyId === company?.id);
 
@@ -41,10 +42,12 @@ const CarManagement = () => {
   // Document uploads
   const [insuranceFile, setInsuranceFile] = useState(null);
   const [regCardFile, setRegCardFile] = useState(null);
+  const [message, setMessage] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [viewingCarId, setViewingCarId] = useState(null);
+  const [editingCarId, setEditingCarId] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const photoInputRef = useRef(null);
@@ -78,38 +81,97 @@ const CarManagement = () => {
     setPhotoPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleStartEdit = (car) => {
+    setForm({
+      name: car.name,
+      brand: car.brand,
+      model: car.model,
+      year: car.year,
+      registrationNo: car.registrationNo,
+      fuelType: car.fuelType,
+      transmission: car.transmission,
+      seats: car.seats,
+      doors: car.doors,
+      pricePerDay: car.pricePerDay,
+      mileage: car.mileage || '',
+      color: car.color || '',
+      vinNumber: car.vinNumber || '',
+      ac: car.ac !== false,
+      description: car.description || '',
+    });
+    setEditingCarId(car.id);
+    setPhotoPreviews(car.photos || []);
+    setShowAddForm(true);
+    setViewingCarId(null);
+  };
+
   /* ── Submit ──────────────────────────────────────────────────────── */
   const submitCar = async (event) => {
     event.preventDefault();
     if (company?.status !== 'verified') return;
     setLoading(true);
+    setMessage('');
 
-    // Upload all photos
-    const uploadedPhotos = await Promise.all(
-      photoFiles.map((f) => readFileAsDataUrl(f).then((r) => r?.url || '')),
-    );
+    if (editingCarId) {
+      const apiResult = await updateCarApi({
+        carId: editingCarId,
+        carName: form.name,
+        vehicleBrand: form.brand,
+        vehicleModel: form.model,
+        manufacturingYear: Number(form.year),
+        color: form.color,
+        vinNumber: form.vinNumber,
+        registrationNo: form.registrationNo,
+        perDayCharge: Number(form.pricePerDay),
+        fuelType: form.fuelType,
+        transmission: form.transmission,
+        noOfSeats: Number(form.seats),
+        noOfDoors: Number(form.doors),
+        mileage: form.mileage,
+        airConditioning: form.ac,
+        description: form.description,
+        vehiclePhotos: photoFiles,
+        insuranceInvoice: insuranceFile,
+        registrationCardImage: regCardFile,
+      }, currentUser.token);
 
-    // Upload documents
-    const insuranceUrl = insuranceFile
-      ? (await readFileAsDataUrl(insuranceFile))?.url || ''
-      : '';
-    const regCardUrl = regCardFile
-      ? (await readFileAsDataUrl(regCardFile))?.url || ''
-      : '';
+      if (!apiResult.success) {
+        setMessage(apiResult.message || 'Failed to update car. Please try again.');
+        setLoading(false);
+        return;
+      }
 
-    addCar({
-      ...form,
-      companyId: company.id,
-      year: Number(form.year),
-      seats: Number(form.seats),
-      doors: Number(form.doors),
-      pricePerDay: Number(form.pricePerDay),
-      // First photo is the "main" image for backward compat
-      image: uploadedPhotos[0] || '',
-      photos: uploadedPhotos,
-      insuranceInvoice: insuranceUrl,
-      registrationCardImage: regCardUrl,
-    });
+      updateCar(apiResult.car);
+    } else {
+      const apiResult = await addCarApi({
+        carName: form.name,
+        vehicleBrand: form.brand,
+        vehicleModel: form.model,
+        manufacturingYear: Number(form.year),
+        color: form.color,
+        vinNumber: form.vinNumber,
+        registrationNo: form.registrationNo,
+        perDayCharge: Number(form.pricePerDay),
+        fuelType: form.fuelType,
+        transmission: form.transmission,
+        noOfSeats: Number(form.seats),
+        noOfDoors: Number(form.doors),
+        mileage: form.mileage,
+        airConditioning: form.ac,
+        description: form.description,
+        vehiclePhotos: photoFiles,
+        insuranceInvoice: insuranceFile,
+        registrationCardImage: regCardFile,
+      }, currentUser.token);
+
+      if (!apiResult.success) {
+        setMessage(apiResult.message || 'Failed to add car. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      addCar(apiResult.car);
+    }
 
     setForm(defaultForm);
     setPhotoFiles([]);
@@ -119,6 +181,7 @@ const CarManagement = () => {
     event.target.reset();
     setLoading(false);
     setShowAddForm(false);
+    setEditingCarId(null);
   };
 
   /* ── Delete ──────────────────────────────────────────────────────── */
@@ -133,6 +196,13 @@ const CarManagement = () => {
   const handleBackToCars = () => {
     setShowAddForm(false);
     setViewingCarId(null);
+    setEditingCarId(null);
+    setForm(defaultForm);
+    setPhotoFiles([]);
+    setPhotoPreviews([]);
+    setInsuranceFile(null);
+    setRegCardFile(null);
+    setMessage('');
   };
 
   /* ── Render ──────────────────────────────────────────────────────── */
@@ -175,9 +245,15 @@ const CarManagement = () => {
       ) : showAddForm ? (
         <form onSubmit={submitCar} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-8">
           <div className="border-b border-slate-100 pb-4">
-            <h3 className="text-xl font-bold text-slate-950">Add New Car Details</h3>
-            <p className="text-sm text-slate-500 mt-1">Enter car details and specifications.</p>
+            <h3 className="text-xl font-bold text-slate-950">{editingCarId ? 'Edit Car Details' : 'Add New Car Details'}</h3>
+            <p className="text-sm text-slate-500 mt-1">{editingCarId ? 'Update car details and specifications.' : 'Enter car details and specifications.'}</p>
           </div>
+
+          {message && (
+            <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
+              {message}
+            </div>
+          )}
 
           {/* ── Vehicle Photos (up to 6) ─────────────────────────────── */}
           <section className="space-y-3">
@@ -459,7 +535,7 @@ const CarManagement = () => {
               disabled={loading}
               className="rounded-2xl bg-[#00D6CC] px-6 py-3 font-bold text-white hover:opacity-90 disabled:opacity-60 disabled:bg-slate-300 disabled:text-slate-500 transition"
             >
-              {loading ? 'Adding...' : 'Add Car'}
+              {loading ? (editingCarId ? 'Updating...' : 'Adding...') : (editingCarId ? 'Save Changes' : 'Add Car')}
             </button>
             <button
               type="button"
@@ -491,6 +567,12 @@ const CarManagement = () => {
                 <option value="available">Available</option>
                 <option value="booked">Booked</option>
               </select>
+              <button
+                onClick={() => handleStartEdit(selectedCar)}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200 transition"
+              >
+                Edit Car
+              </button>
               <button
                 onClick={() => setDeleteConfirmId(selectedCar.id)}
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-100 transition"

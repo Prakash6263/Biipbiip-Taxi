@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { seedState } from '../data/mockData';
 import { loadState, saveState, uid } from '../utils/storage';
-import { registerCompanyApi, loginCompanyApi } from '../utils/api';
+import { registerCompanyApi, loginCompanyApi, fetchCompanyCarsApi } from '../utils/api';
 
 const AppContext = createContext(null);
 
@@ -33,6 +33,12 @@ export const AppProvider = ({ children }) => {
       localStorage.removeItem('car_rental_current_user');
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser && currentUser.role === 'admin' && currentUser.token) {
+      syncCompanyCars(currentUser.token);
+    }
+  }, [currentUser?.token]);
 
   const login = async ({ email, password, role }) => {
     if (role === 'admin') {
@@ -93,6 +99,7 @@ export const AppProvider = ({ children }) => {
       });
 
       setCurrentUser(newAdmin);
+      syncCompanyCars(companyData.token);
       return { ok: true };
     }
 
@@ -195,14 +202,124 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
-  const addCar = (car) => {
+  const syncCompanyCars = async (token) => {
+    const apiResult = await fetchCompanyCarsApi(token);
+    if (!apiResult.success) {
+      console.error('Failed to sync cars from backend:', apiResult.message);
+      return;
+    }
+
+    const backendCars = apiResult.cars || [];
+    const formattedCars = backendCars.map((backendCar) => {
+      const formattedPhotos = (backendCar.vehiclePhotos || []).map((photo) =>
+        photo.startsWith('http') ? photo : `https://node.aitechnotech.in/biip/uploads/company-car/${photo}`
+      );
+
+      return {
+        id: backendCar._id || uid('car'),
+        companyId: backendCar.companyId,
+        name: backendCar.carName,
+        brand: backendCar.vehicleBrand,
+        model: backendCar.vehicleModel,
+        year: backendCar.manufacturingYear,
+        registrationNo: backendCar.registrationNo,
+        fuelType: backendCar.fuelType,
+        transmission: backendCar.transmission,
+        seats: backendCar.noOfSeats,
+        doors: backendCar.noOfDoors,
+        pricePerDay: backendCar.perDayCharge,
+        mileage: backendCar.mileage,
+        color: backendCar.color,
+        vinNumber: backendCar.vinNumber,
+        ac: backendCar.airConditioning,
+        description: backendCar.description,
+        status: 'available',
+        image: formattedPhotos[0] || '',
+        photos: formattedPhotos,
+        insuranceInvoice: backendCar.insuranceInvoice,
+        registrationCardImage: backendCar.registrationCardImage,
+        createdAt: backendCar.createdAt || new Date().toISOString(),
+      };
+    });
+
+    setState((prev) => {
+      const companyId = currentUser?.companyId;
+      const otherCars = prev.cars.filter((car) => car.companyId !== companyId);
+      return {
+        ...prev,
+        cars: [...formattedCars, ...otherCars],
+      };
+    });
+  };
+
+  const addCar = (backendCar) => {
+    const formattedPhotos = (backendCar.vehiclePhotos || []).map((photo) =>
+      photo.startsWith('http') ? photo : `https://node.aitechnotech.in/biip/uploads/company-car/${photo}`
+    );
+
     const newCar = {
-      id: uid('car'),
-      ...car,
+      id: backendCar._id || uid('car'),
+      companyId: backendCar.companyId,
+      name: backendCar.carName,
+      brand: backendCar.vehicleBrand,
+      model: backendCar.vehicleModel,
+      year: backendCar.manufacturingYear,
+      registrationNo: backendCar.registrationNo,
+      fuelType: backendCar.fuelType,
+      transmission: backendCar.transmission,
+      seats: backendCar.noOfSeats,
+      doors: backendCar.noOfDoors,
+      pricePerDay: backendCar.perDayCharge,
+      mileage: backendCar.mileage,
+      color: backendCar.color,
+      vinNumber: backendCar.vinNumber,
+      ac: backendCar.airConditioning,
+      description: backendCar.description,
       status: 'available',
-      createdAt: new Date().toISOString(),
+      image: formattedPhotos[0] || '',
+      photos: formattedPhotos,
+      insuranceInvoice: backendCar.insuranceInvoice,
+      registrationCardImage: backendCar.registrationCardImage,
+      createdAt: backendCar.createdAt || new Date().toISOString(),
     };
     setState((prev) => ({ ...prev, cars: [newCar, ...prev.cars] }));
+  };
+
+  const updateCar = (backendCar) => {
+    const formattedPhotos = (backendCar.vehiclePhotos || []).map((photo) =>
+      photo.startsWith('http') ? photo : `https://node.aitechnotech.in/biip/uploads/company-car/${photo}`
+    );
+
+    const updated = {
+      id: backendCar._id || uid('car'),
+      companyId: backendCar.companyId,
+      name: backendCar.carName,
+      brand: backendCar.vehicleBrand,
+      model: backendCar.vehicleModel,
+      year: backendCar.manufacturingYear,
+      registrationNo: backendCar.registrationNo,
+      fuelType: backendCar.fuelType,
+      transmission: backendCar.transmission,
+      seats: backendCar.noOfSeats,
+      doors: backendCar.noOfDoors,
+      pricePerDay: backendCar.perDayCharge,
+      mileage: backendCar.mileage,
+      color: backendCar.color,
+      vinNumber: backendCar.vinNumber,
+      ac: backendCar.airConditioning,
+      description: backendCar.description,
+      status: backendCar.status || 'available',
+      image: formattedPhotos[0] || '',
+      photos: formattedPhotos,
+      insuranceInvoice: backendCar.insuranceInvoice,
+      registrationCardImage: backendCar.registrationCardImage,
+      createdAt: backendCar.createdAt || new Date().toISOString(),
+    };
+
+    setState((prev) => ({
+      ...prev,
+      cars: prev.cars.map((car) => (car.id === updated.id ? updated : car)),
+    }));
   };
 
   const updateCarStatus = (carId, status) => {
@@ -319,6 +436,8 @@ export const AppProvider = ({ children }) => {
       verifyCompany,
       rejectCompany,
       addCar,
+      updateCar,
+      syncCompanyCars,
       updateCarStatus,
       deleteCar,
       createRentalRequest,

@@ -83,3 +83,177 @@ export const loginCompanyApi = async (email, password) => {
   }
 };
 
+export const addCarApi = async (data, token) => {
+  try {
+    const formData = new FormData();
+    formData.append('carName', data.carName);
+    formData.append('vehicleBrand', data.vehicleBrand);
+    formData.append('vehicleModel', data.vehicleModel);
+    formData.append('manufacturingYear', data.manufacturingYear);
+    formData.append('color', data.color);
+    formData.append('vinNumber', data.vinNumber || '');
+    formData.append('registrationNo', data.registrationNo);
+    formData.append('perDayCharge', data.perDayCharge);
+    formData.append('fuelType', data.fuelType);
+    formData.append('transmission', data.transmission);
+    formData.append('noOfSeats', data.noOfSeats);
+    formData.append('noOfDoors', data.noOfDoors);
+    formData.append('mileage', data.mileage || '');
+    formData.append('airConditioning', String(data.airConditioning));
+    formData.append('bluetooth', 'true');
+    formData.append('usb', 'true');
+    formData.append('gps', 'true');
+    formData.append('description', data.description || '');
+
+    if (data.vehiclePhotos && data.vehiclePhotos.length > 0) {
+      data.vehiclePhotos.forEach((file) => {
+        formData.append('vehiclePhotos', file);
+      });
+    }
+
+    if (data.insuranceInvoice) {
+      formData.append('insuranceInvoice', data.insuranceInvoice);
+    }
+    if (data.registrationCardImage) {
+      formData.append('registrationCardImage', data.registrationCardImage);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/company/car`, {
+      method: 'POST',
+      headers: {
+        'accept': '*/*',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const resJson = await response.json();
+
+    if (!response.ok || !resJson.success) {
+      return {
+        success: false,
+        message: resJson.message || 'Adding car failed from server',
+      };
+    }
+
+    return {
+      success: true,
+      car: resJson.data.car,
+      message: resJson.message,
+    };
+  } catch (error) {
+    console.error('API Error in addCarApi:', error);
+    return {
+      success: false,
+      message: error.message || 'Network error occurred during adding car.',
+    };
+  }
+};
+
+export const fetchCompanyCarsApi = async (token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/company/cars`, {
+      method: 'GET',
+      headers: {
+        'accept': '*/*',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const resJson = await response.json();
+
+    if (!response.ok || !resJson.success) {
+      return {
+        success: false,
+        message: resJson.message || 'Fetching cars failed from server',
+      };
+    }
+
+    return {
+      success: true,
+      cars: resJson.data.cars,
+      message: resJson.message,
+    };
+  } catch (error) {
+    console.error('API Error in fetchCompanyCarsApi:', error);
+    return {
+      success: false,
+      message: error.message || 'Network error occurred during fetching cars.',
+    };
+  }
+};
+
+export const updateCarApi = async (data, token) => {
+  try {
+    const formData = new FormData();
+    formData.append('carId', data.carId);
+    formData.append('carName', data.carName);
+    formData.append('vehicleBrand', data.vehicleBrand);
+    formData.append('vehicleModel', data.vehicleModel);
+    formData.append('manufacturingYear', data.manufacturingYear);
+    formData.append('color', data.color);
+    formData.append('vinNumber', data.vinNumber || '');
+    formData.append('registrationNo', data.registrationNo);
+    formData.append('perDayCharge', data.perDayCharge);
+    formData.append('fuelType', data.fuelType);
+    formData.append('transmission', data.transmission);
+    formData.append('noOfSeats', data.noOfSeats);
+    formData.append('noOfDoors', data.noOfDoors);
+    formData.append('mileage', data.mileage || '');
+    formData.append('airConditioning', String(data.airConditioning));
+    formData.append('bluetooth', 'true');
+    formData.append('usb', 'true');
+    formData.append('gps', 'true');
+    formData.append('description', data.description || '');
+
+    if (data.vehiclePhotos && data.vehiclePhotos.length > 0) {
+      data.vehiclePhotos.forEach((file) => {
+        if (file instanceof File) {
+          formData.append('vehiclePhotos', file);
+        }
+      });
+    } else {
+      formData.append('vehiclePhotos', 'string');
+    }
+
+    if (data.insuranceInvoice) {
+      formData.append('insuranceInvoice', data.insuranceInvoice);
+    }
+    if (data.registrationCardImage) {
+      formData.append('registrationCardImage', data.registrationCardImage);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/company/car`, {
+      method: 'PATCH',
+      headers: {
+        'accept': '*/*',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const resJson = await response.json();
+
+    if (!response.ok || !resJson.success) {
+      return {
+        success: false,
+        message: resJson.message || 'Updating car failed from server',
+      };
+    }
+
+    return {
+      success: true,
+      car: resJson.data.car,
+      message: resJson.message,
+    };
+  } catch (error) {
+    console.error('API Error in updateCarApi:', error);
+    return {
+      success: false,
+      message: error.message || 'Network error occurred during updating car.',
+    };
+  }
+};
+
+
+
