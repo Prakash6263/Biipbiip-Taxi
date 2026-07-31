@@ -193,9 +193,12 @@ const App = () => {
     activePage,
     handleShowVerificationDetail,
     handleShowCompanyDetail,
+    handleShowCarDetail,
     roleConfig.defaultPage,
     selectedVerificationId,
     selectedCompanyId,
+    selectedCarId,
+    selectedCarEditId,
   ]);
 
   return (
