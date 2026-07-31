@@ -15,6 +15,51 @@ const initialState = () => {
   };
 };
 
+const mapBackendCar = (backendCar) => {
+  if (!backendCar) return null;
+  const doc = backendCar._doc || backendCar;
+
+  const rawPhotos = backendCar.vehiclePhotos || doc.vehiclePhotos || [];
+  const formattedPhotos = rawPhotos.map((photo) => {
+    if (typeof photo !== 'string') return '';
+    return photo.startsWith('http') || photo.startsWith('data:') ? photo : `https://node.aitechnotech.in/biip/api/v1/uploads/company-car/${photo}`;
+  });
+
+  const formatDocUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    return `https://node.aitechnotech.in/biip/api/v1/uploads/company-car/${url}`;
+  };
+
+  const companyId = doc.companyId?._id || doc.companyId || backendCar.companyId || '';
+
+  return {
+    id: doc._id || backendCar._id || uid('car'),
+    companyId,
+    name: doc.carName || backendCar.carName || '',
+    brand: doc.vehicleBrand || backendCar.vehicleBrand || '',
+    model: doc.vehicleModel || backendCar.vehicleModel || '',
+    year: doc.manufacturingYear || backendCar.manufacturingYear || new Date().getFullYear(),
+    registrationNo: doc.registrationNo || backendCar.registrationNo || '',
+    fuelType: doc.fuelType || backendCar.fuelType || 'Petrol',
+    transmission: doc.transmission || backendCar.transmission || 'Manual',
+    seats: doc.noOfSeats || backendCar.noOfSeats || 5,
+    doors: doc.noOfDoors || backendCar.noOfDoors || 4,
+    pricePerDay: doc.perDayCharge || backendCar.perDayCharge || 0,
+    mileage: doc.mileage || backendCar.mileage || '',
+    color: doc.color || backendCar.color || '',
+    vinNumber: doc.vinNumber || backendCar.vinNumber || '',
+    ac: doc.airConditioning !== undefined ? doc.airConditioning : (backendCar.airConditioning !== undefined ? backendCar.airConditioning : true),
+    description: doc.description || backendCar.description || '',
+    status: doc.status || backendCar.status || 'available',
+    image: formattedPhotos[0] || '',
+    photos: formattedPhotos,
+    insuranceInvoice: formatDocUrl(backendCar.insuranceInvoice || doc.insuranceInvoice),
+    registrationCardImage: formatDocUrl(backendCar.registrationCardImage || doc.registrationCardImage),
+    createdAt: doc.createdAt || backendCar.createdAt || new Date().toISOString(),
+  };
+};
+
 export const AppProvider = ({ children }) => {
   const [state, setState] = useState(initialState);
   const [currentUser, setCurrentUser] = useState(() => {
@@ -264,37 +309,7 @@ export const AppProvider = ({ children }) => {
     }
 
     const backendCars = apiResult.cars || [];
-    const formattedCars = backendCars.map((backendCar) => {
-      const formattedPhotos = (backendCar.vehiclePhotos || []).map((photo) =>
-        photo.startsWith('http') ? photo : `https://node.aitechnotech.in/biip/uploads/company-car/${photo}`
-      );
-
-      return {
-        id: backendCar._id || uid('car'),
-        companyId: backendCar.companyId,
-        name: backendCar.carName,
-        brand: backendCar.vehicleBrand,
-        model: backendCar.vehicleModel,
-        year: backendCar.manufacturingYear,
-        registrationNo: backendCar.registrationNo,
-        fuelType: backendCar.fuelType,
-        transmission: backendCar.transmission,
-        seats: backendCar.noOfSeats,
-        doors: backendCar.noOfDoors,
-        pricePerDay: backendCar.perDayCharge,
-        mileage: backendCar.mileage,
-        color: backendCar.color,
-        vinNumber: backendCar.vinNumber,
-        ac: backendCar.airConditioning,
-        description: backendCar.description,
-        status: 'available',
-        image: formattedPhotos[0] || '',
-        photos: formattedPhotos,
-        insuranceInvoice: backendCar.insuranceInvoice,
-        registrationCardImage: backendCar.registrationCardImage,
-        createdAt: backendCar.createdAt || new Date().toISOString(),
-      };
-    });
+    const formattedCars = backendCars.map(mapBackendCar).filter(Boolean);
 
     setState((prev) => {
       const companyId = currentUser?.companyId;
@@ -437,73 +452,20 @@ export const AppProvider = ({ children }) => {
   };
 
   const addCar = (backendCar) => {
-    const formattedPhotos = (backendCar.vehiclePhotos || []).map((photo) =>
-      photo.startsWith('http') ? photo : `https://node.aitechnotech.in/biip/uploads/company-car/${photo}`
-    );
-
-    const newCar = {
-      id: backendCar._id || uid('car'),
-      companyId: backendCar.companyId,
-      name: backendCar.carName,
-      brand: backendCar.vehicleBrand,
-      model: backendCar.vehicleModel,
-      year: backendCar.manufacturingYear,
-      registrationNo: backendCar.registrationNo,
-      fuelType: backendCar.fuelType,
-      transmission: backendCar.transmission,
-      seats: backendCar.noOfSeats,
-      doors: backendCar.noOfDoors,
-      pricePerDay: backendCar.perDayCharge,
-      mileage: backendCar.mileage,
-      color: backendCar.color,
-      vinNumber: backendCar.vinNumber,
-      ac: backendCar.airConditioning,
-      description: backendCar.description,
-      status: 'available',
-      image: formattedPhotos[0] || '',
-      photos: formattedPhotos,
-      insuranceInvoice: backendCar.insuranceInvoice,
-      registrationCardImage: backendCar.registrationCardImage,
-      createdAt: backendCar.createdAt || new Date().toISOString(),
-    };
-    setState((prev) => ({ ...prev, cars: [newCar, ...prev.cars] }));
+    const newCar = mapBackendCar(backendCar);
+    if (newCar) {
+      setState((prev) => ({ ...prev, cars: [newCar, ...prev.cars] }));
+    }
   };
 
   const updateCar = (backendCar) => {
-    const formattedPhotos = (backendCar.vehiclePhotos || []).map((photo) =>
-      photo.startsWith('http') ? photo : `https://node.aitechnotech.in/biip/uploads/company-car/${photo}`
-    );
-
-    const updated = {
-      id: backendCar._id || uid('car'),
-      companyId: backendCar.companyId,
-      name: backendCar.carName,
-      brand: backendCar.vehicleBrand,
-      model: backendCar.vehicleModel,
-      year: backendCar.manufacturingYear,
-      registrationNo: backendCar.registrationNo,
-      fuelType: backendCar.fuelType,
-      transmission: backendCar.transmission,
-      seats: backendCar.noOfSeats,
-      doors: backendCar.noOfDoors,
-      pricePerDay: backendCar.perDayCharge,
-      mileage: backendCar.mileage,
-      color: backendCar.color,
-      vinNumber: backendCar.vinNumber,
-      ac: backendCar.airConditioning,
-      description: backendCar.description,
-      status: backendCar.status || 'available',
-      image: formattedPhotos[0] || '',
-      photos: formattedPhotos,
-      insuranceInvoice: backendCar.insuranceInvoice,
-      registrationCardImage: backendCar.registrationCardImage,
-      createdAt: backendCar.createdAt || new Date().toISOString(),
-    };
-
-    setState((prev) => ({
-      ...prev,
-      cars: prev.cars.map((car) => (car.id === updated.id ? updated : car)),
-    }));
+    const updated = mapBackendCar(backendCar);
+    if (updated) {
+      setState((prev) => ({
+        ...prev,
+        cars: prev.cars.map((car) => (car.id === updated.id ? updated : car)),
+      }));
+    }
   };
 
   const updateCarStatus = (carId, status) => {

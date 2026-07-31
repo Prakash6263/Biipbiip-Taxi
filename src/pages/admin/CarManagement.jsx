@@ -1,5 +1,5 @@
 import { ImagePlus, Trash2, Plus, ArrowLeft, Eye, X, FileText, CheckCircle } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Badge from '../../components/Badge';
 import EmptyState from '../../components/EmptyState';
 import { useApp } from '../../context/AppContext';
@@ -30,7 +30,7 @@ const defaultForm = {
   description: '',
 };
 
-const CarManagement = () => {
+const CarManagement = ({ onShowDetail, editCarId, clearEditCarId }) => {
   const { state, currentUser, addCar, updateCar, updateCarStatus, deleteCar } = useApp();
   const company = state.companies.find((item) => item.id === currentUser?.companyId);
   const cars = state.cars.filter((car) => car.companyId === company?.id);
@@ -46,14 +46,22 @@ const CarManagement = () => {
 
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [viewingCarId, setViewingCarId] = useState(null);
   const [editingCarId, setEditingCarId] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const photoInputRef = useRef(null);
 
-  const selectedCar = cars.find((car) => car.id === viewingCarId);
   const carToDelete = cars.find((car) => car.id === deleteConfirmId);
+
+  useEffect(() => {
+    if (editCarId) {
+      const carToEdit = cars.find((car) => car.id === editCarId);
+      if (carToEdit) {
+        handleStartEdit(carToEdit);
+      }
+      clearEditCarId?.();
+    }
+  }, [editCarId, cars]);
 
   /* ── Photo helpers ───────────────────────────────────────────────── */
   const handlePhotoAdd = async (files) => {
@@ -102,7 +110,6 @@ const CarManagement = () => {
     setEditingCarId(car.id);
     setPhotoPreviews(car.photos || []);
     setShowAddForm(true);
-    setViewingCarId(null);
   };
 
   /* ── Submit ──────────────────────────────────────────────────────── */
@@ -188,14 +195,12 @@ const CarManagement = () => {
   const handleDeleteConfirm = () => {
     if (deleteConfirmId) {
       deleteCar(deleteConfirmId);
-      if (viewingCarId === deleteConfirmId) handleBackToCars();
       setDeleteConfirmId(null);
     }
   };
 
   const handleBackToCars = () => {
     setShowAddForm(false);
-    setViewingCarId(null);
     setEditingCarId(null);
     setForm(defaultForm);
     setPhotoFiles([]);
@@ -214,7 +219,7 @@ const CarManagement = () => {
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Admin</p>
           <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Car Management</h2>
         </div>
-        {company?.status === 'verified' && (showAddForm || viewingCarId) && (
+        {company?.status === 'verified' && showAddForm && (
           <button
             onClick={handleBackToCars}
             className="flex items-center gap-2 self-start rounded-2xl bg-[#00D6CC] px-5 py-3 text-sm font-bold text-white hover:opacity-90 transition"
@@ -223,7 +228,7 @@ const CarManagement = () => {
             <span>Back to Cars</span>
           </button>
         )}
-        {company?.status === 'verified' && !showAddForm && !viewingCarId && (
+        {company?.status === 'verified' && !showAddForm && (
           <button
             onClick={() => setShowAddForm(true)}
             className="flex items-center gap-2 self-start rounded-2xl bg-[#00D6CC] px-5 py-3 text-sm font-bold text-white hover:opacity-90 transition"
@@ -547,116 +552,6 @@ const CarManagement = () => {
           </div>
         </form>
 
-      /* ── Single Car Detail View ─────────────────────────────────────── */
-      ) : viewingCarId && selectedCar ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-6">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4 gap-4">
-            <div>
-              <h3 className="text-2xl font-bold text-slate-950">{selectedCar.name}</h3>
-              <p className="text-sm text-slate-500 mt-1">
-                {selectedCar.brand} • {selectedCar.model} • {selectedCar.year}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <select
-                value={selectedCar.status}
-                onChange={(e) => updateCarStatus(selectedCar.id, e.target.value)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold outline-none focus:border-slate-950 cursor-pointer"
-              >
-                <option value="available">Available</option>
-                <option value="booked">Booked</option>
-              </select>
-              <button
-                onClick={() => handleStartEdit(selectedCar)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200 transition"
-              >
-                Edit Car
-              </button>
-              <button
-                onClick={() => setDeleteConfirmId(selectedCar.id)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-100 transition"
-              >
-                <Trash2 size={15} /> Delete Car
-              </button>
-            </div>
-          </div>
-
-          {/* Photos gallery */}
-          {(selectedCar.photos?.length > 0 || selectedCar.image) && (
-            <div className="space-y-3">
-              {/* Main photo */}
-              <div className="h-64 w-full overflow-hidden rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center">
-                <img
-                  src={selectedCar.photos?.[0] || selectedCar.image}
-                  alt={selectedCar.name}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              {/* Thumbnail strip */}
-              {selectedCar.photos?.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {selectedCar.photos.map((src, i) => (
-                    <div
-                      key={i}
-                      className="h-16 w-20 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100"
-                    >
-                      <img src={src} alt={`Photo ${i + 1}`} className="h-full w-full object-cover" />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-          {!selectedCar.photos?.length && !selectedCar.image && (
-            <div className="h-48 rounded-2xl bg-slate-100 border border-slate-200 flex flex-col items-center justify-center text-slate-400">
-              <ImagePlus size={40} className="mx-auto" />
-              <p className="mt-2 text-sm font-semibold">No Image Available</p>
-            </div>
-          )}
-
-          {/* Details grid */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            <InfoCard label="Registration No." value={selectedCar.registrationNo} />
-            <InfoCard label="Fuel Type" value={selectedCar.fuelType} />
-            <InfoCard label="Transmission" value={selectedCar.transmission} />
-            <InfoCard label="No. of Seats" value={`${selectedCar.seats} Seats`} />
-            <InfoCard label="No. of Doors" value={`${selectedCar.doors || '—'} Doors`} />
-            <InfoCard label="Manufacturing Year" value={selectedCar.year} />
-            <InfoCard label="Mileage" value={selectedCar.mileage || '—'} />
-            <InfoCard label="Color" value={selectedCar.color || '—'} />
-            <InfoCard label="Per Day Charge" value={currency(selectedCar.pricePerDay)} />
-            <InfoCard label="AC" value={selectedCar.ac === false ? 'Non-AC' : 'AC'} />
-            <InfoCard label="VIN Number" value={selectedCar.vinNumber || '—'} />
-            <div className="col-span-2">
-              <InfoCard label="Current Status" value={<Badge status={selectedCar.status} />} />
-            </div>
-          </div>
-
-          {/* Documents */}
-          {(selectedCar.insuranceInvoice || selectedCar.registrationCardImage) && (
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Documents</h4>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {selectedCar.insuranceInvoice && (
-                  <DocPreviewCard label="Insurance Invoice" src={selectedCar.insuranceInvoice} />
-                )}
-                {selectedCar.registrationCardImage && (
-                  <DocPreviewCard label="Registration Card" src={selectedCar.registrationCardImage} />
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Description */}
-          <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Description</h4>
-            <p className="mt-2 text-sm text-slate-700 leading-relaxed">
-              {selectedCar.description || 'No description provided for this car.'}
-            </p>
-          </div>
-        </div>
-
       /* ── Cars Table View ────────────────────────────────────────────── */
       ) : (
         <section className="space-y-4">
@@ -734,7 +629,7 @@ const CarManagement = () => {
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => setViewingCarId(car.id)}
+                              onClick={() => onShowDetail(car.id)}
                               className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 transition"
                             >
                               <Eye size={13} /> View
@@ -853,39 +748,5 @@ const FileUploadField = ({ label, file, accept, onChange, hint }) => (
     </label>
   </div>
 );
-
-const InfoCard = ({ label, value }) => (
-  <div className="rounded-2xl bg-slate-50 p-3 border border-slate-100/50">
-    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{label}</p>
-    <div className="mt-1 text-sm font-bold text-slate-950">{value}</div>
-  </div>
-);
-
-const DocPreviewCard = ({ label, src }) => {
-  const isPdf = src?.startsWith('data:application/pdf') || src?.endsWith('.pdf');
-  return (
-    <div className="rounded-2xl border border-slate-200 overflow-hidden">
-      {isPdf ? (
-        <a
-          href={src}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-3 bg-slate-50 p-4 hover:bg-slate-100 transition"
-        >
-          <FileText size={24} className="text-[#00D6CC]" />
-          <div>
-            <p className="text-sm font-bold text-slate-800">{label}</p>
-            <p className="text-xs text-slate-500">Click to view PDF</p>
-          </div>
-        </a>
-      ) : (
-        <div className="space-y-2">
-          <img src={src} alt={label} className="h-40 w-full object-cover" />
-          <p className="px-3 pb-3 text-xs font-bold text-slate-500 uppercase tracking-wide">{label}</p>
-        </div>
-      )}
-    </div>
-  );
-};
 
 export default CarManagement;

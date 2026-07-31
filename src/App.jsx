@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import CarManagement from './pages/admin/CarManagement';
+import CarDetail from './pages/admin/CarDetail';
 import CompanyProfile from './pages/admin/CompanyProfile';
 import RentRequests from './pages/admin/RentRequests';
 import CompanyList from './pages/super_admin/CompanyList';
@@ -27,6 +28,7 @@ const ROLE_CONFIG = {
     allowedPages: [
       'admin-dashboard',
       'cars',
+      'car-detail',
       'requests',
       'company-profile',
     ],
@@ -70,6 +72,9 @@ const App = () => {
   const [selectedCompanyId, setSelectedCompanyId] =
     useState(null);
 
+  const [selectedCarId, setSelectedCarId] = useState(null);
+  const [selectedCarEditId, setSelectedCarEditId] = useState(null);
+
   useEffect(() => {
     const hasAccess = roleConfig.allowedPages.includes(activePage);
 
@@ -94,6 +99,14 @@ const App = () => {
     []
   );
 
+  const handleShowCarDetail = useCallback(
+    (carId) => {
+      setSelectedCarId(carId);
+      setActivePage('car-detail');
+    },
+    []
+  );
+
   const page = useMemo(() => {
     const pages = {
       login: (
@@ -107,7 +120,23 @@ const App = () => {
       'admin-dashboard': (
         <AdminDashboard setActivePage={setActivePage} />
       ),
-      cars: <CarManagement />,
+      cars: (
+        <CarManagement
+          onShowDetail={handleShowCarDetail}
+          editCarId={selectedCarEditId}
+          clearEditCarId={() => setSelectedCarEditId(null)}
+        />
+      ),
+      'car-detail': (
+        <CarDetail
+          carId={selectedCarId}
+          setActivePage={setActivePage}
+          onStartEdit={(carId) => {
+            setSelectedCarEditId(carId);
+            setActivePage('cars');
+          }}
+        />
+      ),
       requests: <RentRequests />,
       'company-profile': <CompanyProfile />,
 

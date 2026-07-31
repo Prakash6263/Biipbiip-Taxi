@@ -106,7 +106,9 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
           }
 
           const Icon = item.icon;
-          const active = activePage === item.key || (item.key === 'verification-requests' && activePage === 'verification-detail');
+          const active = activePage === item.key || 
+            (item.key === 'verification-requests' && activePage === 'verification-detail') ||
+            (item.key === 'cars' && activePage === 'car-detail');
           return (
             <button
               key={item.key}
