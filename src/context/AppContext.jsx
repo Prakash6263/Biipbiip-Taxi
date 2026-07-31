@@ -15,7 +15,7 @@ const initialState = () => {
   };
 };
 
-const mapBackendCar = (backendCar) => {
+export const mapBackendCar = (backendCar) => {
   if (!backendCar) return null;
   const doc = backendCar._doc || backendCar;
 

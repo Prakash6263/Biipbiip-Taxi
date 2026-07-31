@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Trash2, ImagePlus, FileText, CheckCircle } from 'lucide-react';
 import Badge from '../../components/Badge';
-import { useApp } from '../../context/AppContext';
+import { useApp, mapBackendCar } from '../../context/AppContext';
 import { currency } from '../../utils/storage';
+import { fetchCarByIdApi } from '../../utils/api';
 
 const InfoCard = ({ label, value }) => (
   <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100/50 hover:bg-slate-50/80 transition-colors">
@@ -39,16 +40,55 @@ const DocPreviewCard = ({ label, src }) => {
 };
 
 const CarDetail = ({ carId, setActivePage, onStartEdit }) => {
-  const { state, updateCarStatus, deleteCar } = useApp();
-  const car = state.cars.find((c) => c.id === carId);
+  const { currentUser, updateCarStatus, deleteCar } = useApp();
+  const [car, setCar] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
-  if (!car) {
+  useEffect(() => {
+    const loadCarDetails = async () => {
+      if (!carId || !currentUser?.token) {
+        setError('No car ID or authorization token provided.');
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError('');
+      const apiResult = await fetchCarByIdApi(carId, currentUser.token);
+
+      if (apiResult.success) {
+        const normalizedCar = mapBackendCar(apiResult.car);
+        if (normalizedCar) {
+          setCar(normalizedCar);
+        } else {
+          setError('Failed to process car details returned from server.');
+        }
+      } else {
+        setError(apiResult.message || 'Failed to fetch car details from server.');
+      }
+      setLoading(false);
+    };
+
+    loadCarDetails();
+  }, [carId, currentUser?.token]);
+
+  if (loading) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center space-y-4">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-[#00D6CC]"></div>
+        <p className="text-sm font-semibold text-slate-500">Loading car details...</p>
+      </div>
+    );
+  }
+
+  if (error || !car) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-xl font-bold text-slate-900">Car Not Found</h3>
-        <p className="text-sm text-slate-500 mt-2">The requested car could not be found or has been deleted.</p>
+        <h3 className="text-xl font-bold text-rose-600">{error || 'Car Not Found'}</h3>
+        <p className="text-sm text-slate-500 mt-2">The requested car could not be loaded or has been deleted.</p>
         <button
           onClick={() => setActivePage('cars')}
           className="mt-6 rounded-2xl bg-[#00D6CC] px-6 py-3 font-bold text-white hover:opacity-90 transition"
@@ -62,6 +102,11 @@ const CarDetail = ({ carId, setActivePage, onStartEdit }) => {
   const handleDelete = () => {
     deleteCar(car.id);
     setActivePage('cars');
+  };
+
+  const handleStatusChange = (newStatus) => {
+    updateCarStatus(car.id, newStatus);
+    setCar(prev => ({ ...prev, status: newStatus }));
   };
 
   const hasPhotos = car.photos?.length > 0;
@@ -90,7 +135,7 @@ const CarDetail = ({ carId, setActivePage, onStartEdit }) => {
           <div className="flex items-center gap-3 flex-wrap">
             <select
               value={car.status}
-              onChange={(e) => updateCarStatus(car.id, e.target.value)}
+              onChange={(e) => handleStatusChange(e.target.value)}
               className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold outline-none focus:border-slate-950 cursor-pointer shadow-sm hover:border-slate-300 transition"
             >
               <option value="available">Available</option>

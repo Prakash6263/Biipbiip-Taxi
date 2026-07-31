@@ -183,6 +183,39 @@ export const fetchCompanyCarsApi = async (token) => {
   }
 };
 
+export const fetchCarByIdApi = async (carId, token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/company/car/${carId}`, {
+      method: 'GET',
+      headers: {
+        'accept': '*/*',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const resJson = await response.json();
+
+    if (!response.ok || !resJson.success) {
+      return {
+        success: false,
+        message: resJson.message || 'Fetching car details failed from server',
+      };
+    }
+
+    return {
+      success: true,
+      car: resJson.data.car,
+      message: resJson.message,
+    };
+  } catch (error) {
+    console.error('API Error in fetchCarByIdApi:', error);
+    return {
+      success: false,
+      message: error.message || 'Network error occurred during fetching car details.',
+    };
+  }
+};
+
 export const updateCarApi = async (data, token) => {
   try {
     const formData = new FormData();
