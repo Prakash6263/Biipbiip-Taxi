@@ -36,8 +36,8 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
               key={item}
               onClick={() => setFilter(item)}
               className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${filter === item
-                  ? 'bg-[#00D6CC] text-white shadow-sm'
-                  : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
+                ? 'bg-[#00D6CC] text-white shadow-sm'
+                : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
                 }`}
             >
               {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
@@ -121,12 +121,6 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
                           className="rounded-xl bg-[#00D6CC]/10 text-[#00D6CC] hover:bg-[#00D6CC] hover:text-white px-3 py-2 text-xs font-bold transition shadow-sm"
                         >
                           Show Details
-                        </button>
-                        <button
-                          onClick={() => onShowRides?.(req.id)}
-                          className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 px-3 py-2 text-xs font-bold transition shadow-sm"
-                        >
-                          View Rides
                         </button>
                       </div>
                     </td>

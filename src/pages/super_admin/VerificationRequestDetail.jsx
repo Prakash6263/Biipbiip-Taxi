@@ -1,25 +1,90 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Badge from '../../components/Badge';
-import FilePreview from '../../components/FilePreview';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
-import { User, Car, Phone, Mail, ArrowLeft, ShieldAlert } from 'lucide-react';
+import {
+  User,
+  Car,
+  Phone,
+  Mail,
+  ArrowLeft,
+  ShieldAlert,
+  RotateCw,
+  ZoomIn,
+  ZoomOut,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  ExternalLink,
+  Copy,
+  Check,
+  Calendar,
+  FileText,
+  AlertCircle,
+  Eye,
+  FileMinus,
+  CheckCircle,
+  RefreshCw,
+  Building
+} from 'lucide-react';
+
+const CopyButton = ({ text }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="p-1 rounded-lg text-slate-400 hover:text-[#00D6CC] hover:bg-slate-50 transition active:scale-95"
+      title="Copy to clipboard"
+    >
+      {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+    </button>
+  );
+};
 
 const VerificationRequestDetail = ({ verificationId, setActivePage }) => {
   const { state, approveVerificationRequest, rejectVerificationRequest } = useApp();
   const [reason, setReason] = useState('');
+  const [formError, setFormError] = useState('');
+
+  // Lightbox state
+  const [lightboxIdx, setLightboxIdx] = useState(null);
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const req = (state.verificationRequests || []).find((r) => r.id === verificationId);
 
+  // Keyboard controls for lightbox
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (lightboxIdx === null) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowRight') nextDoc();
+      if (e.key === 'ArrowLeft') prevDoc();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxIdx]);
+
   if (!req) {
     return (
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-500 max-w-lg mx-auto mt-12">
-        <ShieldAlert size={48} className="mx-auto text-rose-500 mb-4" />
+      <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-500 max-w-lg mx-auto mt-12 shadow-soft">
+        <ShieldAlert size={48} className="mx-auto text-rose-500 mb-4 animate-pulse" />
         <h3 className="text-lg font-bold text-slate-950">Request Not Found</h3>
         <p className="text-sm text-slate-500 mt-2">The verification request you are looking for does not exist or has been removed.</p>
         <button
           onClick={() => setActivePage('verification-requests')}
-          className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-[#00D6CC] px-5 py-2.5 font-bold text-white hover:opacity-90 transition"
+          className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-[#00D6CC] px-5 py-2.5 font-bold text-white hover:opacity-90 transition shadow-lg shadow-[#00D6CC]/20"
         >
           <ArrowLeft size={16} /> Back to Requests
         </button>
@@ -27,276 +92,644 @@ const VerificationRequestDetail = ({ verificationId, setActivePage }) => {
     );
   }
 
+  // Prepopulate documents list
+  const docsList = [];
+  const addDoc = (category, side, fileObj) => {
+    if (!fileObj) return;
+    docsList.push({
+      id: `${category.toLowerCase().replace(/\s+/g, '_')}_${side.toLowerCase().replace(/\s+/g, '_')}`,
+      category,
+      side,
+      name: fileObj.name || `${category}_${side}.jpg`,
+      url: fileObj.url || '',
+      uploadedAt: fileObj.uploadedAt,
+      file: fileObj
+    });
+  };
+
+  addDoc('National ID', 'Front Side', req.nationalId?.front);
+  addDoc('National ID', 'Back Side', req.nationalId?.back);
+  addDoc('Driver License', 'Front Side', req.driverLicense?.front || req.document);
+  addDoc('Driver License', 'Back Side', req.driverLicense?.back);
+  addDoc('Vehicle Registration', 'Front Side', req.vehicleRegistration);
+  addDoc('Vehicle Registration', 'Back Side', req.vehicleRegistrationBack);
+
+  const documentFilesCount = docsList.length;
+
+  // Append car photos if they exist
+  if (req.carImages && req.carImages.length > 0) {
+    req.carImages.forEach((img, index) => {
+      docsList.push({
+        id: `vehicle_photo_${index}`,
+        category: 'Vehicle Photo',
+        side: `Photo ${index + 1}`,
+        name: `vehicle_photo_${index + 1}.jpg`,
+        url: img.url,
+        uploadedAt: req.createdAt,
+        file: img
+      });
+    });
+  }
+
+  const isImageUrl = (url, name) => {
+    if (!url) return false;
+    if (url.startsWith('data:image/') || url.startsWith('blob:')) return true;
+    const extension = (name || url).split('.').pop().toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(extension);
+  };
+
+  const openLightbox = (docId) => {
+    const idx = docsList.findIndex((d) => d.id === docId);
+    if (idx !== -1) {
+      setLightboxIdx(idx);
+      resetTransform();
+    }
+  };
+
+  const closeLightbox = () => {
+    setLightboxIdx(null);
+  };
+
+  const nextDoc = () => {
+    if (lightboxIdx === null || docsList.length <= 1) return;
+    setLightboxIdx((prev) => (prev + 1) % docsList.length);
+    resetTransform();
+  };
+
+  const prevDoc = () => {
+    if (lightboxIdx === null || docsList.length <= 1) return;
+    setLightboxIdx((prev) => (prev - 1 + docsList.length) % docsList.length);
+    resetTransform();
+  };
+
+  const resetTransform = () => {
+    setZoom(1);
+    setRotation(0);
+    setPan({ x: 0, y: 0 });
+    setIsDragging(false);
+  };
+
+  const handleMouseDown = (e) => {
+    if (zoom <= 1) return; // Only drag when zoomed in
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    setPan({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleReject = () => {
+    if (!reason.trim()) {
+      setFormError('Please select or write a rejection reason before rejecting.');
+      return;
+    }
+    setFormError('');
+    rejectVerificationRequest(req.id, reason);
+  };
+
+  const handleApprove = () => {
+    setFormError('');
+    approveVerificationRequest(req.id);
+  };
+
+  const rejectionPresets = [
+    'Documents are blurry/unreadable',
+    'Expired Driver License',
+    'Name on ID does not match profile',
+    'Incorrect or fake vehicle registration plate',
+    'Vehicle photos do not match description'
+  ];
+
+  // Helper to render inline previews in standard physical card ratio
+  const renderDocPreview = (category, side, fileObj) => {
+    if (!fileObj) {
+      return (
+        <div className="relative aspect-[1.586/1] w-full flex flex-col items-center justify-center border border-dashed border-slate-200 rounded-2xl bg-slate-50/55 p-3 text-center select-none">
+          <FileMinus size={20} className="text-slate-300 mb-1.5" />
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">{side}</span>
+          <span className="text-[10px] text-slate-400 mt-0.5">Not Uploaded</span>
+        </div>
+      );
+    }
+
+    const docId = `${category.toLowerCase().replace(/\s+/g, '_')}_${side.toLowerCase().replace(/\s+/g, '_')}`;
+    const isImg = isImageUrl(fileObj.url, fileObj.name);
+
+    return (
+      <div className="group relative flex flex-col rounded-2xl border border-slate-200 bg-white p-2.5 shadow-soft hover:shadow-md hover:border-[#00D6CC] transition duration-300">
+        <div className="relative aspect-[1.586/1] w-full overflow-hidden rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+          {isImg ? (
+            <img
+              src={fileObj.url}
+              alt={`${category} ${side}`}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center p-3 text-center">
+              <FileText size={32} className="text-red-400 mb-1.5" />
+              <span className="text-[11px] font-mono font-semibold text-slate-700 truncate max-w-[130px]">{fileObj.name}</span>
+            </div>
+          )}
+
+          {/* Hover Overlay */}
+          <div
+            onClick={() => openLightbox(docId)}
+            className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-1 cursor-zoom-in text-white backdrop-blur-[1px]"
+          >
+            <div className="rounded-full bg-[#00D6CC]/90 p-1.5 text-white shadow-lg shadow-[#00D6CC]/30 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+              <Eye size={15} />
+            </div>
+            <span className="text-[10px] font-bold tracking-wider uppercase">Inspect</span>
+          </div>
+        </div>
+
+        <div className="mt-2 flex items-center justify-between min-w-0">
+          <div className="min-w-0">
+            <span className="text-[9px] font-bold text-[#00D6CC] uppercase tracking-wider block mb-0.5">{side}</span>
+            <span className="text-xs font-semibold text-slate-800 truncate block max-w-[120px]" title={fileObj.name}>
+              {fileObj.name}
+            </span>
+          </div>
+          {fileObj.url && (
+            <a
+              href={fileObj.url}
+              target="_blank"
+              rel="noreferrer"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition"
+              title="Open raw file"
+              onClick={(e) => e.stopPropagation()}
+            >
+            </a>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const activeDoc = lightboxIdx !== null ? docsList[lightboxIdx] : null;
+
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-8 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
       {/* Header / Back Action */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5">
         <div className="flex items-center gap-4">
           <button
             onClick={() => setActivePage('verification-requests')}
-            className="group flex items-center justify-center rounded-2xl border border-slate-200 bg-white p-2.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
-            title="Go Back"
+            className="group flex items-center justify-center h-12 w-12 rounded-2xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition duration-200 shadow-soft"
+            title="Back to requests list"
           >
-            <ArrowLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
+            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           </button>
           <div>
             <div className="flex items-center gap-3">
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Verification Detail</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Driver Verification</span>
               <Badge status={req.status} />
             </div>
-            <h2 className="mt-1 text-2xl font-bold text-slate-950 sm:text-3xl">
+            <h2 className="mt-1.5 text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Request from {req.userName}
             </h2>
           </div>
         </div>
-        <p className="text-xs text-slate-400 font-mono">
-          Submitted: {formatDate(req.createdAt)}
-        </p>
+        <div className="flex flex-col sm:items-end gap-1.5 text-slate-400 font-medium">
+          <div className="flex items-center gap-1.5 text-xs bg-slate-100 px-3 py-1.5 rounded-xl font-mono">
+            <Calendar size={13} className="text-slate-400" />
+            <span>Submitted: {formatDate(req.createdAt)}</span>
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Driver Contact & Submitted Documents Info */}
-        <div className="md:col-span-2 space-y-6">
-          {/* User Profile Card */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-6">
-            <h3 className="text-base font-bold text-slate-950 flex items-center gap-2 border-b border-slate-100 pb-3">
-              <User size={18} className="text-[#00D6CC]" /> Driver Information
-            </h3>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400 font-medium">Full Name</p>
-                <p className="text-sm font-semibold text-slate-950">{req.userName}</p>
+      {/* Main Grid Content */}
+      <div className="grid gap-8 lg:grid-cols-3 items-start">
+        {/* Left Column - Details & Documents */}
+        <div className="lg:col-span-2 space-y-8">
+
+          {/* Driver Information Card */}
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-soft space-y-6">
+            <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#00D6CC] to-[#00b0cc] text-white shadow-md shadow-[#00D6CC]/20">
+                <User size={22} />
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400 font-medium">Email Address</p>
-                <div className="flex items-center gap-2 text-sm text-slate-700">
-                  <Mail size={14} className="text-slate-400" />
-                  <span>{req.userEmail}</span>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">Driver Profile Details</h3>
+                <p className="text-xs text-slate-400">Personal contact and authentication info</p>
+              </div>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Full Name</p>
+                <p className="text-sm font-bold text-slate-800">{req.userName}</p>
+              </div>
+
+              <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Email Address</p>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-semibold text-slate-700 truncate">{req.userEmail || '—'}</span>
+                  {req.userEmail && <CopyButton text={req.userEmail} />}
                 </div>
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400 font-medium">Phone Number</p>
-                <div className="flex items-center gap-2 text-sm text-slate-700">
-                  <Phone size={14} className="text-slate-400" />
-                  <span>{req.userPhone}</span>
+
+              <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Phone Number</p>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-semibold text-slate-700">{req.userPhone || '—'}</span>
+                  {req.userPhone && <CopyButton text={req.userPhone} />}
                 </div>
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400 font-medium">Associated Company ID</p>
-                <p className="text-sm font-mono text-slate-600">{req.companyId || '—'}</p>
+
+              <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Associated Company ID</p>
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                  <Building size={14} className="text-slate-400" />
+                  <span className="font-mono">{req.companyId || '—'}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Submitted Documents Card */}
+          {/* Inline Document Previews Section - Refined to Compact 3-Column Grid */}
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-6">
-            <h3 className="text-base font-bold text-slate-950 border-b border-slate-100 pb-3">
-              Submitted Documents
-            </h3>
-            
-            <div className="grid gap-4 sm:grid-cols-3">
-              {/* National ID */}
-              <div className="flex flex-col justify-between rounded-2xl border border-slate-100 p-4 bg-slate-50/50 hover:border-slate-200 transition space-y-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="rounded-xl bg-sky-50 p-2 text-sky-600">
-                      <User size={18} />
-                    </div>
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">National ID</span>
-                  </div>
-                  
-                  {req.nationalId?.front || req.nationalId?.back ? (
-                    <div className="space-y-4">
-                      {req.nationalId.front && (
-                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Front Side</span>
-                          <p className="text-sm font-semibold text-slate-850 truncate">{req.nationalId.front.name}</p>
-                          <FilePreview files={[req.nationalId.front]} />
-                        </div>
-                      )}
-                      {req.nationalId.back && (
-                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Back Side</span>
-                          <p className="text-sm font-semibold text-slate-850 truncate">{req.nationalId.back.name}</p>
-                          <FilePreview files={[req.nationalId.back]} />
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-400 italic">Not Uploaded</p>
-                  )}
+            <div>
+              <h3 className="text-base font-bold text-slate-900">Submitted Documents</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Click any document image to inspect, zoom, or rotate</p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {/* National ID Column */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                  <div className="h-1.5 w-1.5 rounded-full bg-sky-500" />
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">National ID</span>
+                </div>
+                <div className="space-y-4">
+                  {renderDocPreview('National ID', 'Front Side', req.nationalId?.front)}
+                  {renderDocPreview('National ID', 'Back Side', req.nationalId?.back)}
                 </div>
               </div>
 
-              {/* Driver License */}
-              <div className="flex flex-col justify-between rounded-2xl border border-slate-100 p-4 bg-slate-50/50 hover:border-slate-200 transition space-y-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="rounded-xl bg-emerald-50 p-2 text-emerald-600">
-                      <ShieldAlert size={18} />
-                    </div>
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Driver License</span>
-                  </div>
-                  
-                  {req.driverLicense?.front || req.driverLicense?.back || req.document ? (
-                    <div className="space-y-4">
-                      {(req.driverLicense?.front || req.document) && (
-                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Front Side</span>
-                          <p className="text-sm font-semibold text-slate-850 truncate">{(req.driverLicense?.front || req.document).name}</p>
-                          <FilePreview files={[req.driverLicense?.front || req.document]} />
-                        </div>
-                      )}
-                      {req.driverLicense?.back && (
-                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Back Side</span>
-                          <p className="text-sm font-semibold text-slate-850 truncate">{req.driverLicense.back.name}</p>
-                          <FilePreview files={[req.driverLicense.back]} />
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-400 italic">Not Uploaded</p>
-                  )}
+              {/* Driver License Column */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Driver License</span>
+                </div>
+                <div className="space-y-4">
+                  {renderDocPreview('Driver License', 'Front Side', req.driverLicense?.front || req.document)}
+                  {renderDocPreview('Driver License', 'Back Side', req.driverLicense?.back)}
                 </div>
               </div>
 
-              {/* Vehicle Registration */}
-              <div className="flex flex-col justify-between rounded-2xl border border-slate-100 p-4 bg-slate-50/50 hover:border-slate-200 transition space-y-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="rounded-xl bg-violet-50 p-2 text-violet-600">
-                      <Car size={18} />
-                    </div>
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Vehicle Registration</span>
-                  </div>
-                  {req.vehicleRegistration || req.vehicleRegistrationBack ? (
-                    <div className="space-y-4">
-                      {req.vehicleRegistration && (
-                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Front Side</span>
-                          <p className="text-sm font-semibold text-slate-850 truncate">{req.vehicleRegistration.name}</p>
-                          <FilePreview files={[req.vehicleRegistration]} />
-                        </div>
-                      )}
-                      {req.vehicleRegistrationBack && (
-                        <div className="space-y-1 bg-white p-2.5 rounded-xl border border-slate-100">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Back Side</span>
-                          <p className="text-sm font-semibold text-slate-850 truncate">{req.vehicleRegistrationBack.name}</p>
-                          <FilePreview files={[req.vehicleRegistrationBack]} />
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-400 italic">Not Uploaded</p>
-                  )}
+              {/* Vehicle Registration Column */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                  <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vehicle Reg.</span>
+                </div>
+                <div className="space-y-4">
+                  {renderDocPreview('Vehicle Registration', 'Front Side', req.vehicleRegistration)}
+                  {renderDocPreview('Vehicle Registration', 'Back Side', req.vehicleRegistrationBack)}
                 </div>
               </div>
             </div>
           </div>
 
           {/* Car Specifications Details */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-4">
-            <h3 className="text-base font-bold text-slate-950 flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Car size={18} className="text-[#00D6CC]" /> Car Details
-            </h3>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400 font-medium">Car Name / Model</p>
-                <p className="text-sm font-semibold text-slate-950">{req.carName}</p>
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-soft space-y-6">
+            <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#00D6CC] to-[#00b0cc] text-white shadow-md shadow-[#00D6CC]/20">
+                <Car size={22} />
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400 font-medium">Registration Number</p>
-                <p className="text-sm font-mono font-semibold text-slate-800 bg-slate-100 px-2 py-0.5 rounded w-max">
-                  {req.registrationNo}
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">Vehicle Configuration</h3>
+                <p className="text-xs text-slate-400">Specifications and uploaded vehicle photos</p>
+              </div>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Brand & Model</p>
+                <p className="text-sm font-bold text-slate-800">{req.carName || '—'}</p>
+              </div>
+              <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Registration Plate Number</p>
+                <p className="mt-1 text-sm font-mono font-bold text-[#00D6CC] bg-[#00D6CC]/5 px-3 py-1 rounded-xl w-max border border-[#00D6CC]/15">
+                  {req.registrationNo || '—'}
                 </p>
               </div>
             </div>
+
             {req.carImages && req.carImages.length > 0 ? (
-              <div className="mt-4">
-                <p className="text-xs text-slate-400 font-medium mb-2">Car Images</p>
-                <div className="grid grid-cols-2 gap-4">
-                  {req.carImages.map((img, i) => (
-                    <div key={i} className="aspect-video w-full overflow-hidden rounded-2xl border border-slate-100 bg-slate-50">
-                      <img
-                        src={img.url}
-                        alt={`Car Preview ${i + 1}`}
-                        className="h-full w-full object-cover hover:scale-105 transition duration-200"
-                      />
-                    </div>
-                  ))}
+              <div className="mt-6">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Vehicle Photos</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {req.carImages.map((img, i) => {
+                    const docId = `vehicle_photo_${i}`;
+                    return (
+                      <div
+                        key={i}
+                        onClick={() => openLightbox(docId)}
+                        className="group relative aspect-video w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 cursor-zoom-in shadow-soft hover:shadow-md hover:border-[#00D6CC] transition duration-300"
+                      >
+                        <img
+                          src={img.url}
+                          alt={`Car Preview ${i + 1}`}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Eye size={16} className="text-white" />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
-              <div className="mt-4 border border-dashed border-slate-200 rounded-2xl p-6 text-center text-xs text-slate-400">
-                No car images uploaded.
+              <div className="mt-4 border border-dashed border-slate-200 rounded-2xl p-8 text-center bg-slate-50/50">
+                <FileMinus size={28} className="mx-auto text-slate-300 mb-2" />
+                <p className="text-xs text-slate-400 font-medium">No car photos uploaded.</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Action Panel Column */}
-        <div className="md:col-span-1">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-6 sticky top-6">
-            <h3 className="text-base font-bold text-slate-950 border-b border-slate-100 pb-3">
-              Status & Actions
+        {/* Right Column - Decision Panel & Actions */}
+        <div className="lg:sticky lg:top-8 space-y-6">
+
+          {/* Decision Controller */}
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-6">
+            <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+              <CheckCircle size={18} className="text-[#00D6CC]" /> Decision & Status
             </h3>
 
-            {/* Status Information */}
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-              <span className="text-sm text-slate-500 font-medium">Current Status</span>
+            {/* Current Status Box */}
+            <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4 border border-slate-100">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Verification Status</span>
               <Badge status={req.status} />
             </div>
 
-            {/* Rejection Details */}
+            {/* Rejection Details Display */}
             {req.status === 'rejected' && req.rejectionReason && (
-              <div className="rounded-2xl bg-rose-50 border border-rose-100 p-4 text-xs text-rose-700">
-                <p className="font-bold">Rejection Reason:</p>
-                <p className="mt-1">{req.rejectionReason}</p>
+              <div className="rounded-2xl bg-rose-50 border border-rose-100 p-4 space-y-1">
+                <div className="flex items-center gap-1.5 text-rose-800 text-xs font-bold">
+                  <AlertCircle size={14} />
+                  <span>Rejection Reason</span>
+                </div>
+                <p className="text-xs font-semibold text-rose-700 leading-relaxed">{req.rejectionReason}</p>
               </div>
             )}
 
             {/* Actions for Pending Verification */}
             {req.status === 'pending' ? (
-              <div className="space-y-4 pt-2">
-                <div>
-                  <label className="text-xs font-bold text-slate-500 block mb-2">
-                    REJECTION REASON (OPTIONAL)
+              <div className="space-y-5">
+                {/* Form Errors */}
+                {formError && (
+                  <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-[11px] font-semibold text-amber-700 flex items-start gap-1.5">
+                    <AlertCircle size={14} className="flex-shrink-0 text-amber-600 mt-0.5" />
+                    <span>{formError}</span>
+                  </div>
+                )}
+
+                {/* Quick Presets */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+                    Quick Rejection Comments
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {rejectionPresets.map((preset, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          setReason(preset);
+                          setFormError('');
+                        }}
+                        className="text-[10px] font-semibold text-slate-600 bg-slate-50 hover:bg-[#00D6CC]/10 hover:text-[#00D6CC] px-2.5 py-1.5 rounded-xl border border-slate-200 hover:border-[#00D6CC]/35 transition text-left active:scale-95"
+                      >
+                        {preset}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Reason Text Area */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+                    Rejection Comment / Note
                   </label>
                   <textarea
                     value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    placeholder="E.g., Document details are blurry, incorrect registration number..."
-                    className="w-full min-h-24 rounded-2xl border border-slate-200 p-3 text-xs outline-none focus:border-[#00D6CC] transition-all"
+                    onChange={(e) => {
+                      setReason(e.target.value);
+                      if (e.target.value.trim()) setFormError('');
+                    }}
+                    placeholder="Enter reason if rejecting request..."
+                    className="w-full min-h-[96px] text-xs font-medium rounded-2xl border border-slate-200 p-3.5 outline-none focus:border-[#00D6CC] transition duration-200 placeholder-slate-400"
                   />
                 </div>
-                <div className="flex flex-col gap-2">
+
+                <div className="flex flex-col gap-2.5">
                   <button
-                    onClick={() => {
-                      approveVerificationRequest(req.id);
-                    }}
-                    className="w-full rounded-2xl bg-emerald-600 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition shadow-sm"
+                    onClick={handleApprove}
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 py-3 text-sm font-bold text-white transition duration-200 shadow-md shadow-emerald-600/10 active:scale-[0.98]"
                   >
-                    Approve Request
+                    <CheckCircle size={16} />
+                    <span>Approve Request</span>
                   </button>
                   <button
-                    onClick={() => {
-                      rejectVerificationRequest(req.id, reason);
-                    }}
-                    className="w-full rounded-2xl bg-rose-600 py-3 text-sm font-bold text-white hover:bg-rose-700 transition shadow-sm"
+                    onClick={handleReject}
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-rose-600 hover:bg-rose-500 py-3 text-sm font-bold text-white transition duration-200 shadow-md shadow-rose-600/10 active:scale-[0.98]"
                   >
-                    Reject Request
+                    <X size={16} />
+                    <span>Reject Request</span>
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl text-emerald-800 text-xs font-medium">
-                No pending actions. This request is already {req.status}.
+              <div className="text-center py-5 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-slate-400 text-xs font-bold">
+                No active actions pending.
               </div>
             )}
           </div>
+
+          {/* Audit / Extra Card */}
+          <div className="rounded-3xl border border-slate-200 bg-slate-50/50 p-6 text-xs text-slate-400 space-y-3">
+            <h4 className="font-bold text-slate-600 uppercase tracking-wide">Verification Audit Logs</h4>
+            <div className="space-y-2 font-medium">
+              <div className="flex justify-between">
+                <span>Requested Profile ID</span>
+                <span className="font-mono text-slate-500 truncate max-w-[120px]" title={req.id}>{req.id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Uploaded Documents</span>
+                <span className="font-semibold text-slate-600">{documentFilesCount} files</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Verification State</span>
+                <span className="capitalize">{req.status}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Advanced Lightbox Modal */}
+      {activeDoc && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-slate-950/95 p-4 backdrop-blur-md transition-opacity duration-300"
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+        >
+          {/* Lightbox Header */}
+          <div className="w-full max-w-6xl flex items-center justify-between py-2 border-b border-white/10 text-white">
+            <div>
+              <span className="text-[10px] font-bold text-[#00D6CC] tracking-widest uppercase block">
+                {activeDoc.category}
+              </span>
+              <h3 className="text-sm font-bold truncate max-w-[250px] md:max-w-md">
+                {activeDoc.side} — {activeDoc.name}
+              </h3>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-xs bg-white/10 px-2.5 py-1 rounded-lg font-mono text-white/80">
+                {lightboxIdx + 1} / {docsList.length}
+              </span>
+              <button
+                onClick={closeLightbox}
+                className="h-9 w-9 flex items-center justify-center rounded-xl bg-white/10 hover:bg-rose-500/20 hover:text-rose-400 transition"
+                title="Close viewer (Esc)"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Lightbox Viewport & Image */}
+          <div
+            className="relative flex-grow w-full flex items-center justify-center overflow-hidden my-4 select-none"
+            onClick={closeLightbox}
+          >
+            {/* Left Nav Arrow */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                prevDoc();
+              }}
+              className="absolute left-4 z-10 h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#00D6CC]/20 hover:text-[#00D6CC] text-white/80 transition"
+              title="Previous document (Left Arrow)"
+            >
+              <ChevronLeft size={28} />
+            </button>
+
+            {/* The Document Element */}
+            <div
+              className="relative max-w-full max-h-[70vh] flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {isImageUrl(activeDoc.url, activeDoc.name) ? (
+                <img
+                  src={activeDoc.url}
+                  alt={activeDoc.name}
+                  onMouseDown={handleMouseDown}
+                  className={`max-w-full max-h-[70vh] rounded-lg shadow-2xl transition-transform duration-200 select-none ${zoom > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+                    }`}
+                  style={{
+                    transform: `scale(${zoom}) rotate(${rotation}deg) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+                  }}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-2xl p-12 text-center text-white max-w-md">
+                  <FileText size={72} className="text-red-400 mb-4 animate-bounce" />
+                  <h4 className="text-base font-bold mb-2">PDF / Non-Image File</h4>
+                  <p className="text-xs text-white/60 mb-6">This document cannot be previewed directly inside the visual lightbox. Please download it or open in a new tab.</p>
+                  <a
+                    href={activeDoc.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 bg-[#00D6CC] hover:bg-[#00D6CC]/90 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition"
+                  >
+                    <ExternalLink size={16} />
+                    <span>Open in New Tab</span>
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Right Nav Arrow */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                nextDoc();
+              }}
+              className="absolute right-4 z-10 h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#00D6CC]/20 hover:text-[#00D6CC] text-white/80 transition"
+              title="Next document (Right Arrow)"
+            >
+              <ChevronRight size={28} />
+            </button>
+          </div>
+
+          {/* Lightbox Controls Toolbar */}
+          <div
+            className="w-full max-w-md flex items-center justify-center gap-6 py-3 px-6 rounded-2xl bg-white/5 border border-white/10 text-white backdrop-blur-sm mb-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setZoom((z) => Math.min(z + 0.25, 4))}
+              disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+              className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
+              title="Zoom In"
+            >
+              <ZoomIn size={18} />
+            </button>
+            <button
+              onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))}
+              disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+              className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
+              title="Zoom Out"
+            >
+              <ZoomOut size={18} />
+            </button>
+            <button
+              onClick={() => setRotation((r) => (r + 90) % 360)}
+              disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+              className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
+              title="Rotate Clockwise 90°"
+            >
+              <RotateCw size={18} />
+            </button>
+            <button
+              onClick={resetTransform}
+              disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+              className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
+              title="Reset Transform"
+            >
+              <RefreshCw size={18} />
+            </button>
+            <div className="h-6 w-px bg-white/15" />
+            {activeDoc.url && (
+              <a
+                href={activeDoc.url}
+                download={activeDoc.name}
+                target="_blank"
+                rel="noreferrer"
+                className="p-2 rounded-xl bg-white/5 hover:bg-[#00D6CC]/20 hover:text-[#00D6CC] text-white/90 transition"
+                title="Download / Open Full Screen"
+              >
+                <Download size={18} />
+              </a>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
