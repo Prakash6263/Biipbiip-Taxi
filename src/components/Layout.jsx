@@ -21,6 +21,7 @@ const navConfig = {
       submenu: [
         { key: 'drivers-list', label: 'Drivers' },
         { key: 'drivers-verification', label: 'Document & Verification' },
+        { key: 'driver-rides', label: 'Driver Rides' },
       ],
     },
   ],

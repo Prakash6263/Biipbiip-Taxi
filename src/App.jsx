@@ -16,6 +16,7 @@ import DriverList from './pages/super_admin/DriverList';
 import SuperAdminDashboard from './pages/super_admin/SuperAdminDashboard';
 import VerificationRequestDetail from './pages/super_admin/VerificationRequestDetail';
 import VerificationRequests from './pages/super_admin/VerificationRequests';
+import DriverRides from './pages/super_admin/DriverRides';
 
 const ROLE_CONFIG = {
   public: {
@@ -46,6 +47,7 @@ const ROLE_CONFIG = {
       'drivers-verification',
       'verification-requests',
       'verification-detail',
+      'driver-rides',
     ],
   },
 };
@@ -74,6 +76,7 @@ const App = () => {
 
   const [selectedCarId, setSelectedCarId] = useState(null);
   const [selectedCarEditId, setSelectedCarEditId] = useState(null);
+  const [selectedDriverRidesId, setSelectedDriverRidesId] = useState(null);
 
   useEffect(() => {
     const hasAccess = roleConfig.allowedPages.includes(activePage);
@@ -103,6 +106,14 @@ const App = () => {
     (carId) => {
       setSelectedCarId(carId);
       setActivePage('car-detail');
+    },
+    []
+  );
+
+  const handleShowDriverRides = useCallback(
+    (driverId) => {
+      setSelectedDriverRidesId(driverId);
+      setActivePage('driver-rides');
     },
     []
   );
@@ -168,6 +179,7 @@ const App = () => {
       'drivers-list': (
         <DriverList
           onShowDetail={handleShowVerificationDetail}
+          onShowRides={handleShowDriverRides}
         />
       ),
       'drivers-verification': (
@@ -186,6 +198,12 @@ const App = () => {
           setActivePage={setActivePage}
         />
       ),
+      'driver-rides': (
+        <DriverRides
+          selectedDriverId={selectedDriverRidesId}
+          setSelectedDriverId={setSelectedDriverRidesId}
+        />
+      ),
     };
 
     return pages[activePage] ?? pages[roleConfig.defaultPage];
@@ -194,11 +212,13 @@ const App = () => {
     handleShowVerificationDetail,
     handleShowCompanyDetail,
     handleShowCarDetail,
+    handleShowDriverRides,
     roleConfig.defaultPage,
     selectedVerificationId,
     selectedCompanyId,
     selectedCarId,
     selectedCarEditId,
+    selectedDriverRidesId,
   ]);
 
   return (

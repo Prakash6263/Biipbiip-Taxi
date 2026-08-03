@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
 import { Search, User, Car, Phone, Mail } from 'lucide-react';
 
-const DriverList = ({ onShowDetail }) => {
+const DriverList = ({ onShowDetail, onShowRides }) => {
   const { state } = useApp();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
@@ -115,12 +115,20 @@ const DriverList = ({ onShowDetail }) => {
                       {formatDate(req.createdAt)}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => onShowDetail?.(req.id)}
-                        className="rounded-xl bg-[#00D6CC] text-white hover:opacity-90 px-4 py-2 text-xs font-bold transition shadow-sm"
-                      >
-                        Show Details
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => onShowDetail?.(req.id)}
+                          className="rounded-xl bg-[#00D6CC]/10 text-[#00D6CC] hover:bg-[#00D6CC] hover:text-white px-3 py-2 text-xs font-bold transition shadow-sm"
+                        >
+                          Show Details
+                        </button>
+                        <button
+                          onClick={() => onShowRides?.(req.id)}
+                          className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 px-3 py-2 text-xs font-bold transition shadow-sm"
+                        >
+                          View Rides
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
