@@ -7,11 +7,21 @@ const AppContext = createContext(null);
 
 const initialState = () => {
   const loaded = loadState();
-  if (!loaded) return seedState;
+  if (!loaded) {
+    return {
+      ...seedState,
+      driverNotifications: [],
+      userNotifications: [],
+      companyNotifications: [],
+    };
+  }
   return {
     ...seedState,
     ...loaded,
     verificationRequests: loaded.verificationRequests || seedState.verificationRequests || [],
+    driverNotifications: loaded.driverNotifications || [],
+    userNotifications: loaded.userNotifications || [],
+    companyNotifications: loaded.companyNotifications || [],
   };
 };
 
@@ -586,8 +596,73 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const sendDriverNotification = (notificationData) => {
+    const newNotification = {
+      id: uid('notif'),
+      ...notificationData,
+      createdAt: new Date().toISOString(),
+    };
+    setState((prev) => ({
+      ...prev,
+      driverNotifications: [newNotification, ...(prev.driverNotifications || [])],
+    }));
+    return { ok: true };
+  };
+
+  const deleteDriverNotification = (notificationId) => {
+    setState((prev) => ({
+      ...prev,
+      driverNotifications: (prev.driverNotifications || []).filter((n) => n.id !== notificationId),
+    }));
+  };
+
+  const sendUserNotification = (notificationData) => {
+    const newNotification = {
+      id: uid('notif'),
+      ...notificationData,
+      createdAt: new Date().toISOString(),
+    };
+    setState((prev) => ({
+      ...prev,
+      userNotifications: [newNotification, ...(prev.userNotifications || [])],
+    }));
+    return { ok: true };
+  };
+
+  const deleteUserNotification = (notificationId) => {
+    setState((prev) => ({
+      ...prev,
+      userNotifications: (prev.userNotifications || []).filter((n) => n.id !== notificationId),
+    }));
+  };
+
+  const sendCompanyNotification = (notificationData) => {
+    const newNotification = {
+      id: uid('notif'),
+      ...notificationData,
+      createdAt: new Date().toISOString(),
+    };
+    setState((prev) => ({
+      ...prev,
+      companyNotifications: [newNotification, ...(prev.companyNotifications || [])],
+    }));
+    return { ok: true };
+  };
+
+  const deleteCompanyNotification = (notificationId) => {
+    setState((prev) => ({
+      ...prev,
+      companyNotifications: (prev.companyNotifications || []).filter((n) => n.id !== notificationId),
+    }));
+  };
+
   const resetDemoData = () => {
-    setState(seedState);
+    setState({
+      ...seedState,
+      driverNotifications: [],
+      userNotifications: [],
+      companyNotifications: [],
+    });
     setCurrentUser(null);
     localStorage.removeItem('car_rental_current_user');
   };
@@ -613,6 +688,12 @@ export const AppProvider = ({ children }) => {
       markReturned,
       approveVerificationRequest,
       rejectVerificationRequest,
+      sendDriverNotification,
+      deleteDriverNotification,
+      sendUserNotification,
+      deleteUserNotification,
+      sendCompanyNotification,
+      deleteCompanyNotification,
       resetDemoData,
     }),
     [state, currentUser],

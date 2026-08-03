@@ -1,4 +1,4 @@
-import { Building2, Car, ClipboardList, Home, LogOut, Menu, RefreshCcw, ShieldCheck, UserPlus, X, ChevronDown, ChevronUp, Users } from 'lucide-react';
+import { Building2, Car, ClipboardList, Home, LogOut, Menu, RefreshCcw, ShieldCheck, UserPlus, X, ChevronDown, ChevronUp, Users, Bell } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 
@@ -22,6 +22,16 @@ const navConfig = {
         { key: 'drivers-list', label: 'Drivers' },
         { key: 'drivers-verification', label: 'Document & Verification' },
         { key: 'driver-rides', label: 'Driver Rides' },
+      ],
+    },
+    {
+      key: 'notifications-group',
+      label: 'Notification',
+      icon: Bell,
+      submenu: [
+        { key: 'user-notifications', label: 'User' },
+        { key: 'driver-notifications', label: 'Driver' },
+        { key: 'company-notifications', label: 'Company' },
       ],
     },
   ],

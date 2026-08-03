@@ -17,6 +17,9 @@ import SuperAdminDashboard from './pages/super_admin/SuperAdminDashboard';
 import VerificationRequestDetail from './pages/super_admin/VerificationRequestDetail';
 import VerificationRequests from './pages/super_admin/VerificationRequests';
 import DriverRides from './pages/super_admin/DriverRides';
+import DriverNotifications from './pages/super_admin/DriverNotifications';
+import UserNotifications from './pages/super_admin/UserNotifications';
+import CompanyNotifications from './pages/super_admin/CompanyNotifications';
 
 const ROLE_CONFIG = {
   public: {
@@ -48,6 +51,9 @@ const ROLE_CONFIG = {
       'verification-requests',
       'verification-detail',
       'driver-rides',
+      'driver-notifications',
+      'user-notifications',
+      'company-notifications',
     ],
   },
 };
@@ -203,6 +209,15 @@ const App = () => {
           selectedDriverId={selectedDriverRidesId}
           setSelectedDriverId={setSelectedDriverRidesId}
         />
+      ),
+      'driver-notifications': (
+        <DriverNotifications />
+      ),
+      'user-notifications': (
+        <UserNotifications />
+      ),
+      'company-notifications': (
+        <CompanyNotifications />
       ),
     };
 
