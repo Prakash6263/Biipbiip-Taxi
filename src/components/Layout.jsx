@@ -1,4 +1,4 @@
-import { Building2, Car, ClipboardList, Home, LogOut, Menu, RefreshCcw, ShieldCheck, UserPlus, X, ChevronDown, ChevronUp, Users, Bell } from 'lucide-react';
+import { Building2, Car, ClipboardList, Home, LogOut, Menu, RefreshCcw, ShieldCheck, UserPlus, X, ChevronDown, ChevronUp, Users, Bell, Ticket } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 
@@ -34,6 +34,7 @@ const navConfig = {
         { key: 'company-notifications', label: 'Company' },
       ],
     },
+    { key: 'coupons', label: 'Coupons', icon: Ticket },
   ],
   admin: [
     { key: 'admin-dashboard', label: 'Dashboard', icon: Home },

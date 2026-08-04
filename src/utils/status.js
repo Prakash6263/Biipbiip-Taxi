@@ -7,6 +7,8 @@ export const statusStyles = {
   returned: 'bg-slate-50 text-slate-700 ring-slate-200',
   booked: 'bg-purple-50 text-purple-700 ring-purple-200',
   available: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+  expired: 'bg-rose-50 text-rose-700 ring-rose-200',
+  inactive: 'bg-slate-50 text-slate-700 ring-slate-200',
 };
 
 export const labelize = (value) =>

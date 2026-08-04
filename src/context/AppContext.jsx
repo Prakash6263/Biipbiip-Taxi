@@ -13,6 +13,7 @@ const initialState = () => {
       driverNotifications: [],
       userNotifications: [],
       companyNotifications: [],
+      coupons: seedState.coupons || [],
     };
   }
   return {
@@ -22,6 +23,7 @@ const initialState = () => {
     driverNotifications: loaded.driverNotifications || [],
     userNotifications: loaded.userNotifications || [],
     companyNotifications: loaded.companyNotifications || [],
+    coupons: loaded.coupons || seedState.coupons || [],
   };
 };
 
@@ -839,12 +841,46 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const createCoupon = (couponData) => {
+    const newCoupon = {
+      id: uid('coupon'),
+      ...couponData,
+      createdAt: new Date().toISOString(),
+    };
+    setState((prev) => ({
+      ...prev,
+      coupons: [newCoupon, ...(prev.coupons || [])],
+    }));
+    return { ok: true };
+  };
+
+  const deleteCoupon = (couponId) => {
+    setState((prev) => ({
+      ...prev,
+      coupons: (prev.coupons || []).filter((c) => c.id !== couponId),
+    }));
+  };
+
+  const toggleCouponStatus = (couponId) => {
+    setState((prev) => ({
+      ...prev,
+      coupons: (prev.coupons || []).map((c) => {
+        if (c.id === couponId) {
+          const nextStatus = c.status === 'active' ? 'inactive' : 'active';
+          return { ...c, status: nextStatus };
+        }
+        return c;
+      }),
+    }));
+  };
+
   const resetDemoData = () => {
     setState({
       ...seedState,
       driverNotifications: [],
       userNotifications: [],
       companyNotifications: [],
+      coupons: seedState.coupons || [],
     });
     setCurrentUser(null);
     localStorage.removeItem('car_rental_current_user');
@@ -879,6 +915,9 @@ export const AppProvider = ({ children }) => {
       deleteUserNotification,
       sendCompanyNotification,
       deleteCompanyNotification,
+      createCoupon,
+      deleteCoupon,
+      toggleCouponStatus,
       resetDemoData,
     }),
     [state, currentUser],

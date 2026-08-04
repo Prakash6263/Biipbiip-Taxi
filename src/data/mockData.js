@@ -212,4 +212,39 @@ export const seedState = {
       createdAt: new Date(Date.now() - 86400000).toISOString(),
     }
   ],
+  coupons: [
+    {
+      id: 'coupon_1',
+      code: 'WELCOME100',
+      title: 'New User Welcome Bonus',
+      description: 'Get flat ₹100 cashback on your first ride.',
+      benefitType: 'wallet_cashback',
+      benefitValue: 100,
+      expiryDate: '2026-12-31',
+      status: 'active',
+      createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
+    },
+    {
+      id: 'coupon_2',
+      code: 'WEEKEND30',
+      title: 'Weekend Super Discount',
+      description: 'Enjoy 30% off on weekend bookings.',
+      benefitType: 'rental_discount',
+      benefitValue: 30,
+      expiryDate: '2026-09-30',
+      status: 'active',
+      createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+    },
+    {
+      id: 'coupon_3',
+      code: 'FREEFLYER',
+      title: 'Free Ride Day',
+      description: 'Get 1 free day on rentals longer than 5 days.',
+      benefitType: 'free_day',
+      benefitValue: 1,
+      expiryDate: '2026-05-15',
+      status: 'expired',
+      createdAt: new Date(Date.now() - 86400000 * 30).toISOString(),
+    }
+  ]
 };

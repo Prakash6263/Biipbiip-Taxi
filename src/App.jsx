@@ -20,6 +20,8 @@ import DriverRides from './pages/super_admin/DriverRides';
 import DriverNotifications from './pages/super_admin/DriverNotifications';
 import UserNotifications from './pages/super_admin/UserNotifications';
 import CompanyNotifications from './pages/super_admin/CompanyNotifications';
+import Coupons from './pages/super_admin/Coupons';
+import CreateCoupon from './pages/super_admin/CreateCoupon';
 
 const ROLE_CONFIG = {
   public: {
@@ -54,6 +56,8 @@ const ROLE_CONFIG = {
       'driver-notifications',
       'user-notifications',
       'company-notifications',
+      'coupons',
+      'create-coupon',
     ],
   },
 };
@@ -218,6 +222,12 @@ const App = () => {
       ),
       'company-notifications': (
         <CompanyNotifications />
+      ),
+      coupons: (
+        <Coupons setActivePage={setActivePage} />
+      ),
+      'create-coupon': (
+        <CreateCoupon setActivePage={setActivePage} />
       ),
     };
 
