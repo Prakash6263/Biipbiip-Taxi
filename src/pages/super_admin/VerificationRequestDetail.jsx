@@ -62,6 +62,7 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
   const [docRejectionReason, setDocRejectionReason] = useState('');
   const [failedImages, setFailedImages] = useState({});
   const [activeTab, setActiveTab] = useState('documents');
+  const [detailsTab, setDetailsTab] = useState('driver'); // 'driver' or 'vehicle'
   const [verificationAction, setVerificationAction] = useState(null); // 'approve', 'reject', 'request'
 
   // Lightbox state
@@ -149,6 +150,144 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
     if (url.startsWith('data:image/') || url.startsWith('blob:')) return true;
     const extension = (name || url).split('.').pop().toLowerCase();
     return ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(extension);
+  };
+
+  const renderActiveDocContent = () => {
+    if (!activeDoc) return null;
+    if (!activeDoc.url) {
+      return (
+        <div 
+          className="bg-white text-slate-800 p-6 rounded-3xl max-w-sm w-[340px] md:w-[380px] shadow-2xl border border-slate-200 transition-transform duration-200 select-none text-left"
+          style={{
+            transform: `scale(${zoom}) rotate(${rotation}deg) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+          }}
+          onMouseDown={handleMouseDown}
+        >
+          {/* Header */}
+          <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <h4 className="font-extrabold text-[12px] uppercase tracking-wider text-[#00D6CC]">
+                {activeDoc.category}
+              </h4>
+              <span className="text-[9px] text-slate-400 font-bold uppercase">{activeDoc.side}</span>
+            </div>
+            <span className="bg-[#00D6CC]/15 text-[#00D6CC] text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-[#00D6CC]/10">
+              SAMPLE MOCKUP
+            </span>
+          </div>
+
+          {/* Body */}
+          {activeDoc.category.toLowerCase().includes('national id') || activeDoc.category.toLowerCase().includes('aadhaar') ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3.5 bg-slate-50/50 p-3 rounded-2xl border border-slate-100">
+                <div className="h-14 w-12 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400 font-bold text-[8px] border border-slate-300 flex-shrink-0">
+                  PHOTO
+                </div>
+                <div className="space-y-1 text-left min-w-0">
+                  <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Full Name</span>
+                  <p className="text-xs font-extrabold text-slate-800 truncate">{req.userName}</p>
+                  <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block mt-1">Gender / DOB</span>
+                  <p className="text-[10px] font-bold text-slate-600">Male / 15-08-1995</p>
+                </div>
+              </div>
+              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center font-mono font-bold text-slate-850 tracking-widest text-xs">
+                XXXX XXXX 9012
+              </div>
+              <div className="flex items-center justify-between text-[8px] text-slate-400 font-semibold border-t border-slate-100 pt-2">
+                <span>GOVERNMENT OF INDIA</span>
+                <span>UNIQUE IDENTIFICATION AUTHORITY</span>
+              </div>
+            </div>
+          ) : activeDoc.category.toLowerCase().includes('license') ? (
+            <div className="space-y-4">
+              <div className="flex justify-between items-start">
+                <div className="space-y-0.5 text-left">
+                  <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">License Number</span>
+                  <p className="text-xs font-mono font-extrabold text-slate-900">{req.licenseNo || 'DL-1420110012345'}</p>
+                </div>
+                <div className="text-right space-y-0.5">
+                  <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Expiry Date</span>
+                  <p className="text-xs font-extrabold text-rose-600">{req.licenseExpiry ? new Date(req.licenseExpiry).toLocaleDateString('en-IN') : '11 Jun 2029'}</p>
+                </div>
+              </div>
+              <div className="flex gap-3.5 bg-slate-50/50 p-3 rounded-2xl border border-slate-100">
+                <div className="h-14 w-12 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400 font-bold text-[8px] border border-slate-350 flex-shrink-0">
+                  PHOTO
+                </div>
+                <div className="space-y-1 text-left min-w-0">
+                  <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Name</span>
+                  <p className="text-xs font-extrabold text-slate-800 truncate">{req.userName}</p>
+                  <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block mt-1">Class</span>
+                  <p className="text-[9px] font-bold text-[#00D6CC]">MCWG / LMV</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-[8px] text-slate-400 font-semibold border-t border-slate-100 pt-2">
+                <span>TRANSPORT DEPARTMENT</span>
+                <span>UNION OF INDIA</span>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="bg-slate-50/50 p-3 rounded-2xl border border-slate-100 space-y-2">
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-400 font-bold">Owner Name:</span>
+                  <span className="font-extrabold text-slate-805">{req.userName}</span>
+                </div>
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-400 font-bold">Vehicle Model:</span>
+                  <span className="font-extrabold text-slate-850">{req.carName || 'Swift Dzire'}</span>
+                </div>
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-400 font-bold">Plate Number:</span>
+                  <span className="font-mono font-extrabold text-[#00D6CC] bg-[#00D6CC]/5 px-2 py-0.5 rounded border border-[#00D6CC]/15">
+                    {req.registrationNo || 'MP04 CX 7712'}
+                  </span>
+                </div>
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-400 font-bold">Document Type:</span>
+                  <span className="font-extrabold text-slate-600">{activeDoc.category}</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-[8px] text-slate-400 font-semibold border-t border-slate-100 pt-2">
+                <span>ROAD TRANSPORT AUTHORITY</span>
+                <span>REGISTRATION CERTIFICATE</span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (isImageUrl(activeDoc.url, activeDoc.name)) {
+      return (
+        <img
+          src={activeDoc.url}
+          alt={activeDoc.name}
+          onMouseDown={handleMouseDown}
+          className={`max-w-full max-h-[70vh] rounded-lg shadow-2xl transition-transform duration-200 select-none ${zoom > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
+          style={{
+            transform: `scale(${zoom}) rotate(${rotation}deg) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+          }}
+        />
+      );
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-2xl p-12 text-center text-white max-w-md">
+        <FileText size={72} className="text-red-400 mb-4 animate-bounce" />
+        <h4 className="text-base font-bold mb-2">PDF / Non-Image File</h4>
+        <p className="text-xs text-white/60 mb-6">This document cannot be previewed directly inside the visual lightbox. Please download it or open in a new tab.</p>
+        <a
+          href={activeDoc.url}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 bg-[#00D6CC] hover:bg-[#00D6CC]/90 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition"
+        >
+          <ExternalLink size={16} />
+          <span>Open in New Tab</span>
+        </a>
+      </div>
+    );
   };
 
   const openLightbox = (docId) => {
@@ -241,68 +380,74 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
     const docReason = fileObj.rejectionReason || '';
 
     return (
-      <div className={`group relative flex flex-col rounded-2xl border bg-white p-2.5 shadow-soft hover:shadow-md transition duration-300 ${
+      <div className={`group relative flex flex-col justify-between min-h-[230px] rounded-2xl border bg-white p-2.5 shadow-soft hover:shadow-md transition duration-300 ${
         docStatus === 'approved' ? 'border-emerald-500/40 ring-1 ring-emerald-500/10' :
         docStatus === 'rejected' ? 'border-rose-500/40 ring-1 ring-rose-500/10' :
         'border-slate-200'
       }`}>
-        <div className="relative aspect-[1.586/1] w-full overflow-hidden rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
-          {isImg ? (
-            <img
-              src={fileObj.url}
-              alt={`${category} ${side}`}
-              onError={() => setFailedImages(prev => ({ ...prev, [docId]: true }))}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center p-3 text-center">
-              <FileText size={32} className="text-[#00D6CC] mb-1.5" />
-              <span className="text-[11px] font-mono font-semibold text-slate-700 truncate max-w-[130px]">{fileObj.name}</span>
-            </div>
-          )}
+        <div className="space-y-2">
+          <div className="relative aspect-[1.586/1] w-full overflow-hidden rounded-xl bg-slate-55 border border-slate-100 flex items-center justify-center bg-slate-50">
+            {isImg ? (
+              <img
+                src={fileObj.url}
+                alt={`${category} ${side}`}
+                onError={() => setFailedImages(prev => ({ ...prev, [docId]: true }))}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center p-3 text-center">
+                <FileText size={32} className="text-[#00D6CC] mb-1.5" />
+                <span className="text-[11px] font-mono font-semibold text-slate-700 truncate max-w-[130px]">{fileObj.name}</span>
+              </div>
+            )}
 
-          {/* Status Badge in corner */}
-          <div className="absolute top-2 left-2 z-10">
-            {docStatus === 'approved' && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white shadow">
-                <Check size={10} strokeWidth={3} /> Approved
-              </span>
-            )}
-            {docStatus === 'rejected' && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.5 text-[9px] font-bold text-white shadow">
-                <X size={10} strokeWidth={3} /> Rejected
-              </span>
-            )}
-            {docStatus === 'pending' && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-bold text-white shadow animate-pulse">
-                Pending Review
-              </span>
-            )}
+            {/* Status Badge in corner */}
+            <div className="absolute top-2 left-2 z-10">
+              {docStatus === 'approved' && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white shadow">
+                  <Check size={10} strokeWidth={3} /> Approved
+                </span>
+              )}
+              {docStatus === 'rejected' && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.5 text-[9px] font-bold text-white shadow">
+                  <X size={10} strokeWidth={3} /> Rejected
+                </span>
+              )}
+              {docStatus === 'pending' && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-bold text-white shadow animate-pulse">
+                  Pending Review
+                </span>
+              )}
+            </div>
+
+            {/* Hover Overlay */}
+            <div
+              onClick={() => openLightbox(docId)}
+              className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-1 cursor-zoom-in text-white backdrop-blur-[1px]"
+            >
+              <div className="rounded-full bg-[#00D6CC]/90 p-1.5 text-white shadow-lg shadow-[#00D6CC]/30 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                <Eye size={15} />
+              </div>
+              <span className="text-[10px] font-bold tracking-wider uppercase">Inspect</span>
+            </div>
           </div>
 
-          {/* Hover Overlay */}
-          <div
-            onClick={() => openLightbox(docId)}
-            className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-1 cursor-zoom-in text-white backdrop-blur-[1px]"
-          >
-            <div className="rounded-full bg-[#00D6CC]/90 p-1.5 text-white shadow-lg shadow-[#00D6CC]/30 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-              <Eye size={15} />
-            </div>
-            <span className="text-[10px] font-bold tracking-wider uppercase">Inspect</span>
-          </div>
-        </div>
-
-        <div className="mt-2 flex items-center justify-between min-w-0">
           <div className="min-w-0">
             <span className="text-[9px] font-bold text-[#00D6CC] uppercase tracking-wider block mb-0.5">{side}</span>
-            <span className="text-xs font-semibold text-slate-800 truncate block max-w-[120px]" title={fileObj.name}>
+            <span className="text-xs font-semibold text-slate-800 truncate block max-w-[170px]" title={fileObj.name}>
               {fileObj.name}
             </span>
+            {docStatus === 'rejected' && docReason && (
+              <div className="rounded-lg bg-rose-50 border border-rose-100/50 p-1 px-1.5 text-[9px] font-medium text-rose-600 leading-normal flex items-start gap-1 max-h-[30px] overflow-hidden mt-1.5 animate-slideIn" title={docReason}>
+                <AlertCircle size={10} className="flex-shrink-0 mt-0.5 text-rose-500" />
+                <span className="truncate">{docReason}</span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Admin Document Decision Controls */}
-        <div className="mt-3 border-t border-slate-100 pt-2.5 space-y-2">
+        <div className="border-t border-slate-100 pt-2 flex flex-col justify-end min-h-[40px] space-y-1.5">
           {rejectingDocId === docKey ? (
             <div className="space-y-1.5">
               <input
@@ -337,42 +482,34 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 justify-between">
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Verify Doc:</span>
-              <div className="flex gap-1">
-                <button
-                  onClick={() => updateDocumentVerificationStatus(req.id, docKey, 'approved')}
-                  className={`px-2 py-1 text-[9px] font-bold rounded-lg transition flex items-center gap-0.5 ${
-                    docStatus === 'approved'
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200'
-                  }`}
-                  title="Approve document"
-                >
-                  <Check size={10} strokeWidth={2.5} /> Approve
-                </button>
-                <button
-                  onClick={() => {
-                    setRejectingDocId(docKey);
-                    setDocRejectionReason('');
-                  }}
-                  className={`px-2 py-1 text-[9px] font-bold rounded-lg transition flex items-center gap-0.5 ${
-                    docStatus === 'rejected'
-                      ? 'bg-rose-600 text-white shadow-sm'
-                      : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200'
-                  }`}
-                  title="Reject document"
-                >
-                  <X size={10} strokeWidth={2.5} /> Reject
-                </button>
-              </div>
-            </div>
-          )}
-
-          {docStatus === 'rejected' && docReason && (
-            <div className="rounded-lg bg-rose-50 border border-rose-100/50 p-1.5 text-[9px] font-medium text-rose-600 leading-normal flex items-start gap-1">
-              <AlertCircle size={10} className="flex-shrink-0 mt-0.5 text-rose-500" />
-              <span>{docReason}</span>
+            <div className="grid grid-cols-2 gap-1.5 w-full">
+              <button
+                onClick={() => updateDocumentVerificationStatus(req.id, docKey, 'approved')}
+                className={`w-full py-1 text-[9px] font-extrabold rounded-lg transition flex items-center justify-center gap-0.5 ${
+                  docStatus === 'approved'
+                    ? 'bg-emerald-600 text-white shadow-sm'
+                    : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200'
+                }`}
+                title="Approve document"
+              >
+                <Check size={10} strokeWidth={2.5} />
+                <span>Approve</span>
+              </button>
+              <button
+                onClick={() => {
+                  setRejectingDocId(docKey);
+                  setDocRejectionReason('');
+                }}
+                className={`w-full py-1 text-[9px] font-extrabold rounded-lg transition flex items-center justify-center gap-0.5 ${
+                  docStatus === 'rejected'
+                    ? 'bg-rose-600 text-white shadow-sm'
+                    : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-650 hover:border-rose-250'
+                }`}
+                title="Reject document"
+              >
+                <X size={10} strokeWidth={2.5} />
+                <span>Reject</span>
+              </button>
             </div>
           )}
         </div>
@@ -519,30 +656,39 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
                       </div>
 
                       {/* Right Badge and Action Buttons */}
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <span 
-                          onClick={() => {
-                            const nextStatus = doc.status === 'approved' ? 'rejected' : doc.status === 'rejected' ? 'pending' : 'approved';
-                            if (nextStatus === 'rejected') {
-                              setRejectingDocKey(doc.docKey);
-                              setDrawerDocReason('');
-                            } else {
-                              handleDocAction(doc.docKey, nextStatus);
-                            }
-                          }}
-                          className={`cursor-pointer inline-flex rounded-full px-2 py-0.5 text-[9px] font-bold ring-1 ${
-                            doc.status === 'approved' ? 'bg-emerald-50 text-emerald-600 ring-emerald-250/30' :
-                            doc.status === 'rejected' ? 'bg-rose-50 text-rose-600 ring-rose-250/30' :
-                            'bg-amber-50 text-amber-600 ring-amber-250/30'
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => handleDocAction(doc.docKey, 'approved')}
+                          className={`px-2 py-1 text-[9px] font-bold rounded-lg transition flex items-center gap-0.5 ${
+                            doc.status === 'approved'
+                              ? 'bg-emerald-600 text-white shadow-sm'
+                              : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-emerald-50 hover:text-emerald-650 hover:border-emerald-250'
                           }`}
-                          title="Click to toggle status"
+                          style={doc.status === 'approved' ? { backgroundColor: '#10b981', borderColor: '#10b981' } : {}}
+                          title="Verify document"
                         >
-                          {doc.status === 'approved' ? 'Verified' : doc.status === 'rejected' ? 'Rejected' : 'Pending'}
-                        </span>
+                          Verify
+                        </button>
                         
                         <button
+                          onClick={() => {
+                            setRejectingDocKey(doc.docKey);
+                            setDrawerDocReason(doc.rejectionReason || '');
+                          }}
+                          className={`px-2 py-1 text-[9px] font-bold rounded-lg transition flex items-center gap-0.5 ${
+                            doc.status === 'rejected'
+                              ? 'bg-rose-600 text-white shadow-sm'
+                              : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-650 hover:border-rose-250'
+                          }`}
+                          style={doc.status === 'rejected' ? { backgroundColor: '#ef4444', borderColor: '#ef4444' } : {}}
+                          title="Reject document"
+                        >
+                          Reject
+                        </button>
+
+                        <button
                           onClick={() => openLightbox(doc.id)}
-                          className="p-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition"
+                          className="p-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-550 hover:text-slate-800 transition"
                           title="Preview"
                         >
                           <Eye size={12} />
@@ -554,7 +700,7 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
                             download={doc.name}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition"
+                            className="p-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-550 hover:text-slate-800 transition"
                             title="Download"
                           >
                             <Download size={12} />
@@ -564,40 +710,52 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
                     </div>
 
                     {/* Inline rejection text editor if clicking rejected */}
-                    {rejectingDocKey === doc.docKey && (
-                      <div className="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                        <input
-                          type="text"
-                          value={drawerDocReason}
-                          onChange={(e) => setDrawerDocReason(e.target.value)}
-                          placeholder="Type reason for rejection..."
-                          className="flex-grow text-[9px] font-semibold border rounded-lg px-2 py-1 outline-none bg-white border-slate-200 focus:border-rose-500"
-                          autoFocus
-                        />
-                        <button
-                          onClick={() => {
-                            if (drawerDocReason.trim()) {
-                              handleDocAction(doc.docKey, 'rejected', drawerDocReason);
-                            }
-                            setRejectingDocKey(null);
-                            setDrawerDocReason('');
-                          }}
-                          className="text-[9px] bg-rose-600 text-white font-bold px-2 py-1 rounded-lg"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => setRejectingDocKey(null)}
-                          className="text-[9px] bg-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg"
-                        >
-                          Cancel
-                        </button>
+                    {(rejectingDocKey === doc.docKey || (doc.status === 'rejected' && !doc.rejectionReason)) && (
+                      <div className="flex flex-col gap-1.5 bg-slate-50 p-2 rounded-xl border border-slate-100 mt-1 animate-slideIn">
+                        <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest">Reason for Rejection</span>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="text"
+                            value={drawerDocReason}
+                            onChange={(e) => setDrawerDocReason(e.target.value)}
+                            placeholder="Type reason for rejection..."
+                            className="flex-grow text-[10px] font-semibold border rounded-lg px-2 py-1 outline-none bg-white border-slate-200 focus:border-rose-500"
+                            autoFocus
+                          />
+                          <button
+                            onClick={() => {
+                              if (drawerDocReason.trim()) {
+                                handleDocAction(doc.docKey, 'rejected', drawerDocReason);
+                              }
+                              setRejectingDocKey(null);
+                              setDrawerDocReason('');
+                            }}
+                            className="text-[10px] bg-[#00D6CC] text-white font-bold px-2 py-1 rounded-lg hover:opacity-90 transition"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => setRejectingDocKey(null)}
+                            className="text-[10px] bg-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
                     )}
 
-                    {doc.status === 'rejected' && doc.rejectionReason && (
-                      <div className="text-[9px] font-semibold text-rose-500 px-1 pt-0.5 leading-tight">
-                        Reason: {doc.rejectionReason}
+                    {doc.status === 'rejected' && doc.rejectionReason && !rejectingDocKey && (
+                      <div className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-100 p-2 rounded-xl mt-1 flex items-center justify-between">
+                        <span>Reason: {doc.rejectionReason}</span>
+                        <button
+                          onClick={() => {
+                            setRejectingDocKey(doc.docKey);
+                            setDrawerDocReason(doc.rejectionReason);
+                          }}
+                          className="text-[9px] font-bold text-[#00D6CC] hover:underline"
+                        >
+                          Edit
+                        </button>
                       </div>
                     )}
                   </div>
@@ -766,35 +924,10 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
 
               {/* The Document Element */}
               <div
-                className="relative max-w-full max-h-[70vh] flex items-center justify-center"
+                className="relative max-w-full max-h-[70vh] flex items-center justify-center animate-modalIn"
                 onClick={(e) => e.stopPropagation()}
               >
-                {isImageUrl(activeDoc.url, activeDoc.name) ? (
-                  <img
-                    src={activeDoc.url}
-                    alt={activeDoc.name}
-                    onMouseDown={handleMouseDown}
-                    className={`max-w-full max-h-[70vh] rounded-lg shadow-2xl transition-transform duration-200 select-none ${zoom > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
-                    style={{
-                      transform: `scale(${zoom}) rotate(${rotation}deg) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
-                    }}
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-2xl p-12 text-center text-white max-w-md">
-                    <FileText size={72} className="text-red-400 mb-4 animate-bounce" />
-                    <h4 className="text-base font-bold mb-2">PDF / Non-Image File</h4>
-                    <p className="text-xs text-white/60 mb-6">This document cannot be previewed directly inside the visual lightbox. Please download it or open in a new tab.</p>
-                    <a
-                      href={activeDoc.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 bg-[#00D6CC] hover:bg-[#00D6CC]/90 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition"
-                    >
-                      <ExternalLink size={16} />
-                      <span>Open in New Tab</span>
-                    </a>
-                  </div>
-                )}
+                {renderActiveDocContent()}
               </div>
 
               {/* Right Nav Arrow */}
@@ -817,7 +950,7 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
             >
               <button
                 onClick={() => setZoom((z) => Math.min(z + 0.25, 4))}
-                disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+                disabled={activeDoc.url && !isImageUrl(activeDoc.url, activeDoc.name)}
                 className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
                 title="Zoom In"
               >
@@ -825,7 +958,7 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
               </button>
               <button
                 onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))}
-                disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+                disabled={activeDoc.url && !isImageUrl(activeDoc.url, activeDoc.name)}
                 className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
                 title="Zoom Out"
               >
@@ -833,7 +966,7 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
               </button>
               <button
                 onClick={() => setRotation((r) => (r + 90) % 360)}
-                disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+                disabled={activeDoc.url && !isImageUrl(activeDoc.url, activeDoc.name)}
                 className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
                 title="Rotate Clockwise 90°"
               >
@@ -841,7 +974,7 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
               </button>
               <button
                 onClick={resetTransform}
-                disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+                disabled={activeDoc.url && !isImageUrl(activeDoc.url, activeDoc.name)}
                 className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
                 title="Reset Transform"
               >
@@ -901,168 +1034,211 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
         {/* Left Column - Details & Documents */}
         <div className="lg:col-span-2 space-y-8">
 
+          {/* Details Toggle Button */}
+          <div className="flex bg-slate-100 p-1.5 rounded-2xl w-max border border-slate-200/50 mb-6 shadow-sm">
+            <button
+              onClick={() => setDetailsTab('driver')}
+              className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
+                detailsTab === 'driver'
+                  ? 'bg-white text-slate-800 shadow-md shadow-slate-200/50 ring-1 ring-slate-100'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <User size={14} style={detailsTab === 'driver' ? { color: '#00D6CC' } : {}} />
+              <span>Driver Details</span>
+            </button>
+            <button
+              onClick={() => setDetailsTab('vehicle')}
+              className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
+                detailsTab === 'vehicle'
+                  ? 'bg-white text-slate-800 shadow-md shadow-slate-200/50 ring-1 ring-slate-100'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Car size={14} style={detailsTab === 'vehicle' ? { color: '#00D6CC' } : {}} />
+              <span>Vehicle Details</span>
+            </button>
+            <button
+              onClick={() => setDetailsTab('documents')}
+              className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
+                detailsTab === 'documents'
+                  ? 'bg-white text-slate-800 shadow-md shadow-slate-200/50 ring-1 ring-slate-100'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <FileText size={14} style={detailsTab === 'documents' ? { color: '#00D6CC' } : {}} />
+              <span>Documents</span>
+            </button>
+          </div>
+
           {/* Driver Information Card */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-soft space-y-6">
-            <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#00D6CC] to-[#00b0cc] text-white shadow-md shadow-[#00D6CC]/20">
-                <User size={22} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">Driver Profile Details</h3>
-                <p className="text-xs text-slate-400">Personal contact and authentication info</p>
-              </div>
-            </div>
-
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Full Name</p>
-                <p className="text-sm font-bold text-slate-800">{req.userName}</p>
-              </div>
-
-              <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Email Address</p>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold text-slate-700 truncate">{req.userEmail || '—'}</span>
-                  {req.userEmail && <CopyButton text={req.userEmail} />}
+          {detailsTab === 'driver' && (
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-soft space-y-6 animate-slideIn">
+              <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#00D6CC] to-[#00b0cc] text-white shadow-md shadow-[#00D6CC]/20">
+                  <User size={22} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Driver Profile Details</h3>
+                  <p className="text-xs text-slate-400">Personal contact and authentication info</p>
                 </div>
               </div>
 
-              <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Phone Number</p>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold text-slate-700">{req.userPhone || '—'}</span>
-                  {req.userPhone && <CopyButton text={req.userPhone} />}
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Full Name</p>
+                  <p className="text-sm font-bold text-slate-800">{req.userName}</p>
                 </div>
-              </div>
 
-              <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Associated Company ID</p>
-                <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
-                  <Building size={14} className="text-slate-400" />
-                  <span className="font-mono">{req.companyId || '—'}</span>
+                <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Email Address</p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-semibold text-slate-700 truncate">{req.userEmail || '—'}</span>
+                    {req.userEmail && <CopyButton text={req.userEmail} />}
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Inline Document Previews Section - Refined to Compact 3-Column Grid */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">Submitted Documents</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Click any document image to inspect, zoom, or rotate</p>
-              </div>
-              <button
-                onClick={() => {
-                  updateDocumentVerificationStatus(req.id, 'nationalId_front', 'approved');
-                  updateDocumentVerificationStatus(req.id, 'nationalId_back', 'approved');
-                  updateDocumentVerificationStatus(req.id, 'driverLicense_front', 'approved');
-                  updateDocumentVerificationStatus(req.id, 'driverLicense_back', 'approved');
-                  updateDocumentVerificationStatus(req.id, 'vehicleRegistration', 'approved');
-                  updateDocumentVerificationStatus(req.id, 'vehicleRegistrationBack', 'approved');
-                }}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-700 border border-emerald-200 transition active:scale-95"
-              >
-                <CheckCircle size={14} /> Verify All Documents
-              </button>
-            </div>
+                <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Phone Number</p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-semibold text-slate-700">{req.userPhone || '—'}</span>
+                    {req.userPhone && <CopyButton text={req.userPhone} />}
+                  </div>
+                </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
-              {/* National ID Column */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-                  <div className="h-1.5 w-1.5 rounded-full bg-sky-500" />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">National ID</span>
-                </div>
-                <div className="space-y-4">
-                  {renderDocPreview('National ID', 'Front Side', req.nationalId?.front, 'nationalId_front')}
-                  {renderDocPreview('National ID', 'Back Side', req.nationalId?.back, 'nationalId_back')}
-                </div>
-              </div>
-
-              {/* Driver License Column */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Driver License</span>
-                </div>
-                <div className="space-y-4">
-                  {renderDocPreview('Driver License', 'Front Side', req.driverLicense?.front || req.document, 'driverLicense_front')}
-                  {renderDocPreview('Driver License', 'Back Side', req.driverLicense?.back, 'driverLicense_back')}
-                </div>
-              </div>
-
-              {/* Vehicle Registration Column */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-                  <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vehicle Reg.</span>
-                </div>
-                <div className="space-y-4">
-                  {renderDocPreview('Vehicle Registration', 'Front Side', req.vehicleRegistration, 'vehicleRegistration')}
-                  {renderDocPreview('Vehicle Registration', 'Back Side', req.vehicleRegistrationBack, 'vehicleRegistrationBack')}
+                <div className="space-y-1.5 bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Associated Company ID</p>
+                  <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                    <Building size={14} className="text-slate-400" />
+                    <span className="font-mono">{req.companyId || '—'}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Car Specifications Details */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-soft space-y-6">
-            <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#00D6CC] to-[#00b0cc] text-white shadow-md shadow-[#00D6CC]/20">
-                <Car size={22} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">Vehicle Configuration</h3>
-                <p className="text-xs text-slate-400">Specifications and uploaded vehicle photos</p>
-              </div>
-            </div>
-
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Brand & Model</p>
-                <p className="text-sm font-bold text-slate-800">{req.carName || '—'}</p>
-              </div>
-              <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Registration Plate Number</p>
-                <p className="mt-1 text-sm font-mono font-bold text-[#00D6CC] bg-[#00D6CC]/5 px-3 py-1 rounded-xl w-max border border-[#00D6CC]/15">
-                  {req.registrationNo || '—'}
-                </p>
-              </div>
-            </div>
-
-            {req.carImages && req.carImages.length > 0 ? (
-              <div className="mt-6">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Vehicle Photos</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {req.carImages.map((img, i) => {
-                    const docId = `vehicle_photo_${i}`;
-                    return (
-                      <div
-                        key={i}
-                        onClick={() => openLightbox(docId)}
-                        className="group relative aspect-video w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 cursor-zoom-in shadow-soft hover:shadow-md hover:border-[#00D6CC] transition duration-300"
-                      >
-                        <img
-                          src={img.url}
-                          alt={`Car Preview ${i + 1}`}
-                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <Eye size={16} className="text-white" />
-                        </div>
-                      </div>
-                    );
-                  })}
+          {detailsTab === 'vehicle' && (
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-soft space-y-6 animate-slideIn">
+              <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#00D6CC] to-[#00b0cc] text-white shadow-md shadow-[#00D6CC]/20">
+                  <Car size={22} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Vehicle Configuration</h3>
+                  <p className="text-xs text-slate-400">Specifications and uploaded vehicle photos</p>
                 </div>
               </div>
-            ) : (
-              <div className="mt-4 border border-dashed border-slate-200 rounded-2xl p-8 text-center bg-slate-50/50">
-                <FileMinus size={28} className="mx-auto text-slate-300 mb-2" />
-                <p className="text-xs text-slate-400 font-medium">No car photos uploaded.</p>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Brand & Model</p>
+                  <p className="text-sm font-bold text-slate-800">{req.carName || '—'}</p>
+                </div>
+                <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Registration Plate Number</p>
+                  <p className="mt-1 text-sm font-mono font-bold text-[#00D6CC] bg-[#00D6CC]/5 px-3 py-1 rounded-xl w-max border border-[#00D6CC]/15">
+                    {req.registrationNo || '—'}
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
+
+              {req.carImages && req.carImages.length > 0 ? (
+                <div className="mt-6">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Vehicle Photos</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {req.carImages.map((img, i) => {
+                      const docId = `vehicle_photo_${i}`;
+                      return (
+                        <div
+                          key={i}
+                          onClick={() => openLightbox(docId)}
+                          className="group relative aspect-video w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 cursor-zoom-in shadow-soft hover:shadow-md hover:border-[#00D6CC] transition duration-300"
+                        >
+                          <img
+                            src={img.url}
+                            alt={`Car Preview ${i + 1}`}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Eye size={16} className="text-white" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 border border-dashed border-slate-200 rounded-2xl p-8 text-center bg-slate-50/50">
+                  <FileMinus size={28} className="mx-auto text-slate-300 mb-2" />
+                  <p className="text-xs text-slate-400 font-medium">No car photos uploaded.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Inline Document Previews Section - Refined to Compact 3-Column Grid */}
+          {detailsTab === 'documents' && (
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-6 animate-slideIn">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Submitted Documents</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Click any document image to inspect, zoom, or rotate</p>
+                </div>
+                <button
+                  onClick={() => {
+                    updateDocumentVerificationStatus(req.id, 'nationalId_front', 'approved');
+                    updateDocumentVerificationStatus(req.id, 'nationalId_back', 'approved');
+                    updateDocumentVerificationStatus(req.id, 'driverLicense_front', 'approved');
+                    updateDocumentVerificationStatus(req.id, 'driverLicense_back', 'approved');
+                    updateDocumentVerificationStatus(req.id, 'vehicleRegistration', 'approved');
+                    updateDocumentVerificationStatus(req.id, 'vehicleRegistrationBack', 'approved');
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-700 border border-emerald-200 transition active:scale-95"
+                >
+                  <CheckCircle size={14} /> Verify All Documents
+                </button>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-3">
+                {/* National ID Column */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                    <div className="h-1.5 w-1.5 rounded-full bg-sky-500" />
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">National ID</span>
+                  </div>
+                  <div className="space-y-4">
+                    {renderDocPreview('National ID', 'Front Side', req.nationalId?.front, 'nationalId_front')}
+                    {renderDocPreview('National ID', 'Back Side', req.nationalId?.back, 'nationalId_back')}
+                  </div>
+                </div>
+
+                {/* Driver License Column */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Driver License</span>
+                  </div>
+                  <div className="space-y-4">
+                    {renderDocPreview('Driver License', 'Front Side', req.driverLicense?.front || req.document, 'driverLicense_front')}
+                    {renderDocPreview('Driver License', 'Back Side', req.driverLicense?.back, 'driverLicense_back')}
+                  </div>
+                </div>
+
+                {/* Vehicle Registration Column */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                    <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vehicle Reg.</span>
+                  </div>
+                  <div className="space-y-4">
+                    {renderDocPreview('Vehicle Registration', 'Front Side', req.vehicleRegistration, 'vehicleRegistration')}
+                    {renderDocPreview('Vehicle Registration', 'Back Side', req.vehicleRegistrationBack, 'vehicleRegistrationBack')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Column - Decision Panel & Actions */}
@@ -1235,36 +1411,10 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
 
             {/* The Document Element */}
             <div
-              className="relative max-w-full max-h-[70vh] flex items-center justify-center"
+              className="relative max-w-full max-h-[70vh] flex items-center justify-center animate-modalIn"
               onClick={(e) => e.stopPropagation()}
             >
-              {isImageUrl(activeDoc.url, activeDoc.name) ? (
-                <img
-                  src={activeDoc.url}
-                  alt={activeDoc.name}
-                  onMouseDown={handleMouseDown}
-                  className={`max-w-full max-h-[70vh] rounded-lg shadow-2xl transition-transform duration-200 select-none ${zoom > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
-                    }`}
-                  style={{
-                    transform: `scale(${zoom}) rotate(${rotation}deg) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
-                  }}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-2xl p-12 text-center text-white max-w-md">
-                  <FileText size={72} className="text-red-400 mb-4 animate-bounce" />
-                  <h4 className="text-base font-bold mb-2">PDF / Non-Image File</h4>
-                  <p className="text-xs text-white/60 mb-6">This document cannot be previewed directly inside the visual lightbox. Please download it or open in a new tab.</p>
-                  <a
-                    href={activeDoc.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 bg-[#00D6CC] hover:bg-[#00D6CC]/90 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition"
-                  >
-                    <ExternalLink size={16} />
-                    <span>Open in New Tab</span>
-                  </a>
-                </div>
-              )}
+              {renderActiveDocContent()}
             </div>
 
             {/* Right Nav Arrow */}
@@ -1287,7 +1437,7 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
           >
             <button
               onClick={() => setZoom((z) => Math.min(z + 0.25, 4))}
-              disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+              disabled={activeDoc.url && !isImageUrl(activeDoc.url, activeDoc.name)}
               className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
               title="Zoom In"
             >
@@ -1295,7 +1445,7 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
             </button>
             <button
               onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))}
-              disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+              disabled={activeDoc.url && !isImageUrl(activeDoc.url, activeDoc.name)}
               className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
               title="Zoom Out"
             >
@@ -1303,7 +1453,7 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
             </button>
             <button
               onClick={() => setRotation((r) => (r + 90) % 360)}
-              disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+              disabled={activeDoc.url && !isImageUrl(activeDoc.url, activeDoc.name)}
               className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
               title="Rotate Clockwise 90°"
             >
@@ -1311,7 +1461,7 @@ const VerificationRequestDetail = ({ verificationId, setActivePage, onClose, isD
             </button>
             <button
               onClick={resetTransform}
-              disabled={!isImageUrl(activeDoc.url, activeDoc.name)}
+              disabled={activeDoc.url && !isImageUrl(activeDoc.url, activeDoc.name)}
               className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white transition disabled:opacity-30 disabled:pointer-events-none"
               title="Reset Transform"
             >

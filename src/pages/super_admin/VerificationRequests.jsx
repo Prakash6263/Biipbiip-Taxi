@@ -6,17 +6,10 @@ import { formatDate } from '../../utils/storage';
 import { User, Car, Search, Eye, SlidersHorizontal, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import VerificationRequestDetail from './VerificationRequestDetail';
 
-const VerificationRequests = ({ initialSelectedId }) => {
+const VerificationRequests = ({ onShowDetail }) => {
   const { state } = useApp();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
-  const [selectedId, setSelectedId] = useState(initialSelectedId || null);
-
-  useEffect(() => {
-    if (initialSelectedId) {
-      setSelectedId(initialSelectedId);
-    }
-  }, [initialSelectedId]);
 
   const requests = (state.verificationRequests || []).filter((req) => {
     const matchesSearch =
@@ -59,7 +52,7 @@ const VerificationRequests = ({ initialSelectedId }) => {
       {/* Main Grid Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column - List Table */}
-        <div className={`transition-all duration-300 min-w-0 ${selectedId ? 'lg:col-span-8' : 'lg:col-span-12'} space-y-5`}>
+        <div className="transition-all duration-300 min-w-0 lg:col-span-12 space-y-5">
           
           {/* Table Header Filter Tabs & Actions */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-white border border-slate-200 rounded-2xl p-4 shadow-soft">
@@ -114,14 +107,11 @@ const VerificationRequests = ({ initialSelectedId }) => {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {requests.map((reqItem) => {
-                      const isSelected = selectedId === reqItem.id;
                       const { date, time } = formatDateTimeSplit(reqItem.createdAt);
                       return (
                         <tr
                           key={reqItem.id}
-                          className={`transition-colors hover:bg-slate-50/40 ${
-                            isSelected ? 'bg-[#00D6CC]/5 hover:bg-[#00D6CC]/5' : ''
-                          }`}
+                          className="transition-colors hover:bg-slate-50/40"
                         >
                           {/* User Column */}
                           <td className="px-6 py-4">
@@ -152,13 +142,9 @@ const VerificationRequests = ({ initialSelectedId }) => {
                           {/* Actions Column */}
                           <td className="px-6 py-4 text-center">
                             <button
-                              onClick={() => setSelectedId(reqItem.id)}
-                              className={`p-2 rounded-xl border transition ${
-                                isSelected
-                                  ? 'bg-[#00D6CC] text-white border-[#00D6CC] shadow-md shadow-[#00D6CC]/20'
-                                  : 'bg-white text-slate-400 border-slate-200 hover:text-slate-700 hover:bg-slate-50'
-                              }`}
-                              title="Show details panel"
+                              onClick={() => onShowDetail(reqItem.id)}
+                              className="p-2 rounded-xl border bg-white text-slate-400 border-slate-200 hover:text-slate-700 hover:bg-slate-50 transition"
+                              title="Show details"
                             >
                               <Eye size={15} />
                             </button>
@@ -200,17 +186,6 @@ const VerificationRequests = ({ initialSelectedId }) => {
             <EmptyState title="No verification requests found" message="No requests found matching this filter." />
           )}
         </div>
-
-        {/* Right Column - Detail Side Drawer Panel */}
-        {selectedId && (
-          <div className="lg:col-span-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-soft animate-slideIn">
-            <VerificationRequestDetail
-              verificationId={selectedId}
-              onClose={() => setSelectedId(null)}
-              isDetailDrawer={true}
-            />
-          </div>
-        )}
       </div>
     </div>
   );
