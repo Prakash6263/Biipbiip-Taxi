@@ -25,8 +25,7 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Super Admin</p>
-        <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Users (Drivers)</h2>
+        <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">All Drivers</h2>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

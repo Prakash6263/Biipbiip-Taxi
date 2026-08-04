@@ -2,15 +2,15 @@ import { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { getDriverRides } from '../../data/ridesData';
 import { formatDate } from '../../utils/storage';
-import { 
-  Search, 
-  User, 
-  Car, 
-  Phone, 
-  Mail, 
+import {
+  Search,
+  User,
+  Car,
+  Phone,
+  Mail,
   ArrowLeft,
-  Compass, 
-  DollarSign, 
+  Compass,
+  DollarSign,
   Calendar,
   MapPinOff,
   Navigation
@@ -29,7 +29,7 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
 
   // Filter drivers based on search input
   const filteredDrivers = useMemo(() => {
-    return drivers.filter((d) => 
+    return drivers.filter((d) =>
       d.userName.toLowerCase().includes(search.toLowerCase()) ||
       d.userEmail.toLowerCase().includes(search.toLowerCase()) ||
       d.carName.toLowerCase().includes(search.toLowerCase()) ||
@@ -95,7 +95,6 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Super Admin</p>
             <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Driver Rides</h2>
           </div>
 
@@ -129,8 +128,8 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredDrivers.map((d) => (
-                    <tr 
-                      key={d.id} 
+                    <tr
+                      key={d.id}
                       onClick={() => setSelectedDriverId(d.id)}
                       className="hover:bg-slate-50/50 transition-colors cursor-pointer font-medium"
                     >
@@ -203,14 +202,13 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <button 
+          <button
             onClick={() => setSelectedDriverId(null)}
             className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-700 transition"
           >
             <ArrowLeft size={16} />
             <span>Back to Drivers</span>
           </button>
-          <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Rides: {activeDriver.userName}</h2>
         </div>
       </div>
 
