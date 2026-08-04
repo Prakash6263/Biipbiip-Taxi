@@ -344,31 +344,61 @@ export const AppProvider = ({ children }) => {
       const userEmail = driver.user?.email || '';
       const userPhone = driver.user ? `${driver.user.countryCode || ''} ${driver.user.phoneNumber || ''}`.trim() : '';
 
-      const mapDocument = (url, defaultName) => {
+      const mapDocument = (url, defaultName, key = '') => {
         if (!url) return null;
         let formattedUrl = url;
         if (typeof url === 'string' && !url.startsWith('http')) {
           formattedUrl = `https://node.aitechnotech.in/biip/api/v1/uploads/driver/${url}`;
         }
+
+        let docStatus = 'pending';
+        let docReason = '';
+        const currentReq = state?.verificationRequests?.find(r => r.id === driver._id);
+        if (currentReq) {
+          let localDoc = null;
+          if (key === 'nationalId_front') localDoc = currentReq.nationalId?.front;
+          else if (key === 'nationalId_back') localDoc = currentReq.nationalId?.back;
+          else if (key === 'driverLicense_front') localDoc = currentReq.driverLicense?.front;
+          else if (key === 'driverLicense_back') localDoc = currentReq.driverLicense?.back;
+          else if (key === 'vehicleRegistration') localDoc = currentReq.vehicleRegistration;
+          else if (key === 'vehicleRegistrationBack') localDoc = currentReq.vehicleRegistrationBack;
+
+          if (localDoc && localDoc.status) {
+            docStatus = localDoc.status;
+            docReason = localDoc.rejectionReason || '';
+          }
+        } else {
+          if (driver.verificationStatus) {
+            const s = String(driver.verificationStatus).toUpperCase();
+            if (s === 'APPROVED' || s === 'VERIFIED') {
+              docStatus = 'approved';
+            } else if (s === 'REJECTED') {
+              docStatus = 'rejected';
+            }
+          }
+        }
+
         return {
           name: typeof url === 'string' ? url.split('/').pop() : defaultName,
           url: formattedUrl,
           uploadedAt: driver.createdAt || new Date().toISOString(),
+          status: docStatus,
+          rejectionReason: docReason,
         };
       };
 
       const nationalId = {
-        front: mapDocument(driver.nationalIdFront, 'national_id_front.jpg'),
-        back: mapDocument(driver.nationalIdBack, 'national_id_back.jpg'),
+        front: mapDocument(driver.nationalIdFront, 'national_id_front.jpg', 'nationalId_front'),
+        back: mapDocument(driver.nationalIdBack, 'national_id_back.jpg', 'nationalId_back'),
       };
 
       const driverLicense = {
-        front: mapDocument(driver.driverLicenseFront, 'driver_license_front.jpg'),
-        back: mapDocument(driver.driverLicenseBack, 'driver_license_back.jpg'),
+        front: mapDocument(driver.driverLicenseFront, 'driver_license_front.jpg', 'driverLicense_front'),
+        back: mapDocument(driver.driverLicenseBack, 'driver_license_back.jpg', 'driverLicense_back'),
       };
 
-      const vehicleRegistration = mapDocument(driver.vehicleRegistrationFront, 'vehicle_registration_front.jpg');
-      const vehicleRegistrationBack = mapDocument(driver.vehicleRegistrationBack, 'vehicle_registration_back.jpg');
+      const vehicleRegistration = mapDocument(driver.vehicleRegistrationFront, 'vehicle_registration_front.jpg', 'vehicleRegistration');
+      const vehicleRegistrationBack = mapDocument(driver.vehicleRegistrationBack, 'vehicle_registration_back.jpg', 'vehicleRegistrationBack');
 
       let status = 'pending';
       const backendStatus = String(driver.verificationStatus || '').toUpperCase();
@@ -596,6 +626,159 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const updateDocumentVerificationStatus = (requestId, docKey, status, reason = '') => {
+    setState((prev) => {
+      const updatedRequests = (prev.verificationRequests || []).map((req) => {
+        if (req.id !== requestId) return req;
+
+        const updatedReq = { ...req };
+        
+        if (docKey === 'nationalId_front' && updatedReq.nationalId?.front) {
+          updatedReq.nationalId = {
+            ...updatedReq.nationalId,
+            front: { ...updatedReq.nationalId.front, status, rejectionReason: reason }
+          };
+        } else if (docKey === 'nationalId_back' && updatedReq.nationalId?.back) {
+          updatedReq.nationalId = {
+            ...updatedReq.nationalId,
+            back: { ...updatedReq.nationalId.back, status, rejectionReason: reason }
+          };
+        } else if (docKey === 'driverLicense_front' && updatedReq.driverLicense?.front) {
+          updatedReq.driverLicense = {
+            ...updatedReq.driverLicense,
+            front: { ...updatedReq.driverLicense.front, status, rejectionReason: reason }
+          };
+        } else if (docKey === 'driverLicense_back' && updatedReq.driverLicense?.back) {
+          updatedReq.driverLicense = {
+            ...updatedReq.driverLicense,
+            back: { ...updatedReq.driverLicense.back, status, rejectionReason: reason }
+          };
+        } else if (docKey === 'vehicleRegistration' && updatedReq.vehicleRegistration) {
+          updatedReq.vehicleRegistration = {
+            ...updatedReq.vehicleRegistration,
+            status,
+            rejectionReason: reason
+          };
+        } else if (docKey === 'vehicleRegistrationBack' && updatedReq.vehicleRegistrationBack) {
+          updatedReq.vehicleRegistrationBack = {
+            ...updatedReq.vehicleRegistrationBack,
+            status,
+            rejectionReason: reason
+          };
+        }
+
+        // Re-calculate overall status
+        const docs = [];
+        if (updatedReq.nationalId?.front) docs.push(updatedReq.nationalId.front);
+        if (updatedReq.nationalId?.back) docs.push(updatedReq.nationalId.back);
+        if (updatedReq.driverLicense?.front) docs.push(updatedReq.driverLicense.front);
+        if (updatedReq.driverLicense?.back) docs.push(updatedReq.driverLicense.back);
+        if (updatedReq.vehicleRegistration) docs.push(updatedReq.vehicleRegistration);
+        if (updatedReq.vehicleRegistrationBack) docs.push(updatedReq.vehicleRegistrationBack);
+
+        const allApproved = docs.every(d => d && d.status === 'approved');
+        const anyRejected = docs.some(d => d && d.status === 'rejected');
+
+        if (allApproved) {
+          updatedReq.status = 'verified';
+          updatedReq.rejectionReason = '';
+        } else if (anyRejected) {
+          updatedReq.status = 'rejected';
+          const rejectedReasons = docs
+            .filter(d => d && d.status === 'rejected' && d.rejectionReason)
+            .map(d => d.rejectionReason);
+          updatedReq.rejectionReason = rejectedReasons.join('; ') || 'Some documents were rejected.';
+        } else {
+          updatedReq.status = 'pending';
+        }
+
+        return updatedReq;
+      });
+
+      return {
+        ...prev,
+        verificationRequests: updatedRequests,
+      };
+    });
+  };
+
+  const uploadDriverDocument = (requestId, docKey, fileObj) => {
+    setState((prev) => {
+      const updatedRequests = (prev.verificationRequests || []).map((req) => {
+        if (req.id !== requestId) return req;
+
+        const updatedReq = { ...req };
+        const newDoc = {
+          name: fileObj.name,
+          type: fileObj.type,
+          size: fileObj.size,
+          url: fileObj.url,
+          uploadedAt: new Date().toISOString(),
+          status: 'pending',
+          rejectionReason: ''
+        };
+
+        if (docKey === 'nationalId_front') {
+          updatedReq.nationalId = {
+            ...updatedReq.nationalId,
+            front: newDoc
+          };
+        } else if (docKey === 'nationalId_back') {
+          updatedReq.nationalId = {
+            ...updatedReq.nationalId,
+            back: newDoc
+          };
+        } else if (docKey === 'driverLicense_front') {
+          updatedReq.driverLicense = {
+            ...updatedReq.driverLicense,
+            front: newDoc
+          };
+        } else if (docKey === 'driverLicense_back') {
+          updatedReq.driverLicense = {
+            ...updatedReq.driverLicense,
+            back: newDoc
+          };
+        } else if (docKey === 'vehicleRegistration') {
+          updatedReq.vehicleRegistration = newDoc;
+        } else if (docKey === 'vehicleRegistrationBack') {
+          updatedReq.vehicleRegistrationBack = newDoc;
+        }
+
+        // Re-calculate overall status
+        const docs = [];
+        if (updatedReq.nationalId?.front) docs.push(updatedReq.nationalId.front);
+        if (updatedReq.nationalId?.back) docs.push(updatedReq.nationalId.back);
+        if (updatedReq.driverLicense?.front) docs.push(updatedReq.driverLicense.front);
+        if (updatedReq.driverLicense?.back) docs.push(updatedReq.driverLicense.back);
+        if (updatedReq.vehicleRegistration) docs.push(updatedReq.vehicleRegistration);
+        if (updatedReq.vehicleRegistrationBack) docs.push(updatedReq.vehicleRegistrationBack);
+
+        const allApproved = docs.every(d => d && d.status === 'approved');
+        const anyRejected = docs.some(d => d && d.status === 'rejected');
+
+        if (allApproved) {
+          updatedReq.status = 'verified';
+          updatedReq.rejectionReason = '';
+        } else if (anyRejected) {
+          updatedReq.status = 'rejected';
+          const rejectedReasons = docs
+            .filter(d => d && d.status === 'rejected' && d.rejectionReason)
+            .map(d => d.rejectionReason);
+          updatedReq.rejectionReason = rejectedReasons.join('; ') || 'Some documents were rejected.';
+        } else {
+          updatedReq.status = 'pending';
+        }
+
+        return updatedReq;
+      });
+
+      return {
+        ...prev,
+        verificationRequests: updatedRequests,
+      };
+    });
+  };
+
   const sendDriverNotification = (notificationData) => {
     const newNotification = {
       id: uid('notif'),
@@ -688,6 +871,8 @@ export const AppProvider = ({ children }) => {
       markReturned,
       approveVerificationRequest,
       rejectVerificationRequest,
+      updateDocumentVerificationStatus,
+      uploadDriverDocument,
       sendDriverNotification,
       deleteDriverNotification,
       sendUserNotification,

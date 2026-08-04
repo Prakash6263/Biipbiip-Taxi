@@ -199,9 +199,9 @@ const App = () => {
         />
       ),
       'verification-detail': (
-        <VerificationRequestDetail
-          verificationId={selectedVerificationId}
-          setActivePage={setActivePage}
+        <VerificationRequests
+          initialSelectedId={selectedVerificationId}
+          onShowDetail={handleShowVerificationDetail}
         />
       ),
       'driver-rides': (

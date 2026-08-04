@@ -121,15 +121,17 @@ export const seedState = {
     {
       id: 'vreq_1',
       companyId: 'company_1',
-      userName: 'Ramesh Kumar',
-      userEmail: 'ramesh@demo.com',
-      userPhone: '+91 99999 88888',
+      userName: 'Ritik Driver',
+      userEmail: 'driver@yopmail.com',
+      userPhone: '+91 6969696969',
       document: {
         name: 'driving_license.pdf',
         type: 'application/pdf',
         size: 85000,
         url: '',
         uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+        status: 'pending',
+        rejectionReason: '',
       },
       nationalId: {
         front: {
@@ -138,6 +140,8 @@ export const seedState = {
           size: 115000,
           url: '',
           uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+          status: 'pending',
+          rejectionReason: '',
         },
         back: {
           name: 'national_id_back.pdf',
@@ -145,6 +149,8 @@ export const seedState = {
           size: 108000,
           url: '',
           uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+          status: 'pending',
+          rejectionReason: '',
         }
       },
       driverLicense: {
@@ -154,6 +160,8 @@ export const seedState = {
           size: 92000,
           url: '',
           uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+          status: 'pending',
+          rejectionReason: '',
         },
         back: {
           name: 'driver_license_back.pdf',
@@ -161,14 +169,27 @@ export const seedState = {
           size: 89000,
           url: '',
           uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+          status: 'pending',
+          rejectionReason: '',
         }
       },
       vehicleRegistration: {
-        name: 'vehicle_registration.pdf',
+        name: 'vehicle_registration_front.pdf',
         type: 'application/pdf',
         size: 105000,
         url: '',
         uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+        status: 'pending',
+        rejectionReason: '',
+      },
+      vehicleRegistrationBack: {
+        name: 'vehicle_registration_back.pdf',
+        type: 'application/pdf',
+        size: 98000,
+        url: '',
+        uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+        status: 'pending',
+        rejectionReason: '',
       },
       carName: 'Mahindra Thar',
       registrationNo: 'DL3CA1234',
