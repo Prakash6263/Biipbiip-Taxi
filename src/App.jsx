@@ -22,6 +22,9 @@ import UserNotifications from './pages/super_admin/UserNotifications';
 import CompanyNotifications from './pages/super_admin/CompanyNotifications';
 import Coupons from './pages/super_admin/Coupons';
 import CreateCoupon from './pages/super_admin/CreateCoupon';
+import CreateRetailBroadcast from './pages/super_admin/CreateRetailBroadcast';
+import CreateDriverNotification from './pages/super_admin/CreateDriverNotification';
+import CreateCompanyNotification from './pages/super_admin/CreateCompanyNotification';
 
 const ROLE_CONFIG = {
   public: {
@@ -55,6 +58,9 @@ const ROLE_CONFIG = {
       'driver-rides',
       'driver-notifications',
       'user-notifications',
+      'create-retail-broadcast',
+      'create-driver-notification',
+      'create-company-notification',
       'company-notifications',
       'coupons',
       'create-coupon',
@@ -87,6 +93,7 @@ const App = () => {
   const [selectedCarId, setSelectedCarId] = useState(null);
   const [selectedCarEditId, setSelectedCarEditId] = useState(null);
   const [selectedDriverRidesId, setSelectedDriverRidesId] = useState(null);
+  const [selectedNotificationId, setSelectedNotificationId] = useState(null);
 
   useEffect(() => {
     const hasAccess = roleConfig.allowedPages.includes(activePage);
@@ -215,13 +222,40 @@ const App = () => {
         />
       ),
       'driver-notifications': (
-        <DriverNotifications />
+        <DriverNotifications
+          setActivePage={setActivePage}
+          setSelectedNotificationId={setSelectedNotificationId}
+        />
+      ),
+      'create-driver-notification': (
+        <CreateDriverNotification
+          setActivePage={setActivePage}
+          selectedNotificationId={selectedNotificationId}
+        />
       ),
       'user-notifications': (
-        <UserNotifications />
+        <UserNotifications
+          setActivePage={setActivePage}
+          setSelectedNotificationId={setSelectedNotificationId}
+        />
+      ),
+      'create-retail-broadcast': (
+        <CreateRetailBroadcast
+          setActivePage={setActivePage}
+          selectedNotificationId={selectedNotificationId}
+        />
       ),
       'company-notifications': (
-        <CompanyNotifications />
+        <CompanyNotifications
+          setActivePage={setActivePage}
+          setSelectedNotificationId={setSelectedNotificationId}
+        />
+      ),
+      'create-company-notification': (
+        <CreateCompanyNotification
+          setActivePage={setActivePage}
+          selectedNotificationId={selectedNotificationId}
+        />
       ),
       coupons: (
         <Coupons setActivePage={setActivePage} />
@@ -244,6 +278,7 @@ const App = () => {
     selectedCarId,
     selectedCarEditId,
     selectedDriverRidesId,
+    selectedNotificationId,
   ]);
 
   return (
