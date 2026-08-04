@@ -70,7 +70,7 @@ const UserNotifications = ({ setActivePage, setSelectedNotificationId }) => {
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-5">
 
         {notifications.length > 0 ? (
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="overflow-hidden rounded-2xl">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[800px] border-collapse text-left text-sm text-slate-500">
                 <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
