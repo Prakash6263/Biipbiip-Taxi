@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { 
-  Bell, 
-  Send, 
-  Trash2, 
-  Users, 
-  Award, 
-  Megaphone, 
-  AlertTriangle, 
-  Calendar, 
-  Ticket, 
-  Sparkles, 
-  CheckCircle2, 
-  Clock, 
+import {
+  Bell,
+  Send,
+  Trash2,
+  Users,
+  Award,
+  Megaphone,
+  AlertTriangle,
+  Calendar,
+  Ticket,
+  Sparkles,
+  CheckCircle2,
+  Clock,
   Info
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -19,7 +19,7 @@ import { formatDate } from '../../utils/storage';
 
 const UserNotifications = () => {
   const { state, sendUserNotification, deleteUserNotification } = useApp();
-  
+
   // Form state
   const [targetType, setTargetType] = useState('all'); // 'all' or 'specific'
   const [selectedUserId, setSelectedUserId] = useState('');
@@ -27,7 +27,7 @@ const UserNotifications = () => {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [attachOffer, setAttachOffer] = useState(false);
-  
+
   // Offer settings
   const [offerTitle, setOfferTitle] = useState('');
   const [offerCode, setOfferCode] = useState('');
@@ -43,7 +43,7 @@ const UserNotifications = () => {
   const rentalRequests = state.rentalRequests || [];
   const uniqueCustomers = [];
   const emailsSeen = new Set();
-  
+
   rentalRequests.forEach(req => {
     if (req.customerEmail && !emailsSeen.has(req.customerEmail.toLowerCase())) {
       emailsSeen.add(req.customerEmail.toLowerCase());
@@ -68,7 +68,7 @@ const UserNotifications = () => {
   // Calculate statistics
   const notifications = state.userNotifications || [];
   const totalSent = notifications.length;
-  
+
   const activeOffers = notifications.filter(n => {
     if (!n.offer) return false;
     if (!n.offer.expiryDate) return true;
@@ -212,11 +212,7 @@ const UserNotifications = () => {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Super Admin</p>
         <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">User Notifications & Offers</h2>
-        <p className="mt-1.5 text-sm text-slate-500">
-          Send promo discount vouchers, holiday offers, and safety updates to retail car renters and app users.
-        </p>
       </div>
 
       {/* KPI Cards */}
@@ -293,22 +289,20 @@ const UserNotifications = () => {
                   setTargetType('all');
                   setSelectedUserId('');
                 }}
-                className={`rounded-2xl py-3 px-4 text-sm font-bold border transition ${
-                  targetType === 'all'
-                    ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-[#00D6CC]'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                }`}
+                className={`rounded-2xl py-3 px-4 text-sm font-bold border transition ${targetType === 'all'
+                  ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-[#00D6CC]'
+                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                  }`}
               >
                 All App Users
               </button>
               <button
                 type="button"
                 onClick={() => setTargetType('specific')}
-                className={`rounded-2xl py-3 px-4 text-sm font-bold border transition ${
-                  targetType === 'specific'
-                    ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-[#00D6CC]'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                }`}
+                className={`rounded-2xl py-3 px-4 text-sm font-bold border transition ${targetType === 'specific'
+                  ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-[#00D6CC]'
+                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                  }`}
               >
                 Specific Customer
               </button>
@@ -565,9 +559,8 @@ const UserNotifications = () => {
                             </span>
                             <p className="text-xs font-extrabold text-slate-800 mt-0.5">{notif.offer.title}</p>
                           </div>
-                          <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${
-                            isExpired ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'
-                          }`}>
+                          <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${isExpired ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'
+                            }`}>
                             {isExpired ? 'Expired' : 'Active'}
                           </span>
                         </div>
@@ -581,8 +574,8 @@ const UserNotifications = () => {
                               {notif.offer.benefitType === 'rental_discount'
                                 ? `${notif.offer.benefitValue}% Rental Off`
                                 : notif.offer.benefitType === 'wallet_cashback'
-                                ? `₹ ${notif.offer.benefitValue} Cashback`
-                                : `${notif.offer.benefitValue} Day Free`}
+                                  ? `₹ ${notif.offer.benefitValue} Cashback`
+                                  : `${notif.offer.benefitValue} Day Free`}
                             </span>
                             <span className="text-[10px] text-slate-400 block mt-0.5">
                               Exp: {notif.offer.expiryDate}

@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { 
-  Bell, 
-  Send, 
-  Trash2, 
-  Users, 
-  Award, 
-  Megaphone, 
-  AlertTriangle, 
-  Calendar, 
-  Ticket, 
-  Sparkles, 
-  CheckCircle2, 
-  Clock, 
+import {
+  Bell,
+  Send,
+  Trash2,
+  Users,
+  Award,
+  Megaphone,
+  AlertTriangle,
+  Calendar,
+  Ticket,
+  Sparkles,
+  CheckCircle2,
+  Clock,
   Info,
   ChevronRight
 } from 'lucide-react';
@@ -21,7 +21,7 @@ import Badge from '../../components/Badge';
 
 const DriverNotifications = () => {
   const { state, sendDriverNotification, deleteDriverNotification } = useApp();
-  
+
   // Form state
   const [targetType, setTargetType] = useState('all'); // 'all' or 'specific'
   const [selectedDriverId, setSelectedDriverId] = useState('');
@@ -29,7 +29,7 @@ const DriverNotifications = () => {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [attachOffer, setAttachOffer] = useState(false);
-  
+
   // Offer sub-form state
   const [offerCode, setOfferCode] = useState('');
   const [benefitType, setBenefitType] = useState('commission_discount'); // commission_discount, cash_bonus, custom
@@ -48,7 +48,7 @@ const DriverNotifications = () => {
   // Calculate statistics
   const notifications = state.driverNotifications || [];
   const totalSent = notifications.length;
-  
+
   const activeOffers = notifications.filter(n => {
     if (!n.offer) return false;
     if (!n.offer.expiryDate) return true;
@@ -88,7 +88,7 @@ const DriverNotifications = () => {
 
     let targetDriverName = 'All Drivers';
     let targetDriverPhone = '';
-    
+
     if (targetType === 'specific') {
       const selectedDriver = verifiedDrivers.find(d => d.id === selectedDriverId);
       if (selectedDriver) {
@@ -150,7 +150,7 @@ const DriverNotifications = () => {
       setBenefitValue('');
       setExpiryDate('');
       setSelectedDriverId('');
-      
+
       // Auto clear success msg after 4 seconds
       setTimeout(() => setSuccessMsg(''), 4000);
     } else {
@@ -204,11 +204,7 @@ const DriverNotifications = () => {
       {/* Header section */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Super Admin</p>
           <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Driver Notifications & Offers</h2>
-          <p className="mt-1.5 text-sm text-slate-500">
-            Push alerts, incentives, announcements, and promotional voucher codes directly to drivers.
-          </p>
         </div>
       </div>
 
@@ -287,22 +283,20 @@ const DriverNotifications = () => {
                   setTargetType('all');
                   setSelectedDriverId('');
                 }}
-                className={`rounded-2xl py-3 px-4 text-sm font-bold border transition ${
-                  targetType === 'all'
-                    ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-[#00D6CC]'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                }`}
+                className={`rounded-2xl py-3 px-4 text-sm font-bold border transition ${targetType === 'all'
+                  ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-[#00D6CC]'
+                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                  }`}
               >
                 Broadcast to All Drivers
               </button>
               <button
                 type="button"
                 onClick={() => setTargetType('specific')}
-                className={`rounded-2xl py-3 px-4 text-sm font-bold border transition ${
-                  targetType === 'specific'
-                    ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-[#00D6CC]'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                }`}
+                className={`rounded-2xl py-3 px-4 text-sm font-bold border transition ${targetType === 'specific'
+                  ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-[#00D6CC]'
+                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                  }`}
               >
                 Target Specific Driver
               </button>
@@ -566,9 +560,8 @@ const DriverNotifications = () => {
                             </span>
                             <p className="text-xs font-extrabold text-slate-800 mt-0.5">{notif.offer.title}</p>
                           </div>
-                          <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${
-                            isExpired ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'
-                          }`}>
+                          <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${isExpired ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'
+                            }`}>
                             {isExpired ? 'Expired' : 'Active Reward'}
                           </span>
                         </div>
