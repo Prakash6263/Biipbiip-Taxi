@@ -310,12 +310,7 @@ const CompanyNotifications = () => {
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Category</label>
                 <select
                   value={category}
-                  onChange={(e) => {
-                    setCategory(e.target.value);
-                    if (e.target.value === 'offer') {
-                      setAttachOffer(true);
-                    }
-                  }}
+                  onChange={(e) => setCategory(e.target.value)}
                   className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none focus:border-[#00D6CC] focus:bg-white transition"
                 >
                   <option value="announcement">Announcement</option>
@@ -348,112 +343,6 @@ const CompanyNotifications = () => {
               />
             </div>
 
-            {/* Attach incentive switcher */}
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50/50 p-4 border border-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-emerald-50 p-2.5 text-emerald-600">
-                  <Ticket size={20} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">Attach Commission Credit / Promo</p>
-                  <p className="text-xs text-slate-500">Enable broker waivers or dashboard credits</p>
-                </div>
-              </div>
-              <label className="relative inline-flex cursor-pointer items-center">
-                <input
-                  type="checkbox"
-                  checked={attachOffer}
-                  onChange={(e) => {
-                    setAttachOffer(e.target.checked);
-                    if (e.target.checked && !offerTitle) {
-                      setOfferTitle('Fee Commission Waiver');
-                    }
-                  }}
-                  className="peer sr-only"
-                />
-                <div className="peer h-6.5 w-12 rounded-full bg-slate-200 after:absolute after:top-[3px] after:left-[3px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none"></div>
-              </label>
-            </div>
-
-            {/* Promo incentives form */}
-            {attachOffer && (
-              <div className="p-5 rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/20 space-y-4">
-                <h4 className="text-sm font-bold text-emerald-800 flex items-center gap-1.5">
-                  <Sparkles size={16} /> Commission Program Details
-                </h4>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Incentive Title</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 5% Commission Off All August Bookings"
-                    value={offerTitle}
-                    onChange={(e) => setOfferTitle(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold outline-none focus:border-emerald-500 transition"
-                  />
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Promo Code</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="e.g. PARTNERWAV"
-                        value={offerCode}
-                        onChange={(e) => setOfferCode(e.target.value.toUpperCase())}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono font-bold uppercase outline-none focus:border-emerald-500 transition"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleGenerateCode}
-                        className="rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-2 text-xs font-bold transition whitespace-nowrap"
-                      >
-                        Auto Gen
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Benefit Type</label>
-                    <select
-                      value={benefitType}
-                      onChange={(e) => setBenefitType(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold outline-none focus:border-emerald-500 transition"
-                    >
-                      <option value="fee_discount">Platform Fee Discount (%)</option>
-                      <option value="account_credit">Flat Account Wallet Credit (₹/AED)</option>
-                      <option value="custom">Custom Partner Deal</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Benefit Value ({benefitType === 'fee_discount' ? '%' : 'Credit Amount'})
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 5 or 2500"
-                      value={benefitValue}
-                      onChange={(e) => setBenefitValue(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold outline-none focus:border-emerald-500 transition"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Expiration Date</label>
-                    <input
-                      type="date"
-                      value={expiryDate}
-                      onChange={(e) => setExpiryDate(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold outline-none focus:border-emerald-500 transition"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Submit */}
             <button
@@ -479,90 +368,70 @@ const CompanyNotifications = () => {
         </div>
 
         {notifications.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2">
-            {notifications.map((notif) => {
-              const categoryMeta = getCategoryMeta(notif.category);
-              const CategoryIcon = categoryMeta.icon;
-              const isExpired = notif.offer && notif.offer.expiryDate && new Date(notif.offer.expiryDate) < new Date();
-
-              return (
-                <div key={notif.id} className="group relative rounded-2xl border border-slate-200 bg-slate-50/30 p-5 hover:bg-white hover:shadow-soft transition duration-300">
-                  <button
-                    onClick={() => deleteCompanyNotification(notif.id)}
-                    className="absolute right-4 top-4 rounded-xl p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition duration-300"
-                    title="Delete log"
-                  >
-                    <Trash2 size={15} />
-                  </button>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${categoryMeta.bg}`}>
-                        <CategoryIcon size={12} />
-                        {categoryMeta.label}
-                      </span>
-                      <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full font-bold">
-                        {formatDate(notif.createdAt)}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1">
-                      <h4 className="font-extrabold text-slate-900 text-base">{notif.title}</h4>
-                      <p className="text-xs text-slate-600 font-semibold">{notif.message}</p>
-                    </div>
-
-                    <div className="rounded-xl bg-white p-3 border border-slate-100 text-xs space-y-1">
-                      <div className="flex items-center justify-between text-slate-500">
-                        <span>Recipient Partner:</span>
-                        <span className="text-slate-900 font-bold">{notif.targetDriverName}</span>
-                      </div>
-                      {notif.targetDriverPhone && (
-                        <div className="flex items-center justify-between text-slate-500">
-                          <span>Partner Contact Email:</span>
-                          <span className="text-slate-600 font-semibold">{notif.targetDriverPhone}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {notif.offer && (
-                      <div className="relative overflow-hidden rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 p-4 space-y-3">
-                        <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-r border-emerald-100" />
-                        <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-l border-emerald-100" />
-
-                        <div className="flex items-start justify-between border-b border-emerald-500/10 pb-2">
-                          <div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
-                              Commission Incentive Deal
-                            </span>
-                            <p className="text-xs font-extrabold text-slate-800 mt-0.5">{notif.offer.title}</p>
-                          </div>
-                          <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${isExpired ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'
-                            }`}>
-                            {isExpired ? 'Expired' : 'Active'}
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px] border-collapse text-left text-sm text-slate-500">
+                <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
+                  <tr>
+                    <th scope="col" className="px-6 py-4 font-bold">Date Sent</th>
+                    <th scope="col" className="px-6 py-4 font-bold">Category</th>
+                    <th scope="col" className="px-6 py-4 font-bold">Recipient Partner</th>
+                    <th scope="col" className="px-6 py-4 font-bold">Notice Details</th>
+                    <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {notifications.map((notif) => {
+                    const categoryMeta = getCategoryMeta(notif.category);
+                    const CategoryIcon = categoryMeta.icon;
+                    return (
+                      <tr key={notif.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-6 py-4 font-semibold text-slate-700 whitespace-nowrap">
+                          {formatDate(notif.createdAt)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${categoryMeta.bg}`}>
+                            <CategoryIcon size={12} />
+                            {categoryMeta.label}
                           </span>
-                        </div>
-
-                        <div className="flex items-center justify-between gap-3 text-xs">
-                          <div className="rounded-lg bg-slate-900 text-emerald-400 font-mono font-bold px-3 py-1.5 border border-slate-800 shadow-sm">
-                            {notif.offer.code}
-                          </div>
-                          <div className="text-right">
-                            <span className="font-extrabold text-slate-900 block text-sm">
-                              {notif.offer.benefitType === 'fee_discount'
-                                ? `${notif.offer.benefitValue}% Fee Discount`
-                                : `₹ ${notif.offer.benefitValue} Account Credit`}
-                            </span>
-                            <span className="text-[10px] text-slate-400 block mt-0.5">
-                              Exp: {notif.offer.expiryDate}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-bold text-slate-950">{notif.targetDriverName}</div>
+                          {notif.targetDriverPhone && (
+                            <div className="text-xs text-slate-400 mt-0.5 font-mono">{notif.targetDriverPhone}</div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 max-w-md">
+                          <div className="font-bold text-slate-950">{notif.title}</div>
+                          <p className="text-xs text-slate-500 mt-0.5 whitespace-pre-wrap">{notif.message}</p>
+                          {notif.offer && (
+                            <div className="mt-2 inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-100">
+                              <Ticket size={12} />
+                              <span className="font-mono">{notif.offer.code}</span>
+                              <span>•</span>
+                              <span>
+                                {notif.offer.benefitType === 'fee_discount'
+                                  ? `${notif.offer.benefitValue}% Fee Discount`
+                                  : `₹ ${notif.offer.benefitValue} Credit`}
+                              </span>
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-right whitespace-nowrap">
+                          <button
+                            onClick={() => deleteCompanyNotification(notif.id)}
+                            className="rounded-xl p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                            title="Delete log"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : (
           <div className="text-center py-10 border border-dashed border-slate-200 rounded-2xl">
