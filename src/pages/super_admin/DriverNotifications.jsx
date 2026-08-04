@@ -13,22 +13,25 @@ import {
   CheckCircle2,
   Clock,
   Info,
-  ChevronRight
+  ChevronRight,
+  Pencil
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
 import Badge from '../../components/Badge';
 
 const DriverNotifications = () => {
-  const { state, sendDriverNotification, deleteDriverNotification } = useApp();
+  const { state, sendDriverNotification, deleteDriverNotification, updateDriverNotification } = useApp();
 
   // Form state
   const [targetType, setTargetType] = useState('all'); // 'all' or 'specific'
-  const [selectedDriverId, setSelectedDriverId] = useState('');
+  const [selectedDriverIds, setSelectedDriverIds] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('announcement'); // announcement, offer, alert, incentive
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [attachOffer, setAttachOffer] = useState(false);
+  const [editingNotifId, setEditingNotifId] = useState(null);
 
   // Offer sub-form state
   const [offerCode, setOfferCode] = useState('');
@@ -40,6 +43,35 @@ const DriverNotifications = () => {
   // Status/feedback state
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  const handleEditClick = (notif) => {
+    setEditingNotifId(notif.id);
+    setCategory(notif.category);
+    setTitle(notif.title);
+    setMessage(notif.message);
+    setTargetType(notif.targetType);
+    if (notif.targetDriverId) {
+      if (Array.isArray(notif.targetDriverId)) {
+        setSelectedDriverIds(notif.targetDriverId);
+      } else {
+        setSelectedDriverIds([notif.targetDriverId]);
+      }
+    } else {
+      setSelectedDriverIds([]);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingNotifId(null);
+    setTitle('');
+    setMessage('');
+    setCategory('announcement');
+    setTargetType('all');
+    setSelectedDriverIds([]);
+    setSearchTerm('');
+    setSuccessMsg('');
+    setErrorMsg('');
+  };
 
   // Extract verified drivers for targeting
   const driversList = state.verificationRequests || [];
@@ -81,8 +113,8 @@ const DriverNotifications = () => {
       setErrorMsg('Please enter the message body.');
       return;
     }
-    if (targetType === 'specific' && !selectedDriverId) {
-      setErrorMsg('Please select a specific driver.');
+    if (targetType === 'specific' && selectedDriverIds.length === 0) {
+      setErrorMsg('Please select at least one specific driver.');
       return;
     }
 
@@ -90,12 +122,12 @@ const DriverNotifications = () => {
     let targetDriverPhone = '';
 
     if (targetType === 'specific') {
-      const selectedDriver = verifiedDrivers.find(d => d.id === selectedDriverId);
-      if (selectedDriver) {
-        targetDriverName = selectedDriver.userName;
-        targetDriverPhone = selectedDriver.userPhone;
+      const selectedDrivers = verifiedDrivers.filter(d => selectedDriverIds.includes(d.id));
+      if (selectedDrivers.length > 0) {
+        targetDriverName = selectedDrivers.map(d => d.userName).join(', ');
+        targetDriverPhone = selectedDrivers.map(d => d.userPhone || d.userEmail || '').filter(Boolean).join(', ');
       } else {
-        setErrorMsg('Selected driver not found.');
+        setErrorMsg('Selected driver(s) not found.');
         return;
       }
     }
@@ -132,31 +164,47 @@ const DriverNotifications = () => {
       message: message.trim(),
       category,
       targetType,
-      targetDriverId: targetType === 'specific' ? selectedDriverId : null,
+      targetDriverId: targetType === 'specific' ? selectedDriverIds : null,
       targetDriverName,
       targetDriverPhone,
       offer: offerDetails
     };
 
-    const res = sendDriverNotification(payload);
-    if (res.ok) {
-      setSuccessMsg('Notification sent and broadcasted successfully!');
-      // Reset form fields
-      setTitle('');
-      setMessage('');
-      setAttachOffer(false);
-      setOfferTitle('');
-      setOfferCode('');
-      setBenefitValue('');
-      setExpiryDate('');
-      setSelectedDriverId('');
-
-      // Auto clear success msg after 4 seconds
-      setTimeout(() => setSuccessMsg(''), 4000);
+    if (editingNotifId) {
+      const res = updateDriverNotification(editingNotifId, payload);
+      if (res.ok) {
+        setSuccessMsg('Notification updated successfully!');
+        setSelectedDriverIds([]);
+        setSearchTerm('');
+        setTimeout(() => setSuccessMsg(''), 4000);
+      } else {
+        setErrorMsg('An error occurred while updating.');
+      }
     } else {
-      setErrorMsg('An error occurred while broadcasting.');
+      const res = sendDriverNotification(payload);
+      if (res.ok) {
+        setSuccessMsg('Notification sent and broadcasted successfully!');
+        setTitle('');
+        setMessage('');
+        setAttachOffer(false);
+        setOfferTitle('');
+        setOfferCode('');
+        setBenefitValue('');
+        setExpiryDate('');
+        setSelectedDriverIds([]);
+        setSearchTerm('');
+        setTimeout(() => setSuccessMsg(''), 4000);
+      } else {
+        setErrorMsg('An error occurred while broadcasting.');
+      }
     }
   };
+
+  const filteredDrivers = verifiedDrivers.filter(d =>
+    d.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (d.userPhone && d.userPhone.includes(searchTerm)) ||
+    (d.userEmail && d.userEmail.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   // Get category badge style & icon
   const getCategoryMeta = (cat) => {
@@ -257,7 +305,9 @@ const DriverNotifications = () => {
             <div className="rounded-xl bg-[#00D6CC]/10 p-2 text-[#00D6CC]">
               <Sparkles size={20} />
             </div>
-            <h3 className="text-lg font-bold text-slate-900">Compose New Broadcast</h3>
+            <h3 className="text-lg font-bold text-slate-900">
+              {editingNotifId ? 'Edit Driver Broadcast' : 'Compose New Broadcast'}
+            </h3>
           </div>
 
           <form onSubmit={handleSend} className="space-y-5">
@@ -281,7 +331,8 @@ const DriverNotifications = () => {
                 type="button"
                 onClick={() => {
                   setTargetType('all');
-                  setSelectedDriverId('');
+                  setSelectedDriverIds([]);
+                  setSearchTerm('');
                 }}
                 className={`rounded-2xl py-3 px-4 text-sm font-bold border transition ${targetType === 'all'
                   ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-[#00D6CC]'
@@ -298,26 +349,70 @@ const DriverNotifications = () => {
                   : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                   }`}
               >
-                Target Specific Driver
+                Target Specific Drivers
               </button>
             </div>
 
             {/* Driver drop down if specific is chosen */}
             {targetType === 'specific' && (
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Driver</label>
-                <select
-                  value={selectedDriverId}
-                  onChange={(e) => setSelectedDriverId(e.target.value)}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Drivers ({selectedDriverIds.length} selected)</label>
+                  {selectedDriverIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDriverIds([])}
+                      className="text-xs font-bold text-[#00D6CC] hover:underline"
+                    >
+                      Clear Selection
+                    </button>
+                  )}
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="Search drivers by name, phone or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none focus:border-[#00D6CC] focus:bg-white transition"
-                >
-                  <option value="">-- Choose verified driver --</option>
-                  {verifiedDrivers.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.userName} ({d.userPhone || d.userEmail || d.id})
-                    </option>
-                  ))}
-                </select>
+                />
+
+                <div className="max-h-48 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/30 p-3 space-y-1.5">
+                  {filteredDrivers.length > 0 ? (
+                    filteredDrivers.map((d) => {
+                      const isChecked = selectedDriverIds.includes(d.id);
+                      return (
+                        <label
+                          key={d.id}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition cursor-pointer text-xs font-semibold ${
+                            isChecked
+                              ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-slate-900'
+                              : 'border-transparent hover:bg-slate-100/50 text-slate-600'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {
+                              setSelectedDriverIds(prev =>
+                                prev.includes(d.id)
+                                  ? prev.filter(id => id !== d.id)
+                                  : [...prev, d.id]
+                              );
+                            }}
+                            className="rounded border-slate-300 text-[#00D6CC] focus:ring-[#00D6CC] h-4 w-4"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold truncate text-slate-800">{d.userName}</p>
+                            <p className="text-[10px] text-slate-400 truncate mt-0.5">{d.userPhone || d.userEmail || d.id}</p>
+                          </div>
+                        </label>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-6 text-slate-400">No verified drivers found matching search.</div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -363,12 +458,30 @@ const DriverNotifications = () => {
 
 
             {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#00D6CC] text-white py-3.5 px-6 font-bold shadow-md hover:bg-[#00c2b9] hover:shadow-lg transition-all transform active:scale-[0.99]"
-            >
-              <Send size={16} /> Broadcast to Drivers
-            </button>
+            {editingNotifId ? (
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white py-3.5 px-6 font-bold shadow-md hover:shadow-lg transition-all"
+                >
+                  <Send size={16} /> Update Notification
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="rounded-2xl bg-slate-100 text-slate-600 py-3.5 px-6 font-bold hover:bg-slate-200 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#00D6CC] text-white py-3.5 px-6 font-bold shadow-md hover:bg-[#00c2b9] hover:shadow-lg transition-all transform active:scale-[0.99]"
+              >
+                <Send size={16} /> Broadcast to Drivers
+              </button>
+            )}
           </form>
         </div>
       </div>
@@ -436,13 +549,24 @@ const DriverNotifications = () => {
                           )}
                         </td>
                         <td className="px-6 py-4 text-right whitespace-nowrap">
-                          <button
-                            onClick={() => deleteDriverNotification(notif.id)}
-                            className="rounded-xl p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                            title="Delete log"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => handleEditClick(notif)}
+                              className="rounded-xl p-2 text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-colors"
+                              title="Edit notification"
+                              type="button"
+                            >
+                              <Pencil size={16} />
+                            </button>
+                            <button
+                              onClick={() => deleteDriverNotification(notif.id)}
+                              className="rounded-xl p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                              title="Delete log"
+                              type="button"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

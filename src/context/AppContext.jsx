@@ -801,6 +801,17 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const updateDriverNotification = (notificationId, updatedData) => {
+    setState((prev) => ({
+      ...prev,
+      driverNotifications: (prev.driverNotifications || []).map((n) =>
+        n.id === notificationId ? { ...n, ...updatedData } : n
+      ),
+    }));
+    return { ok: true };
+  };
+
+
   const sendUserNotification = (notificationData) => {
     const newNotification = {
       id: uid('notif'),
@@ -821,6 +832,17 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const updateUserNotification = (notificationId, updatedData) => {
+    setState((prev) => ({
+      ...prev,
+      userNotifications: (prev.userNotifications || []).map((n) =>
+        n.id === notificationId ? { ...n, ...updatedData } : n
+      ),
+    }));
+    return { ok: true };
+  };
+
+
   const sendCompanyNotification = (notificationData) => {
     const newNotification = {
       id: uid('notif'),
@@ -840,6 +862,17 @@ export const AppProvider = ({ children }) => {
       companyNotifications: (prev.companyNotifications || []).filter((n) => n.id !== notificationId),
     }));
   };
+
+  const updateCompanyNotification = (notificationId, updatedData) => {
+    setState((prev) => ({
+      ...prev,
+      companyNotifications: (prev.companyNotifications || []).map((n) =>
+        n.id === notificationId ? { ...n, ...updatedData } : n
+      ),
+    }));
+    return { ok: true };
+  };
+
 
   const createCoupon = (couponData) => {
     const newCoupon = {
@@ -911,10 +944,13 @@ export const AppProvider = ({ children }) => {
       uploadDriverDocument,
       sendDriverNotification,
       deleteDriverNotification,
+      updateDriverNotification,
       sendUserNotification,
       deleteUserNotification,
+      updateUserNotification,
       sendCompanyNotification,
       deleteCompanyNotification,
+      updateCompanyNotification,
       createCoupon,
       deleteCoupon,
       toggleCouponStatus,

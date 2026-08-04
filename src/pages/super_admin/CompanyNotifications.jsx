@@ -12,21 +12,24 @@ import {
   CheckCircle2,
   Clock,
   Info,
-  Laptop
+  Laptop,
+  Pencil
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
 
 const CompanyNotifications = () => {
-  const { state, sendCompanyNotification, deleteCompanyNotification } = useApp();
+  const { state, sendCompanyNotification, deleteCompanyNotification, updateCompanyNotification } = useApp();
 
   // Form state
   const [targetType, setTargetType] = useState('all'); // 'all' or 'specific'
-  const [selectedCompanyId, setSelectedCompanyId] = useState('');
+  const [selectedCompanyIds, setSelectedCompanyIds] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('announcement'); // announcement, offer, alert
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [attachOffer, setAttachOffer] = useState(false);
+  const [editingNotifId, setEditingNotifId] = useState(null);
 
   // Offer settings
   const [offerTitle, setOfferTitle] = useState('');
@@ -38,6 +41,35 @@ const CompanyNotifications = () => {
   // Feedbacks
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  const handleEditClick = (notif) => {
+    setEditingNotifId(notif.id);
+    setCategory(notif.category);
+    setTitle(notif.title);
+    setMessage(notif.message);
+    setTargetType(notif.targetType);
+    if (notif.targetDriverId) {
+      if (Array.isArray(notif.targetDriverId)) {
+        setSelectedCompanyIds(notif.targetDriverId);
+      } else {
+        setSelectedCompanyIds([notif.targetDriverId]);
+      }
+    } else {
+      setSelectedCompanyIds([]);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingNotifId(null);
+    setTitle('');
+    setMessage('');
+    setCategory('announcement');
+    setTargetType('all');
+    setSelectedCompanyIds([]);
+    setSearchTerm('');
+    setSuccessMsg('');
+    setErrorMsg('');
+  };
 
   // Extract companies list
   const companiesList = state.companies || [];
@@ -78,8 +110,8 @@ const CompanyNotifications = () => {
       setErrorMsg('Please enter the message details.');
       return;
     }
-    if (targetType === 'specific' && !selectedCompanyId) {
-      setErrorMsg('Please select a target company.');
+    if (targetType === 'specific' && selectedCompanyIds.length === 0) {
+      setErrorMsg('Please select at least one target company.');
       return;
     }
 
@@ -87,10 +119,10 @@ const CompanyNotifications = () => {
     let targetCompanyContact = '';
 
     if (targetType === 'specific') {
-      const selectedCompany = companiesList.find(c => c.id === selectedCompanyId);
-      if (selectedCompany) {
-        targetCompanyName = selectedCompany.companyName;
-        targetCompanyContact = selectedCompany.email;
+      const selectedCompanies = companiesList.filter(c => selectedCompanyIds.includes(c.id));
+      if (selectedCompanies.length > 0) {
+        targetCompanyName = selectedCompanies.map(c => c.companyName).join(', ');
+        targetCompanyContact = selectedCompanies.map(c => c.email).filter(Boolean).join(', ');
       } else {
         setErrorMsg('Selected company not found.');
         return;
@@ -129,28 +161,47 @@ const CompanyNotifications = () => {
       message: message.trim(),
       category,
       targetType,
-      targetDriverId: targetType === 'specific' ? selectedCompanyId : null,
+      targetDriverId: targetType === 'specific' ? selectedCompanyIds : null,
       targetDriverName: targetCompanyName,
       targetDriverPhone: targetCompanyContact,
       offer: offerDetails
     };
 
-    const res = sendCompanyNotification(payload);
-    if (res.ok) {
-      setSuccessMsg('Company portal notice broadcasted successfully!');
-      setTitle('');
-      setMessage('');
-      setAttachOffer(false);
-      setOfferTitle('');
-      setOfferCode('');
-      setBenefitValue('');
-      setExpiryDate('');
-      setSelectedCompanyId('');
-      setTimeout(() => setSuccessMsg(''), 4000);
+    if (editingNotifId) {
+      const res = updateCompanyNotification(editingNotifId, payload);
+      if (res.ok) {
+        setSuccessMsg('Company portal notice updated successfully!');
+        setSelectedCompanyIds([]);
+        setSearchTerm('');
+        setTimeout(() => setSuccessMsg(''), 4000);
+      } else {
+        setErrorMsg('Failed to update company notification.');
+      }
     } else {
-      setErrorMsg('Failed to send company notification.');
+      const res = sendCompanyNotification(payload);
+      if (res.ok) {
+        setSuccessMsg('Company portal notice broadcasted successfully!');
+        setTitle('');
+        setMessage('');
+        setAttachOffer(false);
+        setOfferTitle('');
+        setOfferCode('');
+        setBenefitValue('');
+        setExpiryDate('');
+        setSelectedCompanyIds([]);
+        setSearchTerm('');
+        setTimeout(() => setSuccessMsg(''), 4000);
+      } else {
+        setErrorMsg('Failed to send company notification.');
+      }
     }
   };
+
+  const filteredCompanies = companiesList.filter(c =>
+    c.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.ownerName && c.ownerName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (c.email && c.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   const getCategoryMeta = (cat) => {
     switch (cat) {
@@ -241,7 +292,9 @@ const CompanyNotifications = () => {
             <div className="rounded-xl bg-[#00D6CC]/10 p-2 text-[#00D6CC]">
               <Sparkles size={20} />
             </div>
-            <h3 className="text-lg font-bold text-slate-900">Compose Company Notice</h3>
+            <h3 className="text-lg font-bold text-slate-900">
+              {editingNotifId ? 'Edit Company Notice' : 'Compose Company Notice'}
+            </h3>
           </div>
 
           <form onSubmit={handleSend} className="space-y-5">
@@ -264,7 +317,8 @@ const CompanyNotifications = () => {
                 type="button"
                 onClick={() => {
                   setTargetType('all');
-                  setSelectedCompanyId('');
+                  setSelectedCompanyIds([]);
+                  setSearchTerm('');
                 }}
                 className={`rounded-2xl py-3 px-4 text-sm font-bold border transition ${targetType === 'all'
                   ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-[#00D6CC]'
@@ -281,26 +335,70 @@ const CompanyNotifications = () => {
                   : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                   }`}
               >
-                Specific Agency
+                Specific Agencies
               </button>
             </div>
 
             {/* Company dropdown if specific */}
             {targetType === 'specific' && (
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Rental Company</label>
-                <select
-                  value={selectedCompanyId}
-                  onChange={(e) => setSelectedCompanyId(e.target.value)}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Companies ({selectedCompanyIds.length} selected)</label>
+                  {selectedCompanyIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCompanyIds([])}
+                      className="text-xs font-bold text-[#00D6CC] hover:underline"
+                    >
+                      Clear Selection
+                    </button>
+                  )}
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="Search companies by name, owner or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none focus:border-[#00D6CC] focus:bg-white transition"
-                >
-                  <option value="">-- Choose Agency --</option>
-                  {companiesList.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.companyName} ({c.ownerName})
-                    </option>
-                  ))}
-                </select>
+                />
+
+                <div className="max-h-48 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/30 p-3 space-y-1.5">
+                  {filteredCompanies.length > 0 ? (
+                    filteredCompanies.map((c) => {
+                      const isChecked = selectedCompanyIds.includes(c.id);
+                      return (
+                        <label
+                          key={c.id}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition cursor-pointer text-xs font-semibold ${
+                            isChecked
+                              ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-slate-900'
+                              : 'border-transparent hover:bg-slate-100/50 text-slate-600'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {
+                              setSelectedCompanyIds(prev =>
+                                prev.includes(c.id)
+                                  ? prev.filter(id => id !== c.id)
+                                  : [...prev, c.id]
+                              );
+                            }}
+                            className="rounded border-slate-300 text-[#00D6CC] focus:ring-[#00D6CC] h-4 w-4"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold truncate text-slate-800">{c.companyName}</p>
+                            <p className="text-[10px] text-slate-400 truncate mt-0.5">{c.ownerName} ({c.email})</p>
+                          </div>
+                        </label>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-6 text-slate-400">No companies found matching your search.</div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -345,12 +443,30 @@ const CompanyNotifications = () => {
 
 
             {/* Submit */}
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#00D6CC] text-white py-3.5 px-6 font-bold shadow-md hover:bg-[#00c2b9] hover:shadow-lg transition-all"
-            >
-              <Send size={16} /> Broadcast to Portals
-            </button>
+            {editingNotifId ? (
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white py-3.5 px-6 font-bold shadow-md hover:shadow-lg transition-all"
+                >
+                  <Send size={16} /> Update Notification
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="rounded-2xl bg-slate-100 text-slate-600 py-3.5 px-6 font-bold hover:bg-slate-200 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#00D6CC] text-white py-3.5 px-6 font-bold shadow-md hover:bg-[#00c2b9] hover:shadow-lg transition-all"
+              >
+                <Send size={16} /> Broadcast to Portals
+              </button>
+            )}
           </form>
         </div>
       </div>
@@ -418,13 +534,24 @@ const CompanyNotifications = () => {
                           )}
                         </td>
                         <td className="px-6 py-4 text-right whitespace-nowrap">
-                          <button
-                            onClick={() => deleteCompanyNotification(notif.id)}
-                            className="rounded-xl p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                            title="Delete log"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => handleEditClick(notif)}
+                              className="rounded-xl p-2 text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-colors"
+                              title="Edit notification"
+                              type="button"
+                            >
+                              <Pencil size={16} />
+                            </button>
+                            <button
+                              onClick={() => deleteCompanyNotification(notif.id)}
+                              className="rounded-xl p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                              title="Delete log"
+                              type="button"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

@@ -12,21 +12,24 @@ import {
   Sparkles,
   CheckCircle2,
   Clock,
-  Info
+  Info,
+  Pencil
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
 
 const UserNotifications = () => {
-  const { state, sendUserNotification, deleteUserNotification } = useApp();
+  const { state, sendUserNotification, deleteUserNotification, updateUserNotification } = useApp();
 
   // Form state
   const [targetType, setTargetType] = useState('all'); // 'all' or 'specific'
-  const [selectedUserId, setSelectedUserId] = useState('');
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('offer'); // announcement, offer, alert
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [attachOffer, setAttachOffer] = useState(false);
+  const [editingNotifId, setEditingNotifId] = useState(null);
 
   // Offer settings
   const [offerTitle, setOfferTitle] = useState('');
@@ -38,6 +41,35 @@ const UserNotifications = () => {
   // Feedbacks
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  const handleEditClick = (notif) => {
+    setEditingNotifId(notif.id);
+    setCategory(notif.category);
+    setTitle(notif.title);
+    setMessage(notif.message);
+    setTargetType(notif.targetType);
+    if (notif.targetUserId) {
+      if (Array.isArray(notif.targetUserId)) {
+        setSelectedUserIds(notif.targetUserId);
+      } else {
+        setSelectedUserIds([notif.targetUserId]);
+      }
+    } else {
+      setSelectedUserIds([]);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingNotifId(null);
+    setTitle('');
+    setMessage('');
+    setCategory('offer');
+    setTargetType('all');
+    setSelectedUserIds([]);
+    setSearchTerm('');
+    setSuccessMsg('');
+    setErrorMsg('');
+  };
 
   // Extract unique customers from rental requests to use as select targets
   const rentalRequests = state.rentalRequests || [];
@@ -101,8 +133,8 @@ const UserNotifications = () => {
       setErrorMsg('Please enter the message description.');
       return;
     }
-    if (targetType === 'specific' && !selectedUserId) {
-      setErrorMsg('Please select a target user.');
+    if (targetType === 'specific' && selectedUserIds.length === 0) {
+      setErrorMsg('Please select at least one recipient user.');
       return;
     }
 
@@ -110,12 +142,12 @@ const UserNotifications = () => {
     let targetUserContact = '';
 
     if (targetType === 'specific') {
-      const selectedUser = uniqueCustomers.find(u => u.id === selectedUserId);
-      if (selectedUser) {
-        targetUserName = selectedUser.name;
-        targetUserContact = selectedUser.email;
+      const selectedUsers = uniqueCustomers.filter(u => selectedUserIds.includes(u.id));
+      if (selectedUsers.length > 0) {
+        targetUserName = selectedUsers.map(u => u.name).join(', ');
+        targetUserContact = selectedUsers.map(u => u.email || u.phone).filter(Boolean).join(', ');
       } else {
-        setErrorMsg('Selected user not found.');
+        setErrorMsg('Selected user(s) not found.');
         return;
       }
     }
@@ -152,28 +184,47 @@ const UserNotifications = () => {
       message: message.trim(),
       category,
       targetType,
-      targetUserId: targetType === 'specific' ? selectedUserId : null,
+      targetUserId: targetType === 'specific' ? selectedUserIds : null,
       targetDriverName: targetUserName, // map targetDriverName for unified parsing in state
       targetDriverPhone: targetUserContact,
       offer: offerDetails
     };
 
-    const res = sendUserNotification(payload);
-    if (res.ok) {
-      setSuccessMsg('Retail user notification broadcasted successfully!');
-      setTitle('');
-      setMessage('');
-      setAttachOffer(false);
-      setOfferTitle('');
-      setOfferCode('');
-      setBenefitValue('');
-      setExpiryDate('');
-      setSelectedUserId('');
-      setTimeout(() => setSuccessMsg(''), 4000);
+    if (editingNotifId) {
+      const res = updateUserNotification(editingNotifId, payload);
+      if (res.ok) {
+        setSuccessMsg('Retail user notification updated successfully!');
+        setSelectedUserIds([]);
+        setSearchTerm('');
+        setTimeout(() => setSuccessMsg(''), 4000);
+      } else {
+        setErrorMsg('Failed to update user notification.');
+      }
     } else {
-      setErrorMsg('Failed to broadcast user notification.');
+      const res = sendUserNotification(payload);
+      if (res.ok) {
+        setSuccessMsg('Retail user notification broadcasted successfully!');
+        setTitle('');
+        setMessage('');
+        setAttachOffer(false);
+        setOfferTitle('');
+        setOfferCode('');
+        setBenefitValue('');
+        setExpiryDate('');
+        setSelectedUserIds([]);
+        setSearchTerm('');
+        setTimeout(() => setSuccessMsg(''), 4000);
+      } else {
+        setErrorMsg('Failed to broadcast user notification.');
+      }
     }
   };
+
+  const filteredCustomers = uniqueCustomers.filter(u =>
+    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (u.email && u.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (u.phone && u.phone.includes(searchTerm))
+  );
 
   const getCategoryMeta = (cat) => {
     switch (cat) {
@@ -264,7 +315,9 @@ const UserNotifications = () => {
             <div className="rounded-xl bg-[#00D6CC]/10 p-2 text-[#00D6CC]">
               <Sparkles size={20} />
             </div>
-            <h3 className="text-lg font-bold text-slate-900">Create Retail Broadcast</h3>
+            <h3 className="text-lg font-bold text-slate-900">
+              {editingNotifId ? 'Edit Retail Broadcast' : 'Create Retail Broadcast'}
+            </h3>
           </div>
 
           <form onSubmit={handleSend} className="space-y-5">
@@ -287,7 +340,8 @@ const UserNotifications = () => {
                 type="button"
                 onClick={() => {
                   setTargetType('all');
-                  setSelectedUserId('');
+                  setSelectedUserIds([]);
+                  setSearchTerm('');
                 }}
                 className={`rounded-2xl py-3 px-4 text-sm font-bold border transition ${targetType === 'all'
                   ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-[#00D6CC]'
@@ -304,26 +358,70 @@ const UserNotifications = () => {
                   : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                   }`}
               >
-                Specific Customer
+                Specific Customers
               </button>
             </div>
 
-            {/* Specific user drop down */}
+            {/* Specific user drop down / search checkbox list */}
             {targetType === 'specific' && (
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Renter</label>
-                <select
-                  value={selectedUserId}
-                  onChange={(e) => setSelectedUserId(e.target.value)}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Renters ({selectedUserIds.length} selected)</label>
+                  {selectedUserIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedUserIds([])}
+                      className="text-xs font-bold text-[#00D6CC] hover:underline"
+                    >
+                      Clear Selection
+                    </button>
+                  )}
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="Search renters by name, email or phone..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none focus:border-[#00D6CC] focus:bg-white transition"
-                >
-                  <option value="">-- Choose Renter / Customer --</option>
-                  {uniqueCustomers.map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.name} ({u.email || u.phone})
-                    </option>
-                  ))}
-                </select>
+                />
+
+                <div className="max-h-48 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/30 p-3 space-y-1.5">
+                  {filteredCustomers.length > 0 ? (
+                    filteredCustomers.map((u) => {
+                      const isChecked = selectedUserIds.includes(u.id);
+                      return (
+                        <label
+                          key={u.id}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition cursor-pointer text-xs font-semibold ${
+                            isChecked
+                              ? 'border-[#00D6CC] bg-[#00D6CC]/5 text-slate-900'
+                              : 'border-transparent hover:bg-slate-100/50 text-slate-600'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {
+                              setSelectedUserIds(prev =>
+                                prev.includes(u.id)
+                                  ? prev.filter(id => id !== u.id)
+                                  : [...prev, u.id]
+                              );
+                            }}
+                            className="rounded border-slate-300 text-[#00D6CC] focus:ring-[#00D6CC] h-4 w-4"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold truncate text-slate-800">{u.name}</p>
+                            <p className="text-[10px] text-slate-400 truncate mt-0.5">{u.email || u.phone}</p>
+                          </div>
+                        </label>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-6 text-slate-400">No renters found matching your search.</div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -368,12 +466,30 @@ const UserNotifications = () => {
 
 
             {/* Submit */}
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#00D6CC] text-white py-3.5 px-6 font-bold shadow-md hover:bg-[#00c2b9] hover:shadow-lg transition-all"
-            >
-              <Send size={16} /> Send Push Notification
-            </button>
+            {editingNotifId ? (
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white py-3.5 px-6 font-bold shadow-md hover:shadow-lg transition-all"
+                >
+                  <Send size={16} /> Update Notification
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="rounded-2xl bg-slate-100 text-slate-600 py-3.5 px-6 font-bold hover:bg-slate-200 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#00D6CC] text-white py-3.5 px-6 font-bold shadow-md hover:bg-[#00c2b9] hover:shadow-lg transition-all"
+              >
+                <Send size={16} /> Send Push Notification
+              </button>
+            )}
           </form>
         </div>
       </div>
@@ -443,13 +559,24 @@ const UserNotifications = () => {
                           )}
                         </td>
                         <td className="px-6 py-4 text-right whitespace-nowrap">
-                          <button
-                            onClick={() => deleteUserNotification(notif.id)}
-                            className="rounded-xl p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                            title="Delete log"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => handleEditClick(notif)}
+                              className="rounded-xl p-2 text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-colors"
+                              title="Edit notification"
+                              type="button"
+                            >
+                              <Pencil size={16} />
+                            </button>
+                            <button
+                              onClick={() => deleteUserNotification(notif.id)}
+                              className="rounded-xl p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                              title="Delete log"
+                              type="button"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
