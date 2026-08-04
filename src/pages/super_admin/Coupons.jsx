@@ -79,7 +79,6 @@ const Coupons = ({ setActivePage }) => {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Coupon Management</h2>
-          <p className="mt-1.5 text-sm text-slate-500">Create, manage, and monitor coupon codes and vouchers for booking promotions.</p>
         </div>
         <button
           onClick={() => setActivePage('create-coupon')}
@@ -140,8 +139,8 @@ const Coupons = ({ setActivePage }) => {
               key={statusOption}
               onClick={() => setStatusFilter(statusOption)}
               className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${statusFilter === statusOption
-                  ? 'bg-[#00D6CC] text-white shadow-sm'
-                  : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
+                ? 'bg-[#00D6CC] text-white shadow-sm'
+                : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
                 }`}
               type="button"
             >
@@ -235,11 +234,10 @@ const Coupons = ({ setActivePage }) => {
                           {!isExpired && (
                             <button
                               onClick={() => toggleCouponStatus(coupon.id)}
-                              className={`rounded-xl px-3 py-2 text-xs font-bold transition shadow-sm ${
-                                coupon.status === 'active'
+                              className={`rounded-xl px-3 py-2 text-xs font-bold transition shadow-sm ${coupon.status === 'active'
                                   ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                   : 'bg-[#00D6CC]/10 text-[#00D6CC] hover:bg-[#00D6CC] hover:text-white'
-                              }`}
+                                }`}
                               type="button"
                             >
                               {coupon.status === 'active' ? 'Deactivate' : 'Activate'}
