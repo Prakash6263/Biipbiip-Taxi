@@ -53,7 +53,7 @@ const CompanyNotifications = ({ setActivePage, setSelectedNotificationId }) => {
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Company Notifications & Offers</h2>
+          <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Company Notifications</h2>
         </div>
         <button
           onClick={() => {
@@ -69,15 +69,6 @@ const CompanyNotifications = ({ setActivePage, setSelectedNotificationId }) => {
 
       {/* History Log */}
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4">
-          <div>
-            <h3 className="text-lg font-bold text-slate-900">Company Portal Notice History</h3>
-            <p className="text-xs text-slate-500">History log of notifications and broker incentives broadcasted to partner agencies</p>
-          </div>
-          <span className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-bold">
-            Total Broadcasts: {notifications.length}
-          </span>
-        </div>
 
         {notifications.length > 0 ? (
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
