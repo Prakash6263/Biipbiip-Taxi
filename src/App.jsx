@@ -25,6 +25,10 @@ import CreateCoupon from './pages/super_admin/CreateCoupon';
 import CreateRetailBroadcast from './pages/super_admin/CreateRetailBroadcast';
 import CreateDriverNotification from './pages/super_admin/CreateDriverNotification';
 import CreateCompanyNotification from './pages/super_admin/CreateCompanyNotification';
+import UserBookings from './pages/super_admin/UserBookings';
+import UsersAll from './pages/super_admin/UsersAll';
+import RentalBookings from './pages/super_admin/RentalBookings';
+import TaxiBookings from './pages/super_admin/TaxiBookings';
 
 const ROLE_CONFIG = {
   public: {
@@ -64,6 +68,10 @@ const ROLE_CONFIG = {
       'company-notifications',
       'coupons',
       'create-coupon',
+      'user-bookings',
+      'users-all',
+      'rental-bookings',
+      'taxi-bookings',
     ],
   },
 };
@@ -262,6 +270,18 @@ const App = () => {
       ),
       'create-coupon': (
         <CreateCoupon setActivePage={setActivePage} />
+      ),
+      'user-bookings': (
+        <UserBookings />
+      ),
+      'users-all': (
+        <UsersAll />
+      ),
+      'rental-bookings': (
+        <RentalBookings />
+      ),
+      'taxi-bookings': (
+        <TaxiBookings />
       ),
     };
 
