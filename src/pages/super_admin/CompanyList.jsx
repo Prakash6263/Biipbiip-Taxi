@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
 import { Search, Building2, MapPin, Phone, Mail } from 'lucide-react';
 
-const CompanyList = ({ onShowDetail }) => {
+const CompanyList = ({ onShowDetail, onShowCars }) => {
   const { state } = useApp();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
@@ -64,6 +64,7 @@ const CompanyList = ({ onShowDetail }) => {
                   <th scope="col" className="px-6 py-4 font-bold">Company</th>
                   <th scope="col" className="px-6 py-4 font-bold">Owner Details</th>
                   <th scope="col" className="px-6 py-4 font-bold">Contact & Address</th>
+                  <th scope="col" className="px-6 py-4 font-bold">Car Count</th>
                   <th scope="col" className="px-6 py-4 font-bold">GST Number</th>
                   <th scope="col" className="px-6 py-4 font-bold">Status</th>
                   <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
@@ -108,6 +109,14 @@ const CompanyList = ({ onShowDetail }) => {
                       <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 rounded-lg px-2.5 py-1">
                         {company.gstNumber || '—'}
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => onShowCars?.(company.id)}
+                        className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition"
+                      >
+                        {state.allCompanyCars.filter((car) => car.companyId === company.id).length}
+                      </button>
                     </td>
                     <td className="px-6 py-4">
                       <Badge status={company.status} />

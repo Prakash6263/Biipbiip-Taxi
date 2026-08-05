@@ -10,6 +10,7 @@ import CarDetail from './pages/admin/CarDetail';
 import CompanyProfile from './pages/admin/CompanyProfile';
 import RentRequests from './pages/admin/RentRequests';
 import CompanyList from './pages/super_admin/CompanyList';
+import CompanyCars from './pages/super_admin/CompanyCars';
 import CompanyVerification from './pages/super_admin/CompanyVerification';
 import CompanyVerificationDetail from './pages/super_admin/CompanyVerificationDetail';
 import DriverList from './pages/super_admin/DriverList';
@@ -57,6 +58,7 @@ const ROLE_CONFIG = {
       'companies-list',
       'companies-verification',
       'company-verification-detail',
+      'company-cars',
       'company-car-verification',
       'company-car-detail',
       'drivers-list',
@@ -107,6 +109,7 @@ const App = () => {
   const [selectedDriverRidesId, setSelectedDriverRidesId] = useState(null);
   const [selectedNotificationId, setSelectedNotificationId] = useState(null);
   const [selectedCompanyCarId, setSelectedCompanyCarId] = useState(null);
+  const [selectedCompanyCarReturnPage, setSelectedCompanyCarReturnPage] = useState('company-car-verification');
 
   useEffect(() => {
     const hasAccess = roleConfig.allowedPages.includes(activePage);
@@ -132,6 +135,14 @@ const App = () => {
     []
   );
 
+  const handleShowCompanyCars = useCallback(
+    (companyId) => {
+      setSelectedCompanyId(companyId);
+      setActivePage('company-cars');
+    },
+    []
+  );
+
   const handleShowCarDetail = useCallback(
     (carId) => {
       setSelectedCarId(carId);
@@ -149,8 +160,9 @@ const App = () => {
   );
 
   const handleShowCompanyCarDetail = useCallback(
-    (carId) => {
+    (carId, returnPage = 'company-car-verification') => {
       setSelectedCompanyCarId(carId);
+      setSelectedCompanyCarReturnPage(returnPage);
       setActivePage('company-car-detail');
     },
     []
@@ -201,6 +213,7 @@ const App = () => {
       'companies-list': (
         <CompanyList
           onShowDetail={handleShowCompanyDetail}
+          onShowCars={handleShowCompanyCars}
         />
       ),
       'companies-verification': (
@@ -212,6 +225,13 @@ const App = () => {
         <CompanyVerificationDetail
           companyId={selectedCompanyId}
           setActivePage={setActivePage}
+        />
+      ),
+      'company-cars': (
+        <CompanyCars
+          companyId={selectedCompanyId}
+          setActivePage={setActivePage}
+          onShowDetail={handleShowCompanyCarDetail}
         />
       ),
       'drivers-list': (
@@ -305,6 +325,7 @@ const App = () => {
         <CompanyCarDetail
           carId={selectedCompanyCarId}
           setActivePage={setActivePage}
+          returnPage={selectedCompanyCarReturnPage}
         />
       ),
     };

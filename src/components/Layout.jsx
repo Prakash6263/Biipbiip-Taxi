@@ -11,8 +11,8 @@ const navConfig = {
       icon: Building2,
       submenu: [
         { key: 'companies-list', label: 'Companies' },
-        { key: 'companies-verification', label: 'Document & Verification' },
-        { key: 'company-car-verification', label: 'Company Car' },
+        { key: 'companies-verification', label: 'Company Verification' },
+        { key: 'company-car-verification', label: 'Car Verification' },
       ],
     },
     {

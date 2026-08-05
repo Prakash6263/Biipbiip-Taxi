@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
 import { ArrowLeft, Car as CarIcon, MapPin, Calendar, Fuel, Settings, Users, ShieldCheck, X } from 'lucide-react';
 
-const CompanyCarDetail = ({ carId, setActivePage }) => {
+const CompanyCarDetail = ({ carId, setActivePage, returnPage = 'company-car-verification' }) => {
   const { state, verifyCompanyCar, rejectCompanyCar } = useApp();
   const [rejectModal, setRejectModal] = useState({ open: false, reason: '' });
 
@@ -40,11 +40,11 @@ const CompanyCarDetail = ({ carId, setActivePage }) => {
   return (
     <div className="space-y-6">
       <button
-        onClick={() => setActivePage('company-car-verification')}
+        onClick={() => setActivePage(returnPage)}
         className="flex items-center gap-2 text-slate-600 hover:text-slate-950 transition"
       >
         <ArrowLeft size={20} />
-        <span className="font-semibold">Back to Car Verification</span>
+        <span className="font-semibold">Back to Cars</span>
       </button>
 
       <div className="grid gap-6 lg:grid-cols-3">

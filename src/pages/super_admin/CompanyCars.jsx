@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
 import { ArrowLeft, Car as CarIcon, MapPin, Calendar, Fuel, Settings, Users, Eye } from 'lucide-react';
 
-const CompanyCars = ({ companyId, setActivePage }) => {
+const CompanyCars = ({ companyId, setActivePage, onShowDetail }) => {
   const { state } = useApp();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -139,7 +139,7 @@ const CompanyCars = ({ companyId, setActivePage }) => {
                   </td>
                   <td className="px-6 py-4 align-middle text-right">
                     <button
-                      onClick={() => setActivePage('company-car-verification')}
+                      onClick={() => onShowDetail?.(car.id, 'company-cars')}
                       className="rounded-xl bg-slate-500 text-white hover:bg-slate-600 px-3 py-2 text-xs font-bold transition shadow-sm flex items-center gap-1"
                       title="View Details"
                     >
