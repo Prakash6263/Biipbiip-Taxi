@@ -29,6 +29,8 @@ import UserBookings from './pages/super_admin/UserBookings';
 import UsersAll from './pages/super_admin/UsersAll';
 import RentalBookings from './pages/super_admin/RentalBookings';
 import TaxiBookings from './pages/super_admin/TaxiBookings';
+import CompanyCarVerification from './pages/super_admin/CompanyCarVerification';
+import CompanyCarDetail from './pages/super_admin/CompanyCarDetail';
 
 const ROLE_CONFIG = {
   public: {
@@ -55,6 +57,8 @@ const ROLE_CONFIG = {
       'companies-list',
       'companies-verification',
       'company-verification-detail',
+      'company-car-verification',
+      'company-car-detail',
       'drivers-list',
       'drivers-verification',
       'verification-requests',
@@ -102,6 +106,7 @@ const App = () => {
   const [selectedCarEditId, setSelectedCarEditId] = useState(null);
   const [selectedDriverRidesId, setSelectedDriverRidesId] = useState(null);
   const [selectedNotificationId, setSelectedNotificationId] = useState(null);
+  const [selectedCompanyCarId, setSelectedCompanyCarId] = useState(null);
 
   useEffect(() => {
     const hasAccess = roleConfig.allowedPages.includes(activePage);
@@ -139,6 +144,14 @@ const App = () => {
     (driverId) => {
       setSelectedDriverRidesId(driverId);
       setActivePage('driver-rides');
+    },
+    []
+  );
+
+  const handleShowCompanyCarDetail = useCallback(
+    (carId) => {
+      setSelectedCompanyCarId(carId);
+      setActivePage('company-car-detail');
     },
     []
   );
@@ -283,6 +296,17 @@ const App = () => {
       'taxi-bookings': (
         <TaxiBookings />
       ),
+      'company-car-verification': (
+        <CompanyCarVerification
+          onShowDetail={handleShowCompanyCarDetail}
+        />
+      ),
+      'company-car-detail': (
+        <CompanyCarDetail
+          carId={selectedCompanyCarId}
+          setActivePage={setActivePage}
+        />
+      ),
     };
 
     return pages[activePage] ?? pages[roleConfig.defaultPage];
@@ -292,6 +316,7 @@ const App = () => {
     handleShowCompanyDetail,
     handleShowCarDetail,
     handleShowDriverRides,
+    handleShowCompanyCarDetail,
     roleConfig.defaultPage,
     selectedVerificationId,
     selectedCompanyId,
@@ -299,6 +324,7 @@ const App = () => {
     selectedCarEditId,
     selectedDriverRidesId,
     selectedNotificationId,
+    selectedCompanyCarId,
   ]);
 
   return (

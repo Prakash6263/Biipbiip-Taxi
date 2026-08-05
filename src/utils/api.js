@@ -458,6 +458,74 @@ export const updateCompanyStatusApi = async (companyId, status, token) => {
   }
 };
 
+export const fetchAllCompanyCarsApi = async (token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/all/company-cars`, {
+      method: 'GET',
+      headers: {
+        'accept': '*/*',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const resJson = await response.json();
+
+    if (!response.ok || !resJson.success) {
+      return {
+        success: false,
+        message: resJson.message || 'Fetching company cars failed from server',
+      };
+    }
+
+    return {
+      success: true,
+      cars: resJson.data.cars,
+      message: resJson.message,
+    };
+  } catch (error) {
+    console.error('API Error in fetchAllCompanyCarsApi:', error);
+    return {
+      success: false,
+      message: error.message || 'Network error occurred during fetching company cars.',
+    };
+  }
+};
+
+export const updateCompanyCarStatusApi = async (carId, status, token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/company-car/update/status`, {
+      method: 'PATCH',
+      headers: {
+        'accept': '*/*',
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ carId, status }),
+    });
+
+    const resJson = await response.json();
+
+    if (!response.ok || !resJson.success) {
+      return {
+        success: false,
+        message: resJson.message || 'Updating company car status failed from server',
+      };
+    }
+
+    return {
+      success: true,
+      car: resJson.data.car,
+      message: resJson.message,
+    };
+  } catch (error) {
+    console.error('API Error in updateCompanyCarStatusApi:', error);
+    return {
+      success: false,
+      message: error.message || 'Network error occurred during updating company car status.',
+    };
+  }
+};
+
 
 
 

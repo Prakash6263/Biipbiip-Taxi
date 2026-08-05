@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { seedState } from '../data/mockData';
 import { loadState, saveState, uid } from '../utils/storage';
-import { registerCompanyApi, loginCompanyApi, fetchCompanyCarsApi, loginSuperAdminApi, fetchAllDriversApi, updateDriverStatusApi, fetchAllCompaniesApi, updateCompanyStatusApi } from '../utils/api';
+import { registerCompanyApi, loginCompanyApi, fetchCompanyCarsApi, loginSuperAdminApi, fetchAllDriversApi, updateDriverStatusApi, fetchAllCompaniesApi, updateCompanyStatusApi, fetchAllCompanyCarsApi, updateCompanyCarStatusApi } from '../utils/api';
 
 const AppContext = createContext(null);
 
@@ -14,6 +14,7 @@ const initialState = () => {
       userNotifications: [],
       companyNotifications: [],
       coupons: seedState.coupons || [],
+      allCompanyCars: seedState.allCompanyCars || [],
     };
   }
   return {
@@ -24,6 +25,7 @@ const initialState = () => {
     userNotifications: loaded.userNotifications || [],
     companyNotifications: loaded.companyNotifications || [],
     coupons: loaded.coupons || seedState.coupons || [],
+    allCompanyCars: loaded.allCompanyCars || seedState.allCompanyCars || [],
   };
 };
 
@@ -101,6 +103,7 @@ export const AppProvider = ({ children }) => {
     if (currentUser && currentUser.role === 'super_admin' && currentUser.token) {
       syncAllDrivers(currentUser.token);
       syncAllCompanies(currentUser.token);
+      syncAllCompanyCars(currentUser.token);
     }
   }, [currentUser?.token, currentUser?.role]);
 
@@ -490,6 +493,89 @@ export const AppProvider = ({ children }) => {
     setState((prev) => ({
       ...prev,
       companies: formattedCompanies,
+    }));
+  };
+
+  const syncAllCompanyCars = async (token) => {
+    const apiResult = await fetchAllCompanyCarsApi(token);
+    if (!apiResult.success) {
+      console.error('Failed to sync company cars from backend:', apiResult.message);
+      // Fallback to demo data if API fails
+      if (seedState.allCompanyCars && seedState.allCompanyCars.length > 0) {
+        setState((prev) => ({
+          ...prev,
+          allCompanyCars: seedState.allCompanyCars,
+        }));
+      }
+      return;
+    }
+
+    const backendCars = apiResult.cars || [];
+    if (backendCars.length === 0 && seedState.allCompanyCars && seedState.allCompanyCars.length > 0) {
+      // Use demo data if backend returns empty
+      setState((prev) => ({
+        ...prev,
+        allCompanyCars: seedState.allCompanyCars,
+      }));
+      return;
+    }
+
+    const formattedCars = backendCars.map((car) => {
+      const company = state.companies.find(c => c.id === (car.companyId?._id || car.companyId));
+      const companyName = company?.companyName || 'Unknown Company';
+
+      const rawPhotos = car.vehiclePhotos || [];
+      const formattedPhotos = rawPhotos.map((photo) => {
+        if (typeof photo !== 'string') return '';
+        return photo.startsWith('http') || photo.startsWith('data:') ? photo : `https://node.aitechnotech.in/biip/api/v1/uploads/company-car/${photo}`;
+      });
+
+      const formatDocUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith('http') || url.startsWith('data:')) return url;
+        return `https://node.aitechnotech.in/biip/api/v1/uploads/company-car/${url}`;
+      };
+
+      let status = 'pending';
+      const backendStatus = String(car.verificationStatus || car.status || '').toUpperCase();
+      if (backendStatus === 'APPROVED' || backendStatus === 'VERIFIED') {
+        status = 'verified';
+      } else if (backendStatus === 'REJECTED') {
+        status = 'rejected';
+      }
+
+      return {
+        id: car._id,
+        companyId: car.companyId?._id || car.companyId || '',
+        companyName,
+        name: car.carName || '',
+        brand: car.vehicleBrand || '',
+        model: car.vehicleModel || '',
+        year: car.manufacturingYear || new Date().getFullYear(),
+        registrationNo: car.registrationNo || '',
+        fuelType: car.fuelType || 'Petrol',
+        transmission: car.transmission || 'Manual',
+        seats: car.noOfSeats || 5,
+        doors: car.noOfDoors || 4,
+        pricePerDay: car.perDayCharge || 0,
+        mileage: car.mileage || '',
+        color: car.color || '',
+        vinNumber: car.vinNumber || '',
+        ac: car.airConditioning !== undefined ? car.airConditioning : true,
+        description: car.description || '',
+        status,
+        rejectionReason: car.rejectionReason || '',
+        image: formattedPhotos[0] || '',
+        photos: formattedPhotos,
+        insuranceInvoice: formatDocUrl(car.insuranceInvoice),
+        registrationCardImage: formatDocUrl(car.registrationCardImage),
+        createdAt: car.createdAt || new Date().toISOString(),
+      };
+    });
+
+    setState((prev) => ({
+      ...prev,
+      allCompanyCars: formattedCars,
     }));
   };
 
@@ -907,6 +993,42 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const verifyCompanyCar = async (carId) => {
+    if (currentUser && currentUser.role === 'super_admin' && currentUser.token) {
+      const apiResult = await updateCompanyCarStatusApi(carId, 'APPROVED', currentUser.token);
+      if (apiResult.success) {
+        await syncAllCompanyCars(currentUser.token);
+        return;
+      }
+      console.error('Failed to verify company car on backend:', apiResult.message);
+    }
+
+    setState((prev) => ({
+      ...prev,
+      allCompanyCars: prev.allCompanyCars.map((car) =>
+        car.id === carId ? { ...car, status: 'verified', rejectionReason: '' } : car,
+      ),
+    }));
+  };
+
+  const rejectCompanyCar = async (carId, reason) => {
+    if (currentUser && currentUser.role === 'super_admin' && currentUser.token) {
+      const apiResult = await updateCompanyCarStatusApi(carId, 'REJECTED', currentUser.token);
+      if (apiResult.success) {
+        await syncAllCompanyCars(currentUser.token);
+        return;
+      }
+      console.error('Failed to reject company car on backend:', apiResult.message);
+    }
+
+    setState((prev) => ({
+      ...prev,
+      allCompanyCars: prev.allCompanyCars.map((car) =>
+        car.id === carId ? { ...car, status: 'rejected', rejectionReason: reason || 'Documents not approved.' } : car,
+      ),
+    }));
+  };
+
   const resetDemoData = () => {
     setState({
       ...seedState,
@@ -955,6 +1077,8 @@ export const AppProvider = ({ children }) => {
       deleteCoupon,
       toggleCouponStatus,
       resetDemoData,
+      verifyCompanyCar,
+      rejectCompanyCar,
     }),
     [state, currentUser],
   );

@@ -12,6 +12,7 @@ const navConfig = {
       submenu: [
         { key: 'companies-list', label: 'Companies' },
         { key: 'companies-verification', label: 'Document & Verification' },
+        { key: 'company-car-verification', label: 'Company Car' },
       ],
     },
     {
@@ -81,7 +82,8 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
               (sub) =>
                 activePage === sub.key ||
                 (sub.key === 'drivers-verification' && activePage === 'verification-detail') ||
-                (sub.key === 'companies-verification' && activePage === 'company-verification-detail')
+                (sub.key === 'companies-verification' && activePage === 'company-verification-detail') ||
+                (sub.key === 'company-car-verification' && activePage === 'company-car-detail')
             );
             const isOpen = expanded[item.key] ?? hasActiveSub;
 
@@ -104,7 +106,8 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
                       const subActive =
                         activePage === sub.key ||
                         (sub.key === 'drivers-verification' && activePage === 'verification-detail') ||
-                        (sub.key === 'companies-verification' && activePage === 'company-verification-detail');
+                        (sub.key === 'companies-verification' && activePage === 'company-verification-detail') ||
+                        (sub.key === 'company-car-verification' && activePage === 'company-car-detail');
                       return (
                         <button
                           key={sub.key}
