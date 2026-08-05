@@ -1,23 +1,52 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import EmptyState from '../../components/EmptyState';
 import { useApp } from '../../context/AppContext';
-import { Search, User, Mail } from 'lucide-react';
+import { Search, User, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const UsersAll = () => {
   const { state } = useApp();
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  // Reset page to 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  // Demo data
+  const demoUsers = [
+    { id: 'USR001', name: 'Rahul Sharma', email: 'rahul.sharma@email.com', role: 'user' },
+    { id: 'USR002', name: 'Priya Patel', email: 'priya.patel@email.com', role: 'user' },
+    { id: 'USR003', name: 'Amit Kumar', email: 'amit.kumar@email.com', role: 'user' },
+    { id: 'USR004', name: 'Sneha Reddy', email: 'sneha.reddy@email.com', role: 'user' },
+    { id: 'USR005', name: 'Vikram Singh', email: 'vikram.singh@email.com', role: 'user' },
+    { id: 'USR006', name: 'Anjali Mehta', email: 'anjali.mehta@email.com', role: 'user' },
+    { id: 'USR007', name: 'Rajesh Gupta', email: 'rajesh.gupta@email.com', role: 'user' },
+    { id: 'USR008', name: 'Kavita Joshi', email: 'kavita.joshi@email.com', role: 'user' },
+  ];
 
   const normalUsers = useMemo(() => {
-    return (state.users || []).filter(
+    const users = demoUsers;
+    return users.filter(
       (u) => u.role !== 'admin' && u.role !== 'super_admin'
     );
   }, [state.users]);
 
-  const filteredUsers = normalUsers.filter(
-    (u) =>
-      u.name?.toLowerCase().includes(search.toLowerCase()) ||
-      u.email?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = useMemo(() => {
+    return normalUsers.filter(
+      (u) =>
+        u.name?.toLowerCase().includes(search.toLowerCase()) ||
+        u.email?.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [normalUsers, search]);
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredUsers, currentPage, itemsPerPage]);
 
   return (
     <div className="space-y-6">
@@ -51,7 +80,7 @@ const UsersAll = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredUsers.map((u) => (
+                {paginatedUsers.map((u) => (
                   <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -80,6 +109,49 @@ const UsersAll = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Table Pagination Footer */}
+          {filteredUsers.length > 0 && (
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500">
+              <span>
+                Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredUsers.length)} to{' '}
+                {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length} entries
+              </span>
+              <div className="flex items-center gap-1.5 self-end">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                {Array.from({ length: totalPages || 1 }).map((_, index) => {
+                  const pageNum = index + 1;
+                  const isActive = currentPage === pageNum;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
+                        isActive
+                          ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                          : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
+                  disabled={currentPage === (totalPages || 1)}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <EmptyState title="No users found" message="No normal users match the search criteria." />

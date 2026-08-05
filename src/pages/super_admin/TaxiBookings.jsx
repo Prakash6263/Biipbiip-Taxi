@@ -1,29 +1,56 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Badge from '../../components/Badge';
 import EmptyState from '../../components/EmptyState';
 import { useApp } from '../../context/AppContext';
 import { formatDate, currency } from '../../utils/storage';
-import { Search, Car, Phone, MapPin } from 'lucide-react';
+import { Search, Car, Phone, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const TaxiBookings = () => {
   const { state } = useApp();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  // Reset page to 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter]);
+
+  // Demo data
+  const demoTaxiBookings = [
+    { id: 'TXB001', customerName: 'Rahul Sharma', customerPhone: '+91 98765 43210', pickup: 'Connaught Place, Delhi', drop: 'Indira Gandhi International Airport', fare: 450, status: 'completed', createdAt: '2025-01-15T08:30:00Z' },
+    { id: 'TXB002', customerName: 'Priya Patel', customerPhone: '+91 98765 43211', pickup: 'Sector 62, Noida', drop: 'Rajiv Chowk Metro Station', fare: 320, status: 'active', createdAt: '2025-01-16T10:15:00Z' },
+    { id: 'TXB003', customerName: 'Amit Kumar', customerPhone: '+91 98765 43212', pickup: 'DLF Cyber City, Gurgaon', drop: 'Saket Select City Walk', fare: 280, status: 'pending', createdAt: '2025-01-16T14:45:00Z' },
+    { id: 'TXB004', customerName: 'Sneha Reddy', customerPhone: '+91 98765 43213', pickup: 'Nehru Place, Delhi', drop: 'Greater Kailash I', fare: 180, status: 'completed', createdAt: '2025-01-14T09:20:00Z' },
+    { id: 'TXB005', customerName: 'Vikram Singh', customerPhone: '+91 98765 43214', pickup: 'Vasant Kunj, Delhi', drop: 'Dhaula Kuan', fare: 350, status: 'cancelled', createdAt: '2025-01-13T16:00:00Z' },
+    { id: 'TXB006', customerName: 'Anjali Mehta', customerPhone: '+91 98765 43215', pickup: 'Karol Bagh, Delhi', drop: 'New Delhi Railway Station', fare: 150, status: 'pending', createdAt: '2025-01-17T07:30:00Z' },
+    { id: 'TXB007', customerName: 'Rajesh Gupta', customerPhone: '+91 98765 43216', pickup: 'Lajpat Nagar, Delhi', drop: 'Sarojini Nagar Market', fare: 120, status: 'completed', createdAt: '2025-01-12T11:45:00Z' },
+  ];
 
   const taxiBookings = useMemo(
-    () => state.taxiBookings || [],
+    () => state.taxiBookings && state.taxiBookings.length > 0 ? state.taxiBookings : demoTaxiBookings,
     [state.taxiBookings]
   );
 
-  const filteredTaxi = taxiBookings.filter((t) => {
-    const matchesSearch =
-      t.customerName?.toLowerCase().includes(search.toLowerCase()) ||
-      t.customerPhone?.toLowerCase().includes(search.toLowerCase()) ||
-      t.pickup?.toLowerCase().includes(search.toLowerCase()) ||
-      t.drop?.toLowerCase().includes(search.toLowerCase());
-    const matchesFilter = filter === 'all' ? true : t.status === filter;
-    return matchesSearch && matchesFilter;
-  });
+  const filteredTaxi = useMemo(() => {
+    return taxiBookings.filter((t) => {
+      const matchesSearch =
+        t.customerName?.toLowerCase().includes(search.toLowerCase()) ||
+        t.customerPhone?.toLowerCase().includes(search.toLowerCase()) ||
+        t.pickup?.toLowerCase().includes(search.toLowerCase()) ||
+        t.drop?.toLowerCase().includes(search.toLowerCase());
+      const matchesFilter = filter === 'all' ? true : t.status === filter;
+      return matchesSearch && matchesFilter;
+    });
+  }, [taxiBookings, search, filter]);
+
+  const totalPages = Math.ceil(filteredTaxi.length / itemsPerPage);
+
+  const paginatedTaxi = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredTaxi.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredTaxi, currentPage, itemsPerPage]);
 
   return (
     <div className="space-y-6">
@@ -75,7 +102,7 @@ const TaxiBookings = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredTaxi.map((t) => (
+                {paginatedTaxi.map((t) => (
                   <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -111,6 +138,49 @@ const TaxiBookings = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Table Pagination Footer */}
+          {filteredTaxi.length > 0 && (
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500">
+              <span>
+                Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredTaxi.length)} to{' '}
+                {Math.min(currentPage * itemsPerPage, filteredTaxi.length)} of {filteredTaxi.length} entries
+              </span>
+              <div className="flex items-center gap-1.5 self-end">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                {Array.from({ length: totalPages || 1 }).map((_, index) => {
+                  const pageNum = index + 1;
+                  const isActive = currentPage === pageNum;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
+                        isActive
+                          ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                          : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
+                  disabled={currentPage === (totalPages || 1)}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <EmptyState title="No taxi bookings" message="Taxi booking data is not available yet." />
