@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { getDriverRides } from '../../data/ridesData';
 import { formatDate } from '../../utils/storage';
@@ -13,7 +13,9 @@ import {
   DollarSign,
   Calendar,
   MapPinOff,
-  Navigation
+  Navigation,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import Badge from '../../components/Badge';
 import EmptyState from '../../components/EmptyState';
@@ -21,11 +23,18 @@ import EmptyState from '../../components/EmptyState';
 const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
   const { state } = useApp();
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  // Extract all drivers (stored in verificationRequests)
+  // Extract only verified drivers (stored in verificationRequests)
   const drivers = useMemo(() => {
-    return state.verificationRequests || [];
+    return (state.verificationRequests || []).filter((d) => d.status === 'verified');
   }, [state.verificationRequests]);
+
+  // Reset page to 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
 
   // Filter drivers based on search input
   const filteredDrivers = useMemo(() => {
@@ -36,6 +45,25 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
       d.registrationNo.toLowerCase().includes(search.toLowerCase())
     );
   }, [drivers, search]);
+
+  const totalPages = Math.ceil(filteredDrivers.length / itemsPerPage);
+
+  const paginatedDrivers = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredDrivers.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredDrivers, currentPage, itemsPerPage]);
+
+  // Compute stats (total rides and distance) for each driver
+  const driverStatsMap = useMemo(() => {
+    const statsMap = {};
+    drivers.forEach((d) => {
+      const driverRides = getDriverRides(d.id);
+      const totalRides = driverRides.length;
+      const totalKm = driverRides.reduce((sum, r) => sum + (r.km || 0), 0);
+      statsMap[d.id] = { totalRides, totalKm };
+    });
+    return statsMap;
+  }, [drivers]);
 
   // If selectedDriverId is set, get the corresponding driver
   const activeDriver = useMemo(() => {
@@ -121,74 +149,122 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
                     <th scope="col" className="px-6 py-4 font-bold">Driver Name</th>
                     <th scope="col" className="px-6 py-4 font-bold">Contact Info</th>
                     <th scope="col" className="px-6 py-4 font-bold">Car Details</th>
-                    <th scope="col" className="px-6 py-4 font-bold">Status</th>
-                    <th scope="col" className="px-6 py-4 font-bold">Registered</th>
+                    <th scope="col" className="px-6 py-4 font-bold">Total Rides</th>
+                    <th scope="col" className="px-6 py-4 font-bold">Total Distance</th>
                     <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {filteredDrivers.map((d) => (
-                    <tr
-                      key={d.id}
-                      onClick={() => setSelectedDriverId(d.id)}
-                      className="hover:bg-slate-50/50 transition-colors cursor-pointer font-medium"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="rounded-xl bg-[#00D6CC]/10 p-2.5 text-[#00D6CC]">
-                            <User size={18} />
+                  {paginatedDrivers.map((d) => {
+                    const stats = driverStatsMap[d.id] || { totalRides: 0, totalKm: 0 };
+                    return (
+                      <tr
+                        key={d.id}
+                        onClick={() => setSelectedDriverId(d.id)}
+                        className="hover:bg-slate-50/50 transition-colors cursor-pointer font-medium"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="rounded-xl bg-[#00D6CC]/10 p-2.5 text-[#00D6CC]">
+                              <User size={18} />
+                            </div>
+                            <div>
+                              <div className="font-bold text-slate-950">{d.userName}</div>
+                              <div className="text-xs text-slate-400 mt-0.5">ID: {d.id}</div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="font-bold text-slate-950">{d.userName}</div>
-                            <div className="text-xs text-slate-400 mt-0.5">ID: {d.id}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="space-y-1 text-xs">
+                            <div className="flex items-center gap-1.5 text-slate-600">
+                              <Mail size={13} className="text-slate-400" />
+                              <span>{d.userEmail}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-slate-600">
+                              <Phone size={13} className="text-slate-400" />
+                              <span>{d.userPhone}</span>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="space-y-1 text-xs">
-                          <div className="flex items-center gap-1.5 text-slate-600">
-                            <Mail size={13} className="text-slate-400" />
-                            <span>{d.userEmail}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="rounded-xl bg-slate-100 p-2.5 text-slate-600">
+                              <Car size={18} />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-slate-800">{d.carName}</p>
+                              <p className="font-mono text-xs text-slate-400 mt-0.5">{d.registrationNo}</p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5 text-slate-600">
-                            <Phone size={13} className="text-slate-400" />
-                            <span>{d.userPhone}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="rounded-xl bg-slate-100 p-2.5 text-slate-600">
-                            <Car size={18} />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-slate-800">{d.carName}</p>
-                            <p className="font-mono text-xs text-slate-400 mt-0.5">{d.registrationNo}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Badge status={d.status} />
-                      </td>
-                      <td className="px-6 py-4 text-xs text-slate-500">
-                        {formatDate(d.createdAt)}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedDriverId(d.id);
-                          }}
-                          className="rounded-xl bg-[#00D6CC] text-white hover:opacity-90 px-4 py-2 text-xs font-bold transition shadow-sm"
-                        >
-                          View Rides
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center gap-1 rounded-xl bg-[#00D6CC]/10 px-3 py-1.5 text-xs font-bold text-[#00D6CC]">
+                            {stats.totalRides} Rides
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-slate-800">
+                          {stats.totalKm} <span className="text-xs font-semibold text-slate-400">km</span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedDriverId(d.id);
+                            }}
+                            className="rounded-xl bg-[#00D6CC] text-white hover:opacity-90 px-4 py-2 text-xs font-bold transition shadow-sm"
+                          >
+                            View Rides
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+
+            {/* Table Pagination Footer */}
+            {filteredDrivers.length > 0 && (
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500">
+                <span>
+                  Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredDrivers.length)} to{' '}
+                  {Math.min(currentPage * itemsPerPage, filteredDrivers.length)} of {filteredDrivers.length} entries
+                </span>
+                <div className="flex items-center gap-1.5 self-end">
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  {Array.from({ length: totalPages || 1 }).map((_, index) => {
+                    const pageNum = index + 1;
+                    const isActive = currentPage === pageNum;
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
+                          isActive
+                            ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                            : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
+                    disabled={currentPage === (totalPages || 1)}
+                    className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <EmptyState title="No drivers found" message="No drivers match the search criteria." />

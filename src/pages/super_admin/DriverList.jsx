@@ -1,26 +1,42 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Badge from '../../components/Badge';
 import EmptyState from '../../components/EmptyState';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
-import { Search, User, Car, Phone, Mail } from 'lucide-react';
+import { Search, User, Car, Phone, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const DriverList = ({ onShowDetail, onShowRides }) => {
   const { state } = useApp();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  const filteredRequests = (state.verificationRequests || []).filter((req) => {
-    const matchesSearch =
-      req.userName.toLowerCase().includes(search.toLowerCase()) ||
-      req.userEmail.toLowerCase().includes(search.toLowerCase()) ||
-      req.carName.toLowerCase().includes(search.toLowerCase()) ||
-      req.registrationNo.toLowerCase().includes(search.toLowerCase());
+  // Reset page to 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter]);
 
-    const matchesFilter = filter === 'all' ? true : req.status === filter;
+  const filteredRequests = useMemo(() => {
+    return (state.verificationRequests || []).filter((req) => {
+      const matchesSearch =
+        req.userName.toLowerCase().includes(search.toLowerCase()) ||
+        req.userEmail.toLowerCase().includes(search.toLowerCase()) ||
+        req.carName.toLowerCase().includes(search.toLowerCase()) ||
+        req.registrationNo.toLowerCase().includes(search.toLowerCase());
 
-    return matchesSearch && matchesFilter;
-  });
+      const matchesFilter = filter === 'all' ? true : req.status === filter;
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [state.verificationRequests, search, filter]);
+
+  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+
+  const paginatedRequests = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredRequests.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredRequests, currentPage, itemsPerPage]);
 
   return (
     <div className="space-y-6">
@@ -71,7 +87,7 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredRequests.map((req) => (
+                {paginatedRequests.map((req) => (
                   <tr key={req.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -128,6 +144,49 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
               </tbody>
             </table>
           </div>
+
+          {/* Table Pagination Footer */}
+          {filteredRequests.length > 0 && (
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500">
+              <span>
+                Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredRequests.length)} to{' '}
+                {Math.min(currentPage * itemsPerPage, filteredRequests.length)} of {filteredRequests.length} entries
+              </span>
+              <div className="flex items-center gap-1.5 self-end">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                {Array.from({ length: totalPages || 1 }).map((_, index) => {
+                  const pageNum = index + 1;
+                  const isActive = currentPage === pageNum;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
+                        isActive
+                          ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                          : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
+                  disabled={currentPage === (totalPages || 1)}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <EmptyState title="No users found" message="No users match the selected filters and search details." />

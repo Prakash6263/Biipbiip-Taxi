@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Badge from '../../components/Badge';
 import EmptyState from '../../components/EmptyState';
 import { useApp } from '../../context/AppContext';
@@ -8,20 +8,36 @@ import VerificationRequestDetail from './VerificationRequestDetail';
 
 const VerificationRequests = ({ onShowDetail }) => {
   const { state } = useApp();
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('pending');
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  const requests = (state.verificationRequests || []).filter((req) => {
-    const matchesSearch =
-      req.userName.toLowerCase().includes(search.toLowerCase()) ||
-      req.userEmail.toLowerCase().includes(search.toLowerCase()) ||
-      req.carName.toLowerCase().includes(search.toLowerCase()) ||
-      req.registrationNo.toLowerCase().includes(search.toLowerCase());
+  // Reset page to 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter]);
 
-    const matchesFilter = filter === 'all' ? true : req.status === filter;
+  const filteredRequests = useMemo(() => {
+    return (state.verificationRequests || []).filter((req) => {
+      const matchesSearch =
+        req.userName.toLowerCase().includes(search.toLowerCase()) ||
+        req.userEmail.toLowerCase().includes(search.toLowerCase()) ||
+        req.carName.toLowerCase().includes(search.toLowerCase()) ||
+        req.registrationNo.toLowerCase().includes(search.toLowerCase());
 
-    return matchesSearch && matchesFilter;
-  });
+      const matchesFilter = filter === 'all' ? true : req.status === filter;
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [state.verificationRequests, search, filter]);
+
+  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+
+  const paginatedRequests = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredRequests.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredRequests, currentPage, itemsPerPage]);
 
   // Helper to format submission date and time separately
   const formatDateTimeSplit = (isoString) => {
@@ -78,7 +94,7 @@ const VerificationRequests = ({ onShowDetail }) => {
       </div>
 
       {/* Table Container */}
-      {requests.length ? (
+      {filteredRequests.length ? (
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] border-collapse text-left text-sm text-slate-500">
@@ -93,7 +109,7 @@ const VerificationRequests = ({ onShowDetail }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {requests.map((reqItem) => {
+                {paginatedRequests.map((reqItem) => {
                   const { date, time } = formatDateTimeSplit(reqItem.createdAt);
                   return (
                     <tr
@@ -171,31 +187,48 @@ const VerificationRequests = ({ onShowDetail }) => {
             </table>
           </div>
 
-          {/* Table Mock Pagination Footer */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 p-4.5 bg-slate-50/20 text-xs font-medium text-slate-500">
-            <span>Showing 1 to {requests.length} of {requests.length} entries</span>
-            <div className="flex items-center gap-1.5 self-end">
-              <button className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-400 transition" disabled>
-                <ChevronLeft size={14} />
-              </button>
-              <button className="h-7 w-7 rounded-lg bg-[#00D6CC] text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-[#00D6CC]/15">
-                1
-              </button>
-              <button className="h-7 w-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center font-bold text-xs transition">
-                2
-              </button>
-              <button className="h-7 w-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center font-bold text-xs transition">
-                3
-              </button>
-              <span className="px-1 text-slate-300">...</span>
-              <button className="h-7 w-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center font-bold text-xs transition">
-                125
-              </button>
-              <button className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition">
-                <ChevronRight size={14} />
-              </button>
+          {/* Table Pagination Footer */}
+          {filteredRequests.length > 0 && (
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500">
+              <span>
+                Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredRequests.length)} to{' '}
+                {Math.min(currentPage * itemsPerPage, filteredRequests.length)} of {filteredRequests.length} entries
+              </span>
+              <div className="flex items-center gap-1.5 self-end">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                {Array.from({ length: totalPages || 1 }).map((_, index) => {
+                  const pageNum = index + 1;
+                  const isActive = currentPage === pageNum;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
+                        isActive
+                          ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                          : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
+                  disabled={currentPage === (totalPages || 1)}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       ) : (
         <EmptyState title="No verification requests found" message="No requests found matching this filter." />
