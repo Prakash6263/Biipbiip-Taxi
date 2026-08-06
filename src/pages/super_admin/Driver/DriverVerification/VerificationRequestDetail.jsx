@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import Badge from '../../components/Badge';
-import { useApp } from '../../context/AppContext';
-import { formatDate, readFileAsDataUrl } from '../../utils/storage';
+import Badge from '../../../../components/Badge';
+import { useApp } from '../../../../context/AppContext';
+import { formatDate, readFileAsDataUrl } from '../../../../utils/storage';
 import {
   User,
   Car,

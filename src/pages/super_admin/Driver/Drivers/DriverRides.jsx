@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useApp } from '../../context/AppContext';
-import { getDriverRides } from '../../data/ridesData';
-import { formatDate } from '../../utils/storage';
+import { useApp } from '../../../../context/AppContext';
+import { getDriverRides } from '../../../../data/ridesData';
+import { formatDate } from '../../../../utils/storage';
 import {
   Search,
   User,
@@ -17,8 +17,8 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import Badge from '../../components/Badge';
-import EmptyState from '../../components/EmptyState';
+import Badge from '../../../../components/Badge';
+import EmptyState from '../../../../components/EmptyState';
 
 const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
   const { state } = useApp();

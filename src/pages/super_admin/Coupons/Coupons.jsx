@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useApp } from '../../context/AppContext';
-import Badge from '../../components/Badge';
-import EmptyState from '../../components/EmptyState';
+import { useApp } from '../../../context/AppContext';
+import Badge from '../../../components/Badge';
+import EmptyState from '../../../components/EmptyState';
 import {
   Ticket,
   Plus,

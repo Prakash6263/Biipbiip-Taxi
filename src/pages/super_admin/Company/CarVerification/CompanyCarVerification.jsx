@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
-import Badge from '../../components/Badge';
-import EmptyState from '../../components/EmptyState';
-import { useApp } from '../../context/AppContext';
-import { formatDate } from '../../utils/storage';
+import Badge from '../../../../components/Badge';
+import EmptyState from '../../../../components/EmptyState';
+import { useApp } from '../../../../context/AppContext';
+import { formatDate } from '../../../../utils/storage';
 import { Search, Car as CarIcon, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const CompanyCarVerification = ({ onShowDetail }) => {

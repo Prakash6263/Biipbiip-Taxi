@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
-import Badge from '../../components/Badge';
-import EmptyState from '../../components/EmptyState';
-import { useApp } from '../../context/AppContext';
-import { formatDate, currency } from '../../utils/storage';
+import Badge from '../../../../components/Badge';
+import EmptyState from '../../../../components/EmptyState';
+import { useApp } from '../../../../context/AppContext';
+import { formatDate, currency } from '../../../../utils/storage';
 import { Search, User, Car, Phone, Mail, MapPin, Calendar, CreditCard } from 'lucide-react';
 
 const TABS = [

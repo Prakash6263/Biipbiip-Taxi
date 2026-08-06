@@ -8,8 +8,8 @@ import {
   Plus,
   Building2
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
-import { formatDate } from '../../utils/storage';
+import { useApp } from '../../../../context/AppContext';
+import { formatDate } from '../../../../utils/storage';
 
 const CompanyNotifications = ({ setActivePage, setSelectedNotificationId }) => {
   const { state, deleteCompanyNotification } = useApp();

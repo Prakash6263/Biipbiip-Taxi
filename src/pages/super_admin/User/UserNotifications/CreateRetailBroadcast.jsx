@@ -7,7 +7,7 @@ import {
   AlertTriangle,
   Ticket
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../../../context/AppContext';
 
 const CreateRetailBroadcast = ({ setActivePage, selectedNotificationId }) => {
   const { state, sendUserNotification, updateUserNotification } = useApp();

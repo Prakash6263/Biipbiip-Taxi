@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import EmptyState from '../../components/EmptyState';
-import { useApp } from '../../context/AppContext';
+import EmptyState from '../../../../components/EmptyState';
+import { useApp } from '../../../../context/AppContext';
 import { Search, User, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const UsersAll = () => {

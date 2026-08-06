@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
-import Badge from '../../components/Badge';
-import EmptyState from '../../components/EmptyState';
-import { useApp } from '../../context/AppContext';
-import { formatDate, currency } from '../../utils/storage';
+import Badge from '../../../../components/Badge';
+import EmptyState from '../../../../components/EmptyState';
+import { useApp } from '../../../../context/AppContext';
+import { formatDate, currency } from '../../../../utils/storage';
 import { Search, User, Mail, Phone, Calendar, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const RentalBookings = () => {

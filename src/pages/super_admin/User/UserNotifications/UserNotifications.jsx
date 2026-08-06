@@ -7,8 +7,8 @@ import {
   Pencil,
   Plus
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
-import { formatDate } from '../../utils/storage';
+import { useApp } from '../../../../context/AppContext';
+import { formatDate } from '../../../../utils/storage';
 
 const UserNotifications = ({ setActivePage, setSelectedNotificationId }) => {
   const { state, deleteUserNotification } = useApp();

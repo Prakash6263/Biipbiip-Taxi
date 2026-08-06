@@ -8,8 +8,8 @@ import {
   Plus,
   Award
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
-import { formatDate } from '../../utils/storage';
+import { useApp } from '../../../../context/AppContext';
+import { formatDate } from '../../../../utils/storage';
 
 const DriverNotifications = ({ setActivePage, setSelectedNotificationId }) => {
   const { state, deleteDriverNotification } = useApp();
