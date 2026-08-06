@@ -1,16 +1,24 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Badge from '../../components/Badge';
 import EmptyState from '../../components/EmptyState';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
-import { Search, Building2, MapPin, Phone, Mail } from 'lucide-react';
+import { Search, Building2, MapPin, Phone, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const CompanyList = ({ onShowDetail, onShowCars }) => {
   const { state } = useApp();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  const filteredCompanies = state.companies.filter((company) => {
+  // Reset page to 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter]);
+
+  const filteredCompanies = useMemo(() => {
+    return state.companies.filter((company) => {
     const matchesSearch =
       company.companyName.toLowerCase().includes(search.toLowerCase()) ||
       company.ownerName.toLowerCase().includes(search.toLowerCase()) ||
@@ -18,8 +26,16 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
 
     const matchesFilter = filter === 'all' ? true : company.status === filter;
 
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    });
+  }, [state.companies, search, filter]);
+
+  const totalPages = Math.ceil(filteredCompanies.length / itemsPerPage);
+
+  const paginatedCompanies = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredCompanies.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredCompanies, currentPage, itemsPerPage]);
 
   return (
     <div className="space-y-6">
@@ -71,7 +87,7 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredCompanies.map((company) => (
+                {paginatedCompanies.map((company) => (
                   <tr key={company.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -134,6 +150,49 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
               </tbody>
             </table>
           </div>
+
+          {/* Table Pagination Footer */}
+          {filteredCompanies.length > 0 && (
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500">
+              <span>
+                Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredCompanies.length)} to{' '}
+                {Math.min(currentPage * itemsPerPage, filteredCompanies.length)} of {filteredCompanies.length} entries
+              </span>
+              <div className="flex items-center gap-1.5 self-end">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                {Array.from({ length: totalPages || 1 }).map((_, index) => {
+                  const pageNum = index + 1;
+                  const isActive = currentPage === pageNum;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
+                        isActive
+                          ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                          : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
+                  disabled={currentPage === (totalPages || 1)}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <EmptyState title="No companies found" message="No companies match the selected filters and search details." />

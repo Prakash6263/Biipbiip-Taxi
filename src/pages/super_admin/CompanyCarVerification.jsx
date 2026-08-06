@@ -1,17 +1,25 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Badge from '../../components/Badge';
 import EmptyState from '../../components/EmptyState';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
-import { Search, Car as CarIcon, Eye } from 'lucide-react';
+import { Search, Car as CarIcon, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const CompanyCarVerification = ({ onShowDetail }) => {
   const { state, verifyCompanyCar, rejectCompanyCar } = useApp();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const [rejectModal, setRejectModal] = useState({ open: false, carId: null, reason: '' });
 
-  const cars = state.allCompanyCars.filter((car) => {
+  // Reset page to 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter]);
+
+  const cars = useMemo(() => {
+    return state.allCompanyCars.filter((car) => {
     const matchesSearch =
       car.name.toLowerCase().includes(search.toLowerCase()) ||
       car.brand.toLowerCase().includes(search.toLowerCase()) ||
@@ -21,8 +29,16 @@ const CompanyCarVerification = ({ onShowDetail }) => {
 
     const matchesFilter = filter === 'all' ? true : car.status === filter;
 
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    });
+  }, [state.allCompanyCars, search, filter]);
+
+  const totalPages = Math.ceil(cars.length / itemsPerPage);
+
+  const paginatedCars = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return cars.slice(startIndex, startIndex + itemsPerPage);
+  }, [cars, currentPage, itemsPerPage]);
 
   const handleVerify = async (carId) => {
     await verifyCompanyCar(carId);
@@ -82,7 +98,7 @@ const CompanyCarVerification = ({ onShowDetail }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {cars.map((car) => (
+              {paginatedCars.map((car) => (
                 <tr key={car.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-4 align-middle">
                     <div className="flex items-center gap-3">
@@ -160,6 +176,49 @@ const CompanyCarVerification = ({ onShowDetail }) => {
               ))}
             </tbody>
           </table>
+
+          {/* Table Pagination Footer */}
+          {cars.length > 0 && (
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500">
+              <span>
+                Showing {Math.min((currentPage - 1) * itemsPerPage + 1, cars.length)} to{' '}
+                {Math.min(currentPage * itemsPerPage, cars.length)} of {cars.length} entries
+              </span>
+              <div className="flex items-center gap-1.5 self-end">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                {Array.from({ length: totalPages || 1 }).map((_, index) => {
+                  const pageNum = index + 1;
+                  const isActive = currentPage === pageNum;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
+                        isActive
+                          ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                          : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
+                  disabled={currentPage === (totalPages || 1)}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <EmptyState title="No cars found" message="No company cars found for the selected filter." />
