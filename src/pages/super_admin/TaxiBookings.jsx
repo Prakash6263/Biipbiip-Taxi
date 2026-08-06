@@ -19,13 +19,13 @@ const TaxiBookings = () => {
 
   // Demo data
   const demoTaxiBookings = [
-    { id: 'TXB001', customerName: 'Rahul Sharma', customerPhone: '+91 98765 43210', pickup: 'Connaught Place, Delhi', drop: 'Indira Gandhi International Airport', fare: 450, status: 'completed', createdAt: '2025-01-15T08:30:00Z' },
-    { id: 'TXB002', customerName: 'Priya Patel', customerPhone: '+91 98765 43211', pickup: 'Sector 62, Noida', drop: 'Rajiv Chowk Metro Station', fare: 320, status: 'active', createdAt: '2025-01-16T10:15:00Z' },
-    { id: 'TXB003', customerName: 'Amit Kumar', customerPhone: '+91 98765 43212', pickup: 'DLF Cyber City, Gurgaon', drop: 'Saket Select City Walk', fare: 280, status: 'pending', createdAt: '2025-01-16T14:45:00Z' },
-    { id: 'TXB004', customerName: 'Sneha Reddy', customerPhone: '+91 98765 43213', pickup: 'Nehru Place, Delhi', drop: 'Greater Kailash I', fare: 180, status: 'completed', createdAt: '2025-01-14T09:20:00Z' },
-    { id: 'TXB005', customerName: 'Vikram Singh', customerPhone: '+91 98765 43214', pickup: 'Vasant Kunj, Delhi', drop: 'Dhaula Kuan', fare: 350, status: 'cancelled', createdAt: '2025-01-13T16:00:00Z' },
-    { id: 'TXB006', customerName: 'Anjali Mehta', customerPhone: '+91 98765 43215', pickup: 'Karol Bagh, Delhi', drop: 'New Delhi Railway Station', fare: 150, status: 'pending', createdAt: '2025-01-17T07:30:00Z' },
-    { id: 'TXB007', customerName: 'Rajesh Gupta', customerPhone: '+91 98765 43216', pickup: 'Lajpat Nagar, Delhi', drop: 'Sarojini Nagar Market', fare: 120, status: 'completed', createdAt: '2025-01-12T11:45:00Z' },
+    { id: 'TXB001', customerName: 'Rahul Sharma', customerPhone: '+91 98765 43210', driverName: 'Rajesh Kumar', driverPhone: '+91 87654 32101', carName: 'Maruti Swift', carNumber: 'DL 01 AB 1234', pickup: 'Connaught Place, Delhi', drop: 'Indira Gandhi International Airport', fare: 450, status: 'completed', createdAt: '2025-01-15T08:30:00Z' },
+    { id: 'TXB002', customerName: 'Priya Patel', customerPhone: '+91 98765 43211', driverName: 'Suresh Yadav', driverPhone: '+91 87654 32102', carName: 'Honda City', carNumber: 'UP 14 CD 5678', pickup: 'Sector 62, Noida', drop: 'Rajiv Chowk Metro Station', fare: 320, status: 'active', createdAt: '2025-01-16T10:15:00Z' },
+    { id: 'TXB003', customerName: 'Amit Kumar', customerPhone: '+91 98765 43212', driverName: 'Pending Assignment', driverPhone: '—', carName: '—', carNumber: '—', pickup: 'DLF Cyber City, Gurgaon', drop: 'Saket Select City Walk', fare: 280, status: 'pending', createdAt: '2025-01-16T14:45:00Z' },
+    { id: 'TXB004', customerName: 'Sneha Reddy', customerPhone: '+91 98765 43213', driverName: 'Manoj Singh', driverPhone: '+91 87654 32103', carName: 'Hyundai i20', carNumber: 'DL 02 EF 9012', pickup: 'Nehru Place, Delhi', drop: 'Greater Kailash I', fare: 180, status: 'completed', createdAt: '2025-01-14T09:20:00Z' },
+    { id: 'TXB005', customerName: 'Vikram Singh', customerPhone: '+91 98765 43214', driverName: 'Cancelled', driverPhone: '—', carName: '—', carNumber: '—', pickup: 'Vasant Kunj, Delhi', drop: 'Dhaula Kuan', fare: 350, status: 'cancelled', createdAt: '2025-01-13T16:00:00Z' },
+    { id: 'TXB006', customerName: 'Anjali Mehta', customerPhone: '+91 98765 43215', driverName: 'Pending Assignment', driverPhone: '—', carName: '—', carNumber: '—', pickup: 'Karol Bagh, Delhi', drop: 'New Delhi Railway Station', fare: 150, status: 'pending', createdAt: '2025-01-17T07:30:00Z' },
+    { id: 'TXB007', customerName: 'Rajesh Gupta', customerPhone: '+91 98765 43216', driverName: 'Vijay Verma', driverPhone: '+91 87654 32104', carName: 'Tata Nexon', carNumber: 'HR 26 GH 3456', pickup: 'Lajpat Nagar, Delhi', drop: 'Sarojini Nagar Market', fare: 120, status: 'completed', createdAt: '2025-01-12T11:45:00Z' },
   ];
 
   const taxiBookings = useMemo(
@@ -36,8 +36,13 @@ const TaxiBookings = () => {
   const filteredTaxi = useMemo(() => {
     return taxiBookings.filter((t) => {
       const matchesSearch =
+        t.id?.toLowerCase().includes(search.toLowerCase()) ||
         t.customerName?.toLowerCase().includes(search.toLowerCase()) ||
         t.customerPhone?.toLowerCase().includes(search.toLowerCase()) ||
+        t.driverName?.toLowerCase().includes(search.toLowerCase()) ||
+        t.driverPhone?.toLowerCase().includes(search.toLowerCase()) ||
+        t.carName?.toLowerCase().includes(search.toLowerCase()) ||
+        t.carNumber?.toLowerCase().includes(search.toLowerCase()) ||
         t.pickup?.toLowerCase().includes(search.toLowerCase()) ||
         t.drop?.toLowerCase().includes(search.toLowerCase());
       const matchesFilter = filter === 'all' ? true : t.status === filter;
@@ -94,8 +99,10 @@ const TaxiBookings = () => {
               <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
                 <tr>
                   <th className="px-6 py-4 font-bold">Customer</th>
+                  <th className="px-6 py-4 font-bold">Driver</th>
                   <th className="px-6 py-4 font-bold">Contact</th>
                   <th className="px-6 py-4 font-bold">Pickup → Drop</th>
+                  <th className="px-6 py-4 font-bold">Booking ID</th>
                   <th className="px-6 py-4 font-bold">Fare</th>
                   <th className="px-6 py-4 font-bold">Status</th>
                   <th className="px-6 py-4 font-bold text-right">Created</th>
@@ -113,6 +120,26 @@ const TaxiBookings = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
+                      <div className="space-y-1">
+                        <div className="font-semibold text-slate-800">{t.driverName || '—'}</div>
+                        {t.driverPhone && t.driverPhone !== '—' && (
+                          <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                            <Phone size={13} className="text-slate-400" />
+                            <span>{t.driverPhone}</span>
+                          </div>
+                        )}
+                        {t.carName && t.carName !== '—' && (
+                          <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                            <Car size={13} className="text-slate-400" />
+                            <span>{t.carName}</span>
+                          </div>
+                        )}
+                        {t.carNumber && t.carNumber !== '—' && (
+                          <div className="text-xs text-slate-500 font-mono">{t.carNumber}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5 text-xs text-slate-600">
                         <Phone size={13} className="text-slate-400" />
                         <span>{t.customerPhone}</span>
@@ -123,6 +150,11 @@ const TaxiBookings = () => {
                         <MapPin size={13} className="text-slate-400" />
                         <span>{t.pickup} → {t.drop}</span>
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 rounded-lg px-2.5 py-1">
+                        {t.id}
+                      </span>
                     </td>
                     <td className="px-6 py-4 font-bold text-slate-950">
                       {currency(t.fare || 0)}
