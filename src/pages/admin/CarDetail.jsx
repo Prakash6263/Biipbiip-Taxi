@@ -208,6 +208,10 @@ const CarDetail = ({ carId, setActivePage, onStartEdit }) => {
                 <Badge status={car.status} />
               </div>
               <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                <span className="text-xs text-slate-500 font-semibold uppercase">Admin Verification</span>
+                <Badge status={car.adminVerified ? 'verified' : 'pending'} />
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-slate-100">
                 <span className="text-xs text-slate-500 font-semibold uppercase">Transmission</span>
                 <span className="text-sm font-bold text-slate-800">{car.transmission}</span>
               </div>

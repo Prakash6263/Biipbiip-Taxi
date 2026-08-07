@@ -47,6 +47,12 @@ export const mapBackendCar = (backendCar) => {
 
   const companyId = doc.companyId?._id || doc.companyId || backendCar.companyId || '';
 
+  const backendStatus = String(doc.verificationStatus || backendCar.verificationStatus || '').toUpperCase();
+  let adminVerified = false;
+  if (backendStatus === 'APPROVED' || backendStatus === 'VERIFIED') {
+    adminVerified = true;
+  }
+
   return {
     id: doc._id || backendCar._id || uid('car'),
     companyId,
@@ -66,6 +72,7 @@ export const mapBackendCar = (backendCar) => {
     ac: doc.airConditioning !== undefined ? doc.airConditioning : (backendCar.airConditioning !== undefined ? backendCar.airConditioning : true),
     description: doc.description || backendCar.description || '',
     status: doc.status || backendCar.status || 'available',
+    adminVerified,
     image: formattedPhotos[0] || '',
     photos: formattedPhotos,
     insuranceInvoice: formatDocUrl(backendCar.insuranceInvoice || doc.insuranceInvoice),
