@@ -1,62 +1,136 @@
-import { Building2, Car, CheckCircle2, Clock3 } from 'lucide-react';
-import Badge from '../../components/Badge';
+import { Building2, Car, CheckCircle2, Clock3, Users, TrendingUp, DollarSign } from 'lucide-react';
 import StatCard from '../../components/StatCard';
+import Badge from '../../components/Badge';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
 
 const SuperAdminDashboard = () => {
   const { state } = useApp();
-  const pending = state.companies.filter((company) => company.status === 'pending');
-  const verified = state.companies.filter((company) => company.status === 'verified');
+  const pending  = state.companies.filter(c => c.status === 'pending');
+  const verified = state.companies.filter(c => c.status === 'verified');
+
+  // Demo driver stats
+  const totalDrivers   = 124;
+  const activeDrivers  = 87;
+  const totalRides     = 1_420;
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Company Verification Dashboard</h2>
-        </div>
+    <div className="space-y-6">
+
+      {/* ── Page Header ─────────────────────────────────────── */}
+      <div className="page-header">
+        <p className="breadcrumb-label">Overview</p>
+        <h2>Super Admin Dashboard</h2>
+        <p>Welcome back! Here's what's happening with your platform today.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatCard title="Total Companies" value={state.companies.length} icon={Building2} />
-        <StatCard title="Pending Verification" value={pending.length} icon={Clock3} />
-        <StatCard title="Verified Companies" value={verified.length} icon={CheckCircle2} />
-        <StatCard title="Uploaded Cars" value={state.cars.length} icon={Car} />
+      {/* ── Stat Cards ──────────────────────────────────────── */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          title="Total Companies"
+          value={state.companies.length}
+          icon={Building2}
+          hint="Registered on platform"
+          colorIndex={0}
+        />
+        <StatCard
+          title="Pending Verification"
+          value={pending.length}
+          icon={Clock3}
+          hint="Awaiting review"
+          colorIndex={2}
+        />
+        <StatCard
+          title="Verified Companies"
+          value={verified.length}
+          icon={CheckCircle2}
+          hint="Approved & active"
+          colorIndex={3}
+        />
+        <StatCard
+          title="Total Cars Listed"
+          value={state.cars.length}
+          icon={Car}
+          hint="Across all companies"
+          colorIndex={1}
+        />
       </div>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft">
-        <div className="mb-5 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-950">Recent Company Registrations</h3>
-          <Badge status="pending" />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <StatCard
+          title="Total Drivers"
+          value={totalDrivers}
+          icon={Users}
+          hint={`${activeDrivers} currently active`}
+          colorIndex={4}
+        />
+        <StatCard
+          title="Total Rides"
+          value={totalRides.toLocaleString()}
+          icon={TrendingUp}
+          hint="All time"
+          colorIndex={1}
+        />
+        <StatCard
+          title="Platform Revenue"
+          value="₹9,04,250"
+          icon={DollarSign}
+          hint="This month"
+          colorIndex={3}
+        />
+      </div>
+
+      {/* ── Recent Company Registrations ─────────────────────── */}
+      <div className="card">
+        <div className="card-header">
+          <h3>Recent Company Registrations</h3>
+          <span className="badge badge-pending">Pending</span>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
-            <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
+          <table className="data-table">
+            <thead>
               <tr>
-                <th className="px-3 py-3">Company</th>
-                <th className="px-3 py-3">Owner</th>
-                <th className="px-3 py-3">Contact</th>
-                <th className="px-3 py-3">Status</th>
-                <th className="px-3 py-3">Registered</th>
+                <th>#</th>
+                <th>Company</th>
+                <th>Owner</th>
+                <th>Contact</th>
+                <th>Status</th>
+                <th>Registered</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {state.companies.slice(0, 6).map((company) => (
-                <tr key={company.id} className="hover:bg-slate-50">
-                  <td className="px-3 py-4 font-semibold text-slate-950">{company.companyName}</td>
-                  <td className="px-3 py-4 text-slate-600">{company.ownerName}</td>
-                  <td className="px-3 py-4 text-slate-600">
-                    <p>{company.email}</p>
+            <tbody>
+              {state.companies.slice(0, 6).map((company, idx) => (
+                <tr key={company.id}>
+                  <td className="text-slate-400 font-semibold text-xs">{idx + 1}</td>
+                  <td>
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="h-8 w-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
+                        style={{ backgroundColor: '#031E3C' }}
+                      >
+                        {company.companyName?.slice(0, 2).toUpperCase()}
+                      </div>
+                      <span className="font-semibold text-slate-900">{company.companyName}</span>
+                    </div>
+                  </td>
+                  <td className="text-slate-600">{company.ownerName}</td>
+                  <td>
+                    <p className="text-slate-700">{company.email}</p>
                     <p className="text-xs text-slate-400">{company.phone}</p>
                   </td>
-                  <td className="px-3 py-4"><Badge status={company.status} /></td>
-                  <td className="px-3 py-4 text-slate-500">{formatDate(company.createdAt)}</td>
+                  <td>
+                    <span className={`badge badge-${company.status}`}>
+                      {company.status}
+                    </span>
+                  </td>
+                  <td className="text-slate-500 text-xs">{formatDate(company.createdAt)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </section>
+      </div>
+
     </div>
   );
 };
