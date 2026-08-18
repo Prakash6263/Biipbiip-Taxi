@@ -1,4 +1,4 @@
-import { Building2, Car, ClipboardList, Home, LogOut, Menu, RefreshCcw, ShieldCheck, UserPlus, X, ChevronDown, ChevronUp, Users, User, Bell, Ticket } from 'lucide-react';
+import { Building2, Car, ClipboardList, Home, LogOut, Menu, RefreshCcw, ShieldCheck, UserPlus, X, ChevronDown, ChevronUp, Users, User, Bell, Ticket, TrendingUp, Wrench } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 
@@ -46,6 +46,26 @@ const navConfig = {
       ],
     },
     { key: 'coupons', label: 'Coupons', icon: Ticket },
+    {
+      key: 'earning-group',
+      label: 'Earning Reports',
+      icon: TrendingUp,
+      submenu: [
+        { key: 'driver-payment-reports', label: 'Driver Payment Reports' },
+        { key: 'company-payment-reports', label: 'Company Payment Reports' },
+      ],
+    },
+    {
+      key: 'make-models-group',
+      label: 'Make And Models',
+      icon: Wrench,
+      submenu: [
+        { key: 'makers-list',    label: 'Makers List'    },
+        { key: 'add-new-maker', label: 'Add New Maker'  },
+        { key: 'model-list',    label: 'Model List'     },
+        { key: 'add-new-model', label: 'Add New Model'  },
+      ],
+    },
   ],
   admin: [
     { key: 'admin-dashboard', label: 'Dashboard', icon: Home },

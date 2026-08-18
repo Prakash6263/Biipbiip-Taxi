@@ -32,6 +32,12 @@ import RentalBookings from './pages/super_admin/User/UserBookings/RentalBookings
 import TaxiBookings from './pages/super_admin/User/UserBookings/TaxiBookings';
 import CompanyCarVerification from './pages/super_admin/Company/CarVerification/CompanyCarVerification';
 import CompanyCarDetail from './pages/super_admin/Company/Companies/CompanyCarDetail';
+import EarningReports from './pages/super_admin/EarningReports/EarningReports';
+import { MakeModelsProvider } from './pages/super_admin/MakeAndModels/MakeModelsContext';
+import MakersList from './pages/super_admin/MakeAndModels/MakersList';
+import AddNewMaker from './pages/super_admin/MakeAndModels/AddNewMaker';
+import ModelList from './pages/super_admin/MakeAndModels/ModelList';
+import AddNewModel from './pages/super_admin/MakeAndModels/AddNewModel';
 
 const ROLE_CONFIG = {
   public: {
@@ -78,6 +84,12 @@ const ROLE_CONFIG = {
       'users-all',
       'rental-bookings',
       'taxi-bookings',
+      'driver-payment-reports',
+      'company-payment-reports',
+      'makers-list',
+      'add-new-maker',
+      'model-list',
+      'add-new-model',
     ],
   },
 };
@@ -328,6 +340,19 @@ const App = () => {
           returnPage={selectedCompanyCarReturnPage}
         />
       ),
+      'earning-reports': (
+        <EarningReports />
+      ),
+      'driver-payment-reports': (
+        <EarningReports defaultTab="driver" />
+      ),
+      'company-payment-reports': (
+        <EarningReports defaultTab="company" />
+      ),
+      'makers-list':    <MakersList   setActivePage={setActivePage} />,
+      'add-new-maker':  <AddNewMaker  setActivePage={setActivePage} />,
+      'model-list':     <ModelList    setActivePage={setActivePage} />,
+      'add-new-model':  <AddNewModel  setActivePage={setActivePage} />,
     };
 
     return pages[activePage] ?? pages[roleConfig.defaultPage];
@@ -349,12 +374,14 @@ const App = () => {
   ]);
 
   return (
-    <Layout
-      activePage={activePage}
-      setActivePage={setActivePage}
-    >
-      {page}
-    </Layout>
+    <MakeModelsProvider>
+      <Layout
+        activePage={activePage}
+        setActivePage={setActivePage}
+      >
+        {page}
+      </Layout>
+    </MakeModelsProvider>
   );
 };
 
