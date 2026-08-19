@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../../../context/AppContext';
-import { ClipboardList, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 const AddCancelReasons = ({ editReason, onCancel, setActivePage }) => {
   const { addCancelReason, updateCancelReason, toggleCancelReasonStatus } = useApp();
   const [reasonText, setReasonText] = useState('');
   const [reasonTextPt, setReasonTextPt] = useState('');
   const [status, setStatus] = useState('Active');
-  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (editReason) {
@@ -19,19 +20,27 @@ const AddCancelReasons = ({ editReason, onCancel, setActivePage }) => {
       setReasonTextPt('');
       setStatus('Active');
     }
-    setError('');
+    setSuccess(false);
+    setErrors({});
   }, [editReason]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!reasonText.trim() || !reasonTextPt.trim()) {
-      setError('Please fill in all required fields marked with *');
+    const tempErrors = {};
+    if (!reasonText.trim()) {
+      tempErrors.reasonText = 'Reason Text is required.';
+    }
+    if (!reasonTextPt.trim()) {
+      tempErrors.reasonTextPt = 'Reason Text (Portugal) is required.';
+    }
+
+    if (Object.keys(tempErrors).length > 0) {
+      setErrors(tempErrors);
       return;
     }
 
     if (editReason) {
       updateCancelReason(editReason.id, reasonText, reasonTextPt);
-      // If status changed in UI from previous value
       if (editReason.status !== status) {
         toggleCancelReasonStatus(editReason.id);
       }
@@ -39,6 +48,18 @@ const AddCancelReasons = ({ editReason, onCancel, setActivePage }) => {
       addCancelReason(reasonText, reasonTextPt);
     }
 
+    setSuccess(true);
+    setTimeout(() => {
+      setSuccess(false);
+      if (onCancel) {
+        onCancel();
+      } else if (setActivePage) {
+        setActivePage('display-cancel-reasons');
+      }
+    }, 1200);
+  };
+
+  const handleBack = () => {
     if (onCancel) {
       onCancel();
     } else if (setActivePage) {
@@ -49,103 +70,115 @@ const AddCancelReasons = ({ editReason, onCancel, setActivePage }) => {
   return (
     <div className="space-y-6 text-left">
       {/* Page Header */}
-      <div className="page-header">
-        <p className="breadcrumb-label">CANCEL REASONS</p>
-        <h2>{editReason ? 'Edit Cancel Reasons' : 'Add Cancel Reasons'}</h2>
-        <p>Create or update trip cancellation reasons with translation details.</p>
+      <div className="flex items-center gap-4">
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:opacity-90"
+          style={{ backgroundColor: '#00D6CC' }}
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Cancel Reasons</p>
+          <h2 className="mt-1 text-2xl font-bold text-slate-950 sm:text-3xl">
+            {editReason ? 'Edit Cancel Reason' : 'Add Cancel Reason'}
+          </h2>
+        </div>
       </div>
 
-      {/* Form Container Card */}
-      <div className="card overflow-hidden shadow-sm border border-slate-200" style={{ borderRadius: '16px' }}>
-        
-        {/* Banner Title */}
-        <div className="bg-[#0b132b] text-white px-6 py-4 flex items-center gap-3">
-          <ClipboardList size={18} className="text-[#00D6CC]" />
-          <span className="font-bold text-sm tracking-wider uppercase">Cancel Reasons</span>
+      {/* Success Banner */}
+      {success && (
+        <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-emerald-800">
+          <CheckCircle2 size={18} className="text-emerald-500" />
+          <span className="text-sm font-semibold">
+            {editReason ? 'Reason updated successfully! Redirecting…' : 'Reason added successfully! Redirecting…'}
+          </span>
+        </div>
+      )}
+
+      {/* Form Card */}
+      <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        {/* Card Header */}
+        <div className="px-6 py-4 border-b border-slate-100" style={{ backgroundColor: '#002E5B' }}>
+          <h3 className="text-base font-bold text-white tracking-wide uppercase">
+            {editReason ? 'EDIT CANCEL REASONS' : 'ADD CANCEL REASONS'}
+          </h3>
         </div>
 
-        {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {error && (
-            <div className="p-3 bg-rose-50 text-rose-600 rounded-lg text-xs font-semibold">
-              {error}
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Left Inputs */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Left Column: Form Fields */}
             <div className="space-y-4">
+              {/* Reason Text English */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block">
                   Reason Text <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   placeholder="Enter reason in English..."
                   value={reasonText}
-                  onChange={(e) => setReasonText(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium outline-none transition focus:border-[#00D6CC] text-slate-800"
+                  onChange={(e) => { setReasonText(e.target.value); setErrors(prev => ({ ...prev, reasonText: '' })); }}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium outline-none transition"
+                  onFocus={e => e.target.style.borderColor = '#00D6CC'}
+                  onBlur={e => e.target.style.borderColor = errors.reasonText ? '#ef4444' : '#e2e8f0'}
                 />
+                {errors.reasonText && <p className="text-xs font-semibold text-rose-500">{errors.reasonText}</p>}
               </div>
 
+              {/* Reason Text Portugal */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block">
                   Reason Text (Portugal) <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   placeholder="Enter reason in Portuguese..."
                   value={reasonTextPt}
-                  onChange={(e) => setReasonTextPt(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium outline-none transition focus:border-[#00D6CC] text-slate-800"
+                  onChange={(e) => { setReasonTextPt(e.target.value); setErrors(prev => ({ ...prev, reasonTextPt: '' })); }}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium outline-none transition"
+                  onFocus={e => e.target.style.borderColor = '#00D6CC'}
+                  onBlur={e => e.target.style.borderColor = errors.reasonTextPt ? '#ef4444' : '#e2e8f0'}
                 />
+                {errors.reasonTextPt && <p className="text-xs font-semibold text-rose-500">{errors.reasonTextPt}</p>}
               </div>
             </div>
 
-            {/* Right Status */}
+            {/* Right Column: Status */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-                Status
-              </label>
-              
-              <div>
-                <button
-                  type="button"
-                  onClick={() => setStatus(status === 'Active' ? 'Deactive' : 'Active')}
-                  className="px-6 py-2.5 rounded-lg text-xs font-extrabold text-white transition focus:outline-none tracking-wider uppercase"
-                  style={{
-                    background: status === 'Active' 
-                      ? 'linear-gradient(135deg, #00A7E1 0%, #00D6CC 100%)' 
-                      : 'linear-gradient(135deg, #94a3b8 0%, #cbd5e1 100%)'
-                  }}
-                >
-                  {status}
-                </button>
+              <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block">Status</label>
+              <div className="flex gap-3">
+                {['Active', 'Deactive'].map(s => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStatus(s)}
+                    className="rounded-xl px-5 py-2 text-sm font-bold capitalize transition"
+                    style={
+                      status === s
+                        ? { backgroundColor: '#00D6CC', color: '#fff' }
+                        : { backgroundColor: '#f1f5f9', color: '#64748b' }
+                    }
+                  >
+                    {s}
+                  </button>
+                ))}
               </div>
             </div>
+
           </div>
 
-          {/* Form Actions Footer */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => {
-                if (onCancel) {
-                  onCancel();
-                } else if (setActivePage) {
-                  setActivePage('display-cancel-reasons');
-                }
-              }}
-              className="flex items-center gap-1.5 px-4 py-2 border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 rounded-xl text-xs font-bold transition"
-            >
-              <ArrowLeft size={12} /> Back
-            </button>
+          <hr className="border-slate-100" />
 
+          {/* Submit */}
+          <div className="flex justify-center">
             <button
               type="submit"
-              className="px-6 py-2.5 bg-[#0b132b] hover:bg-black text-[#00D6CC] rounded-xl text-xs font-extrabold transition shadow-sm uppercase tracking-wider"
+              className="rounded-full px-8 py-2.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90 active:scale-95 uppercase tracking-wide"
+              style={{ backgroundColor: '#002E5B', boxShadow: '0 4px 14px rgba(0, 46, 91, 0.2)' }}
             >
-              Submit
+              {editReason ? 'UPDATE CANCEL REASONS' : 'SUBMIT'}
             </button>
           </div>
         </form>
