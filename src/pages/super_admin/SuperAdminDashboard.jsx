@@ -140,13 +140,13 @@ const SuperAdminDashboard = () => {
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className="inline-flex items-center justify-center rounded-full border px-3 py-0.5 text-[10px] font-bold capitalize"
+                        className="inline-flex items-center justify-center rounded-full px-3 py-0.5 text-[10px] font-bold capitalize"
                         style={
                           company.status === 'verified'
-                            ? { color: '#10b981', borderColor: '#d1fae5', backgroundColor: '#f0fdf4' }
+                            ? { color: '#ffffff', border: '1.5px solid rgba(255,255,255,0.7)', backgroundColor: 'rgba(16,185,129,0.55)' }
                             : company.status === 'pending'
-                            ? { color: '#f59e0b', borderColor: '#fef3c7', backgroundColor: '#fffbeb' }
-                            : { color: '#ef4444', borderColor: '#fee2e2', backgroundColor: '#fef2f2' }
+                            ? { color: '#fff8e1', border: '1.5px solid rgba(255,235,59,0.6)', backgroundColor: 'rgba(245,158,11,0.5)' }
+                            : { color: '#ffe0e0', border: '1.5px solid rgba(239,68,68,0.6)', backgroundColor: 'rgba(239,68,68,0.45)' }
                         }
                       >
                         {company.status}
