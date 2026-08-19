@@ -1,5 +1,9 @@
-import { Building2, Car, ClipboardList, Home, LogOut, Menu, RefreshCcw, ShieldCheck, UserPlus, X, ChevronDown, ChevronUp, Users, User, Bell, Ticket, TrendingUp, Wrench } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { 
+  Building2, Car, ClipboardList, Home, LogOut, Menu, ShieldCheck, 
+  UserPlus, X, ChevronDown, ChevronUp, Users, User, Bell, Ticket, 
+  TrendingUp, Wrench, Search, Sun, Moon 
+} from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const navConfig = {
@@ -79,7 +83,6 @@ const navConfig = {
 };
 
 const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
-  const { currentUser, logout, resetDemoData } = useApp();
   const [expanded, setExpanded] = useState({});
 
   const toggleGroup = (key) => {
@@ -87,13 +90,7 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
   };
 
   return (
-    <div className="flex h-full flex-col text-white" style={{ backgroundColor: '#031E3C' }}>
-      <div className="border-b border-white/10 p-5">
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="BIIPBIIP Logo" className="h-8 w-25 rounded-xl object-cover shadow-sm" />
-        </div>
-      </div>
-
+    <div className="flex h-full flex-col text-slate-300" style={{ backgroundColor: '#0B1220' }}>
       <nav className="flex-1 space-y-1.5 p-4 overflow-y-auto">
         {items.map((item) => {
           if (item.submenu) {
@@ -111,17 +108,17 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
               <div key={item.key} className="space-y-1">
                 <button
                   onClick={() => toggleGroup(item.key)}
-                  className="flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-semibold transition text-slate-300 hover:bg-white/10 hover:text-white"
+                  className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition hover:bg-slate-800 hover:text-white"
                 >
                   <div className="flex items-center gap-3">
-                    <Icon size={18} />
-                    {item.label}
+                    <Icon size={18} className="text-slate-400" />
+                    <span className="text-slate-200">{item.label}</span>
                   </div>
                   {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
 
                 {isOpen && (
-                  <div className="pl-4 space-y-1 border-l border-white/10 ml-6">
+                  <div className="pl-4 space-y-1 border-l border-slate-800 ml-6">
                     {item.submenu.map((sub) => {
                       const subActive =
                         activePage === sub.key ||
@@ -135,10 +132,10 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
                             setActivePage(sub.key);
                             closeMobile?.();
                           }}
-                          className={`flex w-full items-center gap-3 rounded-xl px-4 py-2 text-left text-xs font-semibold transition ${
-                            subActive ? '' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                          className={`flex w-full items-center gap-3 rounded-lg px-4 py-2 text-left text-xs font-semibold transition ${
+                            subActive ? 'text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                           }`}
-                          style={subActive ? { backgroundColor: '#00D6CC', color: '#ffffff' } : {}}
+                          style={subActive ? { backgroundColor: '#00D6CC' } : {}}
                         >
                           {sub.label}
                         </button>
@@ -161,91 +158,162 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
                 setActivePage(item.key);
                 closeMobile?.();
               }}
-              className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${active ? '' : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                }`}
-              style={active ? { backgroundColor: '#00D6CC', color: '#ffffff' } : {}}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
+                active ? 'text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+              }`}
+              style={active ? { backgroundColor: '#00D6CC' } : {}}
             >
-              <Icon size={18} />
-              {item.label}
+              <Icon size={18} className={active ? 'text-white' : 'text-slate-400'} />
+              <span>{item.label}</span>
             </button>
           );
         })}
       </nav>
-
-      <div className="space-y-3 border-t border-white/10 p-4">
-        {currentUser ? (
-          <div className="rounded-2xl bg-white/10 p-3">
-            <p className="text-sm font-semibold text-white">{currentUser.name}</p>
-            <p className="truncate text-xs text-slate-400">{currentUser.email}</p>
-          </div>
-        ) : null}
-        {currentUser ? (
-          <button
-            onClick={() => {
-              logout();
-              setActivePage('login');
-              closeMobile?.();
-            }}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-rose-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-600"
-          >
-            <LogOut size={16} /> Logout
-          </button>
-        ) : null}
-      </div>
     </div>
   );
 };
 
 const Layout = ({ activePage, setActivePage, children }) => {
-  const { currentUser } = useApp();
+  const { currentUser, logout } = useApp();
   const [open, setOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const role = currentUser?.role || 'public';
 
   const items = useMemo(() => navConfig[role] || navConfig.public, [role]);
   const showSidebar = !!currentUser;
 
   if (!currentUser) {
-    return <div className="min-h-screen">{children}</div>;
+    return <div className="min-h-screen bg-slate-50">{children}</div>;
   }
 
   return (
-    <div className="min-h-screen bg-white lg:flex">
-      {showSidebar && (
-        <aside className="hidden w-72 shrink-0 lg:block">
-          <div className="fixed inset-y-0 w-72">
-            <SidebarContent items={items} activePage={activePage} setActivePage={setActivePage} />
-          </div>
-        </aside>
-      )}
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
+      
+      {/* ── Top Header ──────────────────────────────────────── */}
+      <header className="h-16 bg-white border-b border-slate-200 fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 lg:px-6 shadow-sm">
+        <div className="flex items-center gap-4">
+          {/* Mobile menu button */}
+          <button 
+            onClick={() => setOpen(true)} 
+            className="lg:hidden p-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition text-slate-700"
+          >
+            <Menu size={20} />
+          </button>
 
-      {showSidebar && open ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button className="absolute inset-0 bg-slate-950/50" onClick={() => setOpen(false)} aria-label="Close menu" />
-          <div className="relative h-full w-80 max-w-[85vw]">
-            <button onClick={() => setOpen(false)} className="absolute right-3 top-3 z-10 rounded-full bg-white p-2 text-slate-950">
-              <X size={18} />
-            </button>
-            <SidebarContent items={items} activePage={activePage} setActivePage={setActivePage} closeMobile={() => setOpen(false)} />
+          {/* Logo Branding */}
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="BIIPBIIP Logo" className="h-8 object-contain" />
+            <span className="hidden sm:inline-block font-extrabold text-[#031E3C] text-lg tracking-wide border-l border-slate-200 pl-3 ml-1">
+              Admin Portal
+            </span>
           </div>
         </div>
-      ) : null}
 
-      <main className="min-w-0 flex-1">
-        {showSidebar && (
-          <header className="sticky top-0 z-30 border-b bg-white/90 backdrop-blur lg:hidden" style={{ borderBottomColor: '#00D6CC', borderBottomWidth: '2px' }}>
-            <div className="flex items-center justify-between px-4 py-3">
-              <button onClick={() => setOpen(true)} className="rounded-xl border border-slate-200 p-2 text-slate-700">
-                <Menu size={20} />
-              </button>
-              <div className="flex items-center gap-2 bg-[#031E3C] px-3 py-1 rounded-xl shadow-sm">
-                <img src="/logo.png" alt="BIIPBIIP Logo" className="h-6 object-contain" />
+        {/* Header Right Menu */}
+        <div className="flex items-center gap-4">
+          {/* User Profile dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              className="flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-xl transition text-left"
+            >
+              <div className="h-9 w-9 rounded-full bg-[#031E3C] text-white flex items-center justify-center font-bold text-sm uppercase shadow-sm">
+                {currentUser.name ? currentUser.name.slice(0, 2) : 'AD'}
               </div>
-              <span className="w-9" />
-            </div>
-          </header>
+              <div className="hidden md:block">
+                <div className="text-xs font-bold text-slate-800 leading-none">{currentUser.name || 'Administrator'}</div>
+                <div className="text-[10px] text-slate-400 font-semibold capitalize mt-1">{currentUser.role || 'Super Admin'}</div>
+              </div>
+              <ChevronDown size={14} className="text-slate-400 hidden md:block" />
+            </button>
+
+            {userDropdownOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40" 
+                  onClick={() => setUserDropdownOpen(false)}
+                />
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in-50 slide-in-from-top-1">
+                  <div className="px-4 py-2 border-b border-slate-100">
+                    <p className="text-xs text-slate-400">Signed in as</p>
+                    <p className="text-xs font-bold text-slate-800 truncate mt-0.5">{currentUser.email}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setActivePage('login');
+                      setUserDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-2 transition"
+                  >
+                    <LogOut size={16} /> Logout
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Main container wrapper */}
+      <div className="flex flex-1 pt-16">
+        
+        {/* ── Desktop Sidebar ─────────────────────────────────── */}
+        {showSidebar && (
+          <aside className="hidden lg:block w-64 border-r border-slate-200 fixed bottom-0 top-16 left-0 z-30">
+            <SidebarContent items={items} activePage={activePage} setActivePage={setActivePage} />
+          </aside>
         )}
-        <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">{children}</div>
-      </main>
+
+        {/* ── Mobile Sidebar Drawer ───────────────────────────── */}
+        {showSidebar && open && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div 
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" 
+              onClick={() => setOpen(false)} 
+            />
+            <div className="relative h-full w-72 bg-[#0B1220] flex flex-col z-50 shadow-2xl animate-in slide-in-from-left">
+              <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
+                <img src="/logo.png" alt="BIIPBIIP Logo" className="h-8 object-contain" />
+                <button 
+                  onClick={() => setOpen(false)} 
+                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <SidebarContent 
+                  items={items} 
+                  activePage={activePage} 
+                  setActivePage={setActivePage} 
+                  closeMobile={() => setOpen(false)} 
+                />
+              </div>
+              <div className="p-4 border-t border-slate-800 bg-slate-950/40">
+                <button
+                  onClick={() => {
+                    logout();
+                    setActivePage('login');
+                    setOpen(false);
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-sm transition flex items-center justify-center gap-2"
+                >
+                  <LogOut size={16} /> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Main Content Area ──────────────────────────────── */}
+        <main className="flex-1 min-w-0 lg:pl-64 min-h-[calc(100vh-64px)]">
+          <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+            {children}
+          </div>
+        </main>
+        
+      </div>
     </div>
   );
 };

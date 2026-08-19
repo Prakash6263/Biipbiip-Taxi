@@ -50,8 +50,10 @@ const UsersAll = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">All Users</h2>
+      <div className="page-header">
+        <p className="breadcrumb-label">Management</p>
+        <h2>All Users</h2>
+        <p>Manage passenger accounts registered on the platform.</p>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -63,7 +65,9 @@ const UsersAll = () => {
             placeholder="Search users..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] focus:ring-1 focus:ring-[#00D6CC] transition"
+            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] transition"
+            onFocus={(e) => e.target.style.borderColor = '#00D6CC'}
+            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
           />
         </div>
       </div>
@@ -72,35 +76,43 @@ const UsersAll = () => {
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[700px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
+              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 font-bold">User</th>
-                  <th className="px-6 py-4 font-bold">Email</th>
-                  <th className="px-6 py-4 font-bold">Role</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">User</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Email</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Role</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {paginatedUsers.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4">
+                  <tr key={u.id} className="hover:bg-slate-50/40 transition-colors">
+                    {/* USER column */}
+                    <td className="px-6 py-5">
                       <div className="flex items-center gap-3">
-                        <div className="rounded-xl bg-[#00D6CC]/10 p-2.5 text-[#00D6CC]">
-                          <User size={18} />
+                        <div
+                          className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm uppercase text-white"
+                          style={{ backgroundColor: '#031E3C' }}
+                        >
+                          {u.name.slice(0, 2)}
                         </div>
                         <div>
-                          <div className="font-bold text-slate-950">{u.name}</div>
+                          <div className="font-bold text-slate-900 text-sm">{u.name}</div>
                           <div className="text-xs text-slate-400 mt-0.5">ID: {u.id}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1.5 text-slate-600">
-                        <Mail size={13} className="text-slate-400" />
-                        <span>{u.email}</span>
-                      </div>
+
+                    {/* EMAIL column */}
+                    <td className="px-6 py-5">
+                      <div className="text-sm text-slate-700">{u.email}</div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 capitalize">
+
+                    {/* ROLE column */}
+                    <td className="px-6 py-5 text-center">
+                      <span
+                        className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
+                        style={{ color: '#031E3C', borderColor: 'rgba(3, 30, 60, 0.2)', backgroundColor: 'rgba(3, 30, 60, 0.04)' }}
+                      >
                         {u.role || 'user'}
                       </span>
                     </td>
@@ -134,9 +146,10 @@ const UsersAll = () => {
                       onClick={() => setCurrentPage(pageNum)}
                       className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
                         isActive
-                          ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                          ? 'text-white shadow-sm'
                           : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
                       }`}
+                      style={isActive ? { backgroundColor: '#00D6CC', borderColor: '#00D6CC' } : {}}
                     >
                       {pageNum}
                     </button>

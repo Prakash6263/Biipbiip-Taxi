@@ -40,8 +40,10 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">All Drivers</h2>
+      <div className="page-header">
+        <p className="breadcrumb-label">Management</p>
+        <h2>All Drivers</h2>
+        <p>View and manage taxi drivers registered on the platform.</p>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -50,12 +52,14 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
             <button
               key={item}
               onClick={() => setFilter(item)}
-              className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${filter === item
-                ? 'bg-[#00D6CC] text-white shadow-sm'
-                : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
-                }`}
+              className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
+                filter === item
+                  ? 'text-white'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+              }`}
+              style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
             >
-              {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
+              {item === 'all' ? 'All' : item}
             </button>
           ))}
         </div>
@@ -64,10 +68,12 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
           <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search users..."
+            placeholder="Search drivers..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] focus:ring-1 focus:ring-[#00D6CC] transition"
+            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] transition"
+            onFocus={(e) => e.target.style.borderColor = '#00D6CC'}
+            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
           />
         </div>
       </div>
@@ -76,68 +82,86 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
+              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
                 <tr>
-                  <th scope="col" className="px-6 py-4 font-bold">Driver</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Contact Info</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Car Details</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Status</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Registered</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Driver</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Contact Details</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Car Details</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Status</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Registered</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {paginatedRequests.map((req) => (
-                  <tr key={req.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4">
+                  <tr key={req.id} className="hover:bg-slate-50/40 transition-colors">
+                    {/* DRIVER column */}
+                    <td className="px-6 py-5">
                       <div className="flex items-center gap-3">
-                        <div className="rounded-xl bg-[#00D6CC]/10 p-2.5 text-[#00D6CC]">
-                          <User size={18} />
+                        <div
+                          className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm uppercase text-white"
+                          style={{ backgroundColor: '#031E3C' }}
+                        >
+                          {req.userName.slice(0, 2)}
                         </div>
                         <div>
-                          <div className="font-bold text-slate-950">{req.userName}</div>
+                          <div className="font-bold text-slate-900 text-sm">{req.userName}</div>
                           <div className="text-xs text-slate-400 mt-0.5">ID: {req.id}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1 text-xs">
-                        <div className="flex items-center gap-1.5 text-slate-600">
-                          <Mail size={13} className="text-slate-400" />
-                          <span>{req.userEmail}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-slate-600">
-                          <Phone size={13} className="text-slate-400" />
-                          <span>{req.userPhone}</span>
-                        </div>
+
+                    {/* CONTACT DETAILS column */}
+                    <td className="px-6 py-5">
+                      <div>
+                        <div className="text-xs text-slate-600 font-semibold">{req.userPhone}</div>
+                        <div className="text-xs text-slate-400">{req.userEmail}</div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="rounded-xl bg-slate-100 p-2.5 text-slate-600">
-                          <Car size={18} />
+
+                    {/* CAR DETAILS column */}
+                    <td className="px-6 py-5">
+                      <div>
+                        <div className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                          <Car size={12} className="text-slate-400" />
+                          {req.carName}
                         </div>
-                        <div>
-                          <p className="font-semibold text-slate-800">{req.carName}</p>
-                          <p className="font-mono text-xs text-slate-400 mt-0.5">{req.registrationNo}</p>
-                        </div>
+                        <span className="inline-block bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded text-[10px] tracking-wide mt-1.5 border border-slate-200">
+                          {req.registrationNo}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <Badge status={req.status} />
+
+                    {/* STATUS column */}
+                    <td className="px-6 py-5 text-center">
+                      <span
+                        className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
+                        style={
+                          req.status === 'verified'
+                            ? { color: '#10b981', borderColor: '#d1fae5', backgroundColor: '#f0fdf4' }
+                            : req.status === 'pending'
+                            ? { color: '#f59e0b', borderColor: '#fef3c7', backgroundColor: '#fffbeb' }
+                            : { color: '#ef4444', borderColor: '#fee2e2', backgroundColor: '#fef2f2' }
+                        }
+                      >
+                        {req.status}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-500">
-                      {formatDate(req.createdAt)}
+
+                    {/* REGISTERED column */}
+                    <td className="px-6 py-5">
+                      <div className="text-xs text-slate-500">{formatDate(req.createdAt)}</div>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => onShowDetail?.(req.id)}
-                          className="rounded-xl bg-[#00D6CC]/10 text-[#00D6CC] hover:bg-[#00D6CC] hover:text-white px-3 py-2 text-xs font-bold transition shadow-sm"
-                        >
-                          Show Details
-                        </button>
-                      </div>
+
+                    {/* ACTIONS column */}
+                    <td className="px-6 py-5 text-right">
+                      <button
+                        onClick={() => onShowDetail?.(req.id)}
+                        className="inline-flex items-center justify-center rounded-full px-5 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
+                        style={{ backgroundColor: '#00D6CC', boxShadow: '0 2px 6px rgba(0, 214, 204, 0.2)' }}
+                      >
+                        Show Details
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -169,9 +193,10 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
                       onClick={() => setCurrentPage(pageNum)}
                       className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
                         isActive
-                          ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                          ? 'text-white shadow-sm'
                           : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
                       }`}
+                      style={isActive ? { backgroundColor: '#00D6CC', borderColor: '#00D6CC' } : {}}
                     >
                       {pageNum}
                     </button>

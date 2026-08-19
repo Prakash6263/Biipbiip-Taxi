@@ -53,9 +53,10 @@ const CompanyCarVerification = ({ onShowDetail }) => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Company Car Verification</h2>
-        <p className="mt-2 text-slate-500">Verify and manage company car submissions</p>
+      <div className="page-header">
+        <p className="breadcrumb-label">Verification</p>
+        <h2>Company Car Verification</h2>
+        <p>Verify and manage company car submissions for the rental catalog.</p>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -64,10 +65,14 @@ const CompanyCarVerification = ({ onShowDetail }) => {
             <button
               key={item}
               onClick={() => setFilter(item)}
-              className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${filter === item ? 'bg-[#00D6CC] text-white shadow-sm' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
-                }`}
+              className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
+                filter === item
+                  ? 'text-white'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+              }`}
+              style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
             >
-              {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
+              {item === 'all' ? 'All' : item}
             </button>
           ))}
         </div>
@@ -79,103 +84,134 @@ const CompanyCarVerification = ({ onShowDetail }) => {
             placeholder="Search cars..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] focus:ring-1 focus:ring-[#00D6CC] transition"
+            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] transition"
+            onFocus={(e) => e.target.style.borderColor = '#00D6CC'}
+            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
           />
         </div>
       </div>
 
       {cars.length ? (
-        <div className="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-soft">
-          <table className="w-full min-w-[1000px] border-collapse text-left text-sm text-slate-500">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
-              <tr>
-                <th scope="col" className="px-6 py-4 font-bold">Car Details</th>
-                <th scope="col" className="px-6 py-4 font-bold">Company</th>
-                <th scope="col" className="px-6 py-4 font-bold">Specifications</th>
-                <th scope="col" className="px-6 py-4 font-bold">Price / Day</th>
-                <th scope="col" className="px-6 py-4 font-bold">Status</th>
-                <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {paginatedCars.map((car) => (
-                <tr key={car.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4 align-middle">
-                    <div className="flex items-center gap-3">
-                      {car.image ? (
-                        <img
-                          src={car.image}
-                          alt={car.name}
-                          className="h-12 w-12 rounded-xl object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
-                          <CarIcon size={20} className="text-slate-400" />
-                        </div>
-                      )}
-                      <div>
-                        <div className="font-bold text-slate-950">{car.name}</div>
-                        <div className="text-xs text-slate-400">{car.brand} {car.model}</div>
-                        <div className="text-xs text-slate-500 mt-1">Reg: {car.registrationNo}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 align-middle">
-                    <div className="font-semibold text-slate-800">{car.companyName}</div>
-                    <div className="text-xs text-slate-400 mt-1">Added: {formatDate(car.createdAt)}</div>
-                  </td>
-                  <td className="px-6 py-4 align-middle">
-                    <div className="text-xs text-slate-600 space-y-1">
-                      <div><span className="font-medium">Year:</span> {car.year}</div>
-                      <div><span className="font-medium">Fuel:</span> {car.fuelType}</div>
-                      <div><span className="font-medium">Transmission:</span> {car.transmission}</div>
-                      <div><span className="font-medium">Seats:</span> {car.seats}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 align-middle">
-                    <div className="font-bold text-slate-950">₹{car.pricePerDay}</div>
-                  </td>
-                  <td className="px-6 py-4 align-middle">
-                    <div className="flex flex-col gap-1 items-start">
-                      <Badge status={car.status} />
-                      {car.status === 'rejected' && car.rejectionReason && (
-                        <div className="mt-2 text-xs font-medium text-rose-700 bg-rose-50 rounded-xl p-2 border border-rose-100 max-w-[200px] break-words">
-                          <b>Reason:</b> {car.rejectionReason}
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 align-middle text-right">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => onShowDetail?.(car.id)}
-                        className="rounded-xl bg-slate-500 text-white hover:bg-slate-600 px-3 py-2 text-xs font-bold transition shadow-sm flex items-center gap-1"
-                        title="View Details"
-                      >
-                        <Eye size={14} />
-                      </button>
-                      {car.status === 'pending' && (
-                        <>
-                          <button
-                            onClick={() => handleVerify(car.id)}
-                            className="rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 px-3 py-2 text-xs font-bold transition shadow-sm"
-                          >
-                            Verify
-                          </button>
-                          <button
-                            onClick={() => setRejectModal({ open: true, carId: car.id, reason: '' })}
-                            className="rounded-xl bg-rose-500 text-white hover:bg-rose-600 px-3 py-2 text-xs font-bold transition shadow-sm"
-                          >
-                            Reject
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[1000px] border-collapse text-left text-sm text-slate-500">
+              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
+                <tr>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Car Details</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Company</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Specifications</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Price / Day</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Status</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {paginatedCars.map((car) => (
+                  <tr key={car.id} className="hover:bg-slate-50/40 transition-colors">
+                    {/* CAR DETAILS column */}
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        {car.image ? (
+                          <img
+                            src={car.image}
+                            alt={car.name}
+                            className="h-12 w-12 rounded-xl object-cover border border-slate-100 shadow-sm"
+                          />
+                        ) : (
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 border border-slate-200">
+                            <CarIcon size={20} className="text-slate-400" />
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-bold text-slate-900 text-sm">{car.name}</div>
+                          <div className="text-xs text-slate-400 mt-0.5">{car.brand} {car.model}</div>
+                          <div className="text-xs text-slate-500 mt-1 font-mono bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 inline-block">
+                            {car.registrationNo}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* COMPANY column */}
+                    <td className="px-6 py-5">
+                      <div>
+                        <div className="font-bold text-slate-800 text-sm">{car.companyName}</div>
+                        <div className="text-xs text-slate-400 mt-1">Added: {formatDate(car.createdAt)}</div>
+                      </div>
+                    </td>
+
+                    {/* SPECIFICATIONS column */}
+                    <td className="px-6 py-5">
+                      <div className="text-xs text-slate-600 space-y-1">
+                        <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Year:</span> {car.year}</div>
+                        <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Fuel:</span> {car.fuelType}</div>
+                        <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Gear:</span> {car.transmission}</div>
+                        <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Seats:</span> {car.seats}</div>
+                      </div>
+                    </td>
+
+                    {/* PRICE column */}
+                    <td className="px-6 py-5">
+                      <div className="font-extrabold text-slate-900 text-base">₹{car.pricePerDay}</div>
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Per Day</div>
+                    </td>
+
+                    {/* STATUS column */}
+                    <td className="px-6 py-5 text-center">
+                      <div className="inline-flex flex-col gap-1 items-center justify-center">
+                        <span
+                          className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
+                          style={
+                            car.status === 'verified'
+                              ? { color: '#10b981', borderColor: '#d1fae5', backgroundColor: '#f0fdf4' }
+                              : car.status === 'pending'
+                              ? { color: '#f59e0b', borderColor: '#fef3c7', backgroundColor: '#fffbeb' }
+                              : { color: '#ef4444', borderColor: '#fee2e2', backgroundColor: '#fef2f2' }
+                          }
+                        >
+                          {car.status}
+                        </span>
+                        {car.status === 'rejected' && car.rejectionReason && (
+                          <div className="mt-1 text-[10px] font-semibold text-rose-600 max-w-[150px] truncate" title={car.rejectionReason}>
+                            Reason: {car.rejectionReason}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* ACTIONS column */}
+                    <td className="px-6 py-5 text-right">
+                      <div className="flex justify-end items-center gap-2">
+                        <button
+                          onClick={() => onShowDetail?.(car.id)}
+                          className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white hover:bg-slate-50 p-2 text-slate-600 transition"
+                          title="View Details"
+                        >
+                          <Eye size={14} />
+                        </button>
+                        {car.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => handleVerify(car.id)}
+                              className="inline-flex items-center justify-center rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 text-xs font-bold transition shadow-sm"
+                            >
+                              Verify
+                            </button>
+                            <button
+                              onClick={() => setRejectModal({ open: true, carId: car.id, reason: '' })}
+                              className="inline-flex items-center justify-center rounded-xl bg-rose-500 hover:bg-rose-600 text-white px-3 py-2 text-xs font-bold transition shadow-sm"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Table Pagination Footer */}
           {cars.length > 0 && (
@@ -201,9 +237,10 @@ const CompanyCarVerification = ({ onShowDetail }) => {
                       onClick={() => setCurrentPage(pageNum)}
                       className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
                         isActive
-                          ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                          ? 'text-white shadow-sm'
                           : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
                       }`}
+                      style={isActive ? { backgroundColor: '#00D6CC', borderColor: '#00D6CC' } : {}}
                     >
                       {pageNum}
                     </button>
@@ -233,7 +270,9 @@ const CompanyCarVerification = ({ onShowDetail }) => {
               value={rejectModal.reason}
               onChange={(e) => setRejectModal({ ...rejectModal, reason: e.target.value })}
               placeholder="Enter rejection reason..."
-              className="w-full rounded-2xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-[#00D6CC] focus:ring-1 focus:ring-[#00D6CC] transition min-h-[100px]"
+              className="w-full rounded-2xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-[#00D6CC] transition min-h-[100px]"
+              onFocus={(e) => e.target.style.borderColor = '#00D6CC'}
+              onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
             />
             <div className="flex justify-end gap-3 mt-4">
               <button
@@ -255,6 +294,9 @@ const CompanyCarVerification = ({ onShowDetail }) => {
       )}
     </div>
   );
+};
+
+export default CompanyCarVerification;
 };
 
 export default CompanyCarVerification;

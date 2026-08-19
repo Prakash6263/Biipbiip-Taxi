@@ -40,8 +40,10 @@ const CompanyVerification = ({ onShowDetail }) => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Company Verification</h2>
+      <div className="page-header">
+        <p className="breadcrumb-label">Verification</p>
+        <h2>Company Verification</h2>
+        <p>Review and verify documentation uploaded by car rental companies.</p>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -50,10 +52,14 @@ const CompanyVerification = ({ onShowDetail }) => {
             <button
               key={item}
               onClick={() => setFilter(item)}
-              className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${filter === item ? 'bg-[#00D6CC] text-white shadow-sm' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
-                }`}
+              className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
+                filter === item
+                  ? 'text-white'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+              }`}
+              style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
             >
-              {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
+              {item === 'all' ? 'All' : item}
             </button>
           ))}
         </div>
@@ -65,65 +71,96 @@ const CompanyVerification = ({ onShowDetail }) => {
             placeholder="Search documents..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] focus:ring-1 focus:ring-[#00D6CC] transition"
+            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] transition"
+            onFocus={(e) => e.target.style.borderColor = '#00D6CC'}
+            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
           />
         </div>
       </div>
 
       {companies.length ? (
-        <div className="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-soft">
-          <table className="w-full min-w-[800px] border-collapse text-left text-sm text-slate-500">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
-              <tr>
-                <th scope="col" className="px-6 py-4 font-bold">Company</th>
-                <th scope="col" className="px-6 py-4 font-bold">Contact Details</th>
-                <th scope="col" className="px-6 py-4 font-bold">GST & Address</th>
-                <th scope="col" className="px-6 py-4 font-bold">Status</th>
-                <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {paginatedCompanies.map((company) => (
-                <tr key={company.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4 align-middle">
-                    <div className="font-bold text-slate-950">{company.companyName}</div>
-                    <div className="text-xs text-slate-400 mt-1">Reg: {formatDate(company.createdAt)}</div>
-                  </td>
-                  <td className="px-6 py-4 align-middle">
-                    <div className="font-semibold text-slate-800">{company.ownerName}</div>
-                    <div className="text-xs text-slate-500 mt-1">{company.phone}</div>
-                    <div className="text-xs text-slate-400">{company.email}</div>
-                  </td>
-                  <td className="px-6 py-4 align-middle max-w-xs">
-                    <div className="font-mono text-xs font-bold text-slate-700 bg-slate-100 rounded-lg px-2 py-1 inline-block mb-2">
-                      GST: {company.gstNumber || '—'}
-                    </div>
-                    <div className="text-xs text-slate-500 break-words leading-relaxed">
-                      {company.address}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 align-middle">
-                    <div className="flex flex-col gap-1 items-start">
-                      <Badge status={company.status} />
-                      {company.status === 'rejected' && company.rejectionReason && (
-                        <div className="mt-2 text-xs font-medium text-rose-700 bg-rose-50 rounded-xl p-2 border border-rose-100 max-w-[200px] break-words">
-                          <b>Reason:</b> {company.rejectionReason}
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 align-middle text-right">
-                    <button
-                      onClick={() => onShowDetail?.(company.id)}
-                      className="rounded-xl bg-[#00D6CC] text-white hover:opacity-90 px-4 py-2 text-xs font-bold transition shadow-sm"
-                    >
-                      Show Details
-                    </button>
-                  </td>
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[800px] border-collapse text-left text-sm text-slate-500">
+              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
+                <tr>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Company</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Contact Details</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">GST & Address</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Status</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {paginatedCompanies.map((company) => (
+                  <tr key={company.id} className="hover:bg-slate-50/40 transition-colors">
+                    {/* COMPANY column */}
+                    <td className="px-6 py-5">
+                      <div>
+                        <div className="font-bold text-slate-900 text-sm">{company.companyName}</div>
+                        <div className="text-xs text-slate-400 mt-1">Reg: {formatDate(company.createdAt)}</div>
+                      </div>
+                    </td>
+
+                    {/* CONTACT DETAILS column */}
+                    <td className="px-6 py-5">
+                      <div>
+                        <div className="font-bold text-slate-800 text-sm">{company.ownerName}</div>
+                        <div className="text-xs text-slate-500 mt-0.5">{company.phone}</div>
+                        <div className="text-xs text-slate-400">{company.email}</div>
+                      </div>
+                    </td>
+
+                    {/* GST & ADDRESS column */}
+                    <td className="px-6 py-5">
+                      <div className="max-w-[300px]">
+                        <span className="inline-block bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded text-[10px] tracking-wide mb-1 border border-slate-200">
+                          GST: {company.gstNumber || '—'}
+                        </span>
+                        <div className="text-xs text-slate-500 truncate" title={company.address}>
+                          {company.address}
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* STATUS column */}
+                    <td className="px-6 py-5 text-center">
+                      <div className="inline-flex flex-col gap-1 items-center justify-center">
+                        <span
+                          className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
+                          style={
+                            company.status === 'verified'
+                              ? { color: '#10b981', borderColor: '#d1fae5', backgroundColor: '#f0fdf4' }
+                              : company.status === 'pending'
+                              ? { color: '#f59e0b', borderColor: '#fef3c7', backgroundColor: '#fffbeb' }
+                              : { color: '#ef4444', borderColor: '#fee2e2', backgroundColor: '#fef2f2' }
+                          }
+                        >
+                          {company.status}
+                        </span>
+                        {company.status === 'rejected' && company.rejectionReason && (
+                          <div className="mt-1 text-[10px] font-semibold text-rose-600 max-w-[150px] truncate" title={company.rejectionReason}>
+                            Reason: {company.rejectionReason}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* ACTIONS column */}
+                    <td className="px-6 py-5 text-right">
+                      <button
+                        onClick={() => onShowDetail?.(company.id)}
+                        className="inline-flex items-center justify-center rounded-full px-5 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
+                        style={{ backgroundColor: '#00D6CC', boxShadow: '0 2px 6px rgba(0, 214, 204, 0.2)' }}
+                      >
+                        Show Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Table Pagination Footer */}
           {companies.length > 0 && (
@@ -149,9 +186,10 @@ const CompanyVerification = ({ onShowDetail }) => {
                       onClick={() => setCurrentPage(pageNum)}
                       className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
                         isActive
-                          ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                          ? 'text-white shadow-sm'
                           : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
                       }`}
+                      style={isActive ? { backgroundColor: '#00D6CC', borderColor: '#00D6CC' } : {}}
                     >
                       {pageNum}
                     </button>

@@ -60,8 +60,10 @@ const RentalBookings = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Rental Bookings</h2>
+      <div className="page-header">
+        <p className="breadcrumb-label">Management</p>
+        <h2>Rental Bookings</h2>
+        <p>Monitor and track rental requests and bookings made on the platform.</p>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -70,13 +72,14 @@ const RentalBookings = () => {
             <button
               key={item}
               onClick={() => setFilter(item)}
-              className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${
+              className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
                 filter === item
-                  ? 'bg-[#00D6CC] text-white shadow-sm'
-                  : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
+                  ? 'text-white'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
               }`}
+              style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
             >
-              {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
+              {item === 'all' ? 'All' : item}
             </button>
           ))}
         </div>
@@ -88,7 +91,9 @@ const RentalBookings = () => {
             placeholder="Search bookings..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] focus:ring-1 focus:ring-[#00D6CC] transition"
+            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] transition"
+            onFocus={(e) => e.target.style.borderColor = '#00D6CC'}
+            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
           />
         </div>
       </div>
@@ -97,14 +102,14 @@ const RentalBookings = () => {
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
+              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 font-bold">Customer</th>
-                  <th className="px-6 py-4 font-bold">Contact</th>
-                  <th className="px-6 py-4 font-bold">Duration</th>
-                  <th className="px-6 py-4 font-bold">Amount</th>
-                  <th className="px-6 py-4 font-bold">Status</th>
-                  <th className="px-6 py-4 font-bold text-right">Created</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Customer</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Contact Details</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Duration</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Amount</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Status</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-right">Created</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -120,56 +125,73 @@ const RentalBookings = () => {
                   const amount = Number(car?.pricePerDay || 0) * days;
 
                   return (
-                    <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-4">
+                    <tr key={r.id} className="hover:bg-slate-50/40 transition-colors">
+                      {/* CUSTOMER column */}
+                      <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
-                          <div className="rounded-xl bg-[#00D6CC]/10 p-2.5 text-[#00D6CC]">
-                            <User size={18} />
+                          <div
+                            className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm uppercase text-white"
+                            style={{ backgroundColor: '#031E3C' }}
+                          >
+                            {r.customerName.slice(0, 2)}
                           </div>
                           <div>
-                            <div className="font-bold text-slate-950">{r.customerName}</div>
-                            <div className="text-xs text-slate-400 mt-0.5">
-                              {car?.name || 'Unknown Car'}
+                            <div className="font-bold text-slate-900 text-sm">{r.customerName}</div>
+                            <div className="text-xs text-[#00D6CC] mt-0.5 font-bold">
+                              🚗 {car?.name || 'Unknown Car'}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="space-y-1 text-xs">
-                          <div className="flex items-center gap-1.5 text-slate-600">
-                            <Mail size={13} className="text-slate-400" />
-                            <span>{r.customerEmail}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-slate-600">
-                            <Phone size={13} className="text-slate-400" />
-                            <span>{r.customerPhone}</span>
-                          </div>
+
+                      {/* CONTACT DETAILS column */}
+                      <td className="px-6 py-5">
+                        <div>
+                          <div className="text-xs text-slate-600 font-semibold">{r.customerPhone}</div>
+                          <div className="text-xs text-slate-400">{r.customerEmail}</div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <Calendar size={14} className="text-slate-400" />
-                          <div>
-                            <div className="font-semibold text-slate-800">
-                              {days} {days === 1 ? 'day' : 'days'}
-                            </div>
-                            <div className="text-xs text-slate-500">
-                              {r.pickupDate} → {r.returnDate}
-                            </div>
+
+                      {/* DURATION column */}
+                      <td className="px-6 py-5">
+                        <div>
+                          <div className="font-bold text-slate-800 text-xs flex items-center gap-1">
+                            <Calendar size={12} className="text-slate-400" />
+                            {days} {days === 1 ? 'day' : 'days'}
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1">
+                            {r.pickupDate} → {r.returnDate}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1.5">
-                          <CreditCard size={14} className="text-slate-400" />
-                          <span className="font-bold text-slate-950">{currency(amount)}</span>
+
+                      {/* AMOUNT column */}
+                      <td className="px-6 py-5">
+                        <div className="font-extrabold text-slate-900 text-base">{currency(amount)}</div>
+                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                          <CreditCard size={10} /> Paid via wallet
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <Badge status={r.status} />
+
+                      {/* STATUS column */}
+                      <td className="px-6 py-5 text-center">
+                        <span
+                          className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
+                          style={
+                            r.status === 'active' || r.status === 'returned'
+                              ? { color: '#10b981', borderColor: '#d1fae5', backgroundColor: '#f0fdf4' }
+                              : r.status === 'pending'
+                              ? { color: '#f59e0b', borderColor: '#fef3c7', backgroundColor: '#fffbeb' }
+                              : { color: '#ef4444', borderColor: '#fee2e2', backgroundColor: '#fef2f2' }
+                          }
+                        >
+                          {r.status}
+                        </span>
                       </td>
-                      <td className="px-6 py-4 text-right text-xs text-slate-500">
-                        {formatDate(r.createdAt)}
+
+                      {/* CREATED column */}
+                      <td className="px-6 py-5 text-right">
+                        <div className="text-xs text-slate-500">{formatDate(r.createdAt)}</div>
                       </td>
                     </tr>
                   );
@@ -202,9 +224,10 @@ const RentalBookings = () => {
                       onClick={() => setCurrentPage(pageNum)}
                       className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
                         isActive
-                          ? 'bg-[#00D6CC] text-white shadow-sm shadow-[#00D6CC]/15'
+                          ? 'text-white shadow-sm'
                           : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
                       }`}
+                      style={isActive ? { backgroundColor: '#00D6CC', borderColor: '#00D6CC' } : {}}
                     >
                       {pageNum}
                     </button>

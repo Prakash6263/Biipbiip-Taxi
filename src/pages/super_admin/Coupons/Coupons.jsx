@@ -74,11 +74,13 @@ const Coupons = ({ setActivePage }) => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center page-header mb-0">
         <div>
-          <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Coupon Management</h2>
+          <p className="breadcrumb-label">Marketing</p>
+          <h2>Coupon Management</h2>
+          <p>Create and manage discount coupons and promotional offers.</p>
         </div>
         <button
           onClick={() => setActivePage('create-coupon')}
@@ -91,41 +93,41 @@ const Coupons = ({ setActivePage }) => {
 
       {/* KPI Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Created Coupons</p>
-              <h4 className="mt-2 text-3xl font-extrabold text-slate-950">{totalCoupons}</h4>
-              <p className="mt-2 text-xs text-slate-500">Active and inactive vouchers historical log</p>
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft relative overflow-hidden" style={{ borderLeft: '4px solid #6366f1' }}>
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50">
+              <Ticket size={24} className="text-indigo-500" />
             </div>
-            <div className="rounded-2xl bg-blue-50 p-3 text-blue-600">
-              <Ticket size={24} />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Created</p>
+              <h4 className="mt-1 text-2xl font-extrabold text-slate-900">{totalCoupons}</h4>
+              <p className="text-[10px] text-slate-500 truncate mt-0.5">Historical log count</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
-          <div className="flex items-start justify-between">
-            <div>
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft relative overflow-hidden" style={{ borderLeft: '4px solid #10b981' }}>
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50">
+              <CheckCircle2 size={24} className="text-emerald-500" />
+            </div>
+            <div className="min-w-0 flex-1">
               <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Active Promotions</p>
-              <h4 className="mt-2 text-3xl font-extrabold text-slate-950">{activeCoupons}</h4>
-              <p className="mt-2 text-xs text-slate-500">Coupons currently eligible at checkout</p>
-            </div>
-            <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-600">
-              <CheckCircle2 size={24} />
+              <h4 className="mt-1 text-2xl font-extrabold text-slate-900">{activeCoupons}</h4>
+              <p className="text-[10px] text-slate-500 truncate mt-0.5">Currently eligible checkout offers</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Expired / Inactive</p>
-              <h4 className="mt-2 text-3xl font-extrabold text-slate-950">{expiredCoupons}</h4>
-              <p className="mt-2 text-xs text-slate-500">Expired and manually turned off coupons</p>
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft relative overflow-hidden" style={{ borderLeft: '4px solid #ef4444' }}>
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50">
+              <Calendar size={24} className="text-rose-500" />
             </div>
-            <div className="rounded-2xl bg-rose-50 p-3 text-rose-600">
-              <Calendar size={24} />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Expired / Inactive</p>
+              <h4 className="mt-1 text-2xl font-extrabold text-slate-900">{expiredCoupons}</h4>
+              <p className="text-[10px] text-slate-500 truncate mt-0.5">Offers no longer available</p>
             </div>
           </div>
         </div>
@@ -138,13 +140,15 @@ const Coupons = ({ setActivePage }) => {
             <button
               key={statusOption}
               onClick={() => setStatusFilter(statusOption)}
-              className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${statusFilter === statusOption
-                ? 'bg-[#00D6CC] text-white shadow-sm'
-                : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
-                }`}
+              className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
+                statusFilter === statusOption
+                  ? 'text-white'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+              }`}
+              style={statusFilter === statusOption ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
               type="button"
             >
-              {statusOption === 'all' ? 'All' : statusOption.charAt(0).toUpperCase() + statusOption.slice(1)}
+              {statusOption}
             </button>
           ))}
         </div>
@@ -156,7 +160,9 @@ const Coupons = ({ setActivePage }) => {
             placeholder="Search coupons..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] focus:ring-1 focus:ring-[#00D6CC] transition"
+            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] transition"
+            onFocus={(e) => e.target.style.borderColor = '#00D6CC'}
+            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
           />
         </div>
       </div>
@@ -166,14 +172,14 @@ const Coupons = ({ setActivePage }) => {
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[800px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
+              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
                 <tr>
-                  <th scope="col" className="px-6 py-4 font-bold">Coupon Code</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Campaign Details</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Benefit Type</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Status</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Expiry Date</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Coupon Code</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Campaign Details</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Benefit Type</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Status</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Expiry Date</th>
+                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -184,32 +190,35 @@ const Coupons = ({ setActivePage }) => {
                   const BenefitIcon = benefit.icon;
 
                   return (
-                    <tr key={coupon.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={coupon.id} className="hover:bg-slate-50/40 transition-colors">
                       {/* Code Column */}
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-xl bg-[#00D6CC]/10 text-[#00D6CC] flex items-center justify-center font-bold text-sm uppercase">
+                          <div
+                            className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm uppercase text-white"
+                            style={{ backgroundColor: '#031E3C' }}
+                          >
                             {coupon.code.slice(0, 2)}
                           </div>
                           <div>
-                            <div className="font-bold text-slate-950">{coupon.code}</div>
+                            <div className="font-bold text-slate-900 text-sm">{coupon.code}</div>
                             <div className="text-xs text-slate-400 mt-0.5">ID: {coupon.id}</div>
                           </div>
                         </div>
                       </td>
 
                       {/* Campaign Details Column */}
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-5">
                         <div>
-                          <div className="font-bold text-slate-950">{coupon.title}</div>
+                          <div className="font-bold text-slate-900 text-sm">{coupon.title}</div>
                           {coupon.description && (
-                            <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{coupon.description}</p>
+                            <p className="text-xs text-slate-500 mt-1 line-clamp-1">{coupon.description}</p>
                           )}
                         </div>
                       </td>
 
                       {/* Benefit Type Column */}
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-5">
                         <span className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1 text-xs font-bold ${benefit.color}`}>
                           <BenefitIcon size={12} />
                           {benefit.text}
@@ -217,27 +226,38 @@ const Coupons = ({ setActivePage }) => {
                       </td>
 
                       {/* Status Column */}
-                      <td className="px-6 py-4">
-                        <Badge status={computedStatus} />
+                      <td className="px-6 py-5 text-center">
+                        <span
+                          className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
+                          style={
+                            computedStatus === 'active'
+                              ? { color: '#10b981', borderColor: '#d1fae5', backgroundColor: '#f0fdf4' }
+                              : computedStatus === 'expired'
+                              ? { color: '#ef4444', borderColor: '#fee2e2', backgroundColor: '#fef2f2' }
+                              : { color: '#64748b', borderColor: '#e2e8f0', backgroundColor: '#f1f5f9' }
+                          }
+                        >
+                          {computedStatus}
+                        </span>
                       </td>
 
                       {/* Expiry Date Column */}
-                      <td className="px-6 py-4">
-                        <div className="text-xs">
-                          <p className="font-bold text-slate-700">{coupon.expiryDate}</p>
-                        </div>
+                      <td className="px-6 py-5">
+                        <div className="text-xs font-bold text-slate-700">{coupon.expiryDate}</div>
                       </td>
 
                       {/* Actions Column */}
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-5 text-right">
                         <div className="flex items-center justify-end gap-2">
                           {!isExpired && (
                             <button
                               onClick={() => toggleCouponStatus(coupon.id)}
-                              className={`rounded-xl px-3 py-2 text-xs font-bold transition shadow-sm ${coupon.status === 'active'
-                                  ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                  : 'bg-[#00D6CC]/10 text-[#00D6CC] hover:bg-[#00D6CC] hover:text-white'
-                                }`}
+                              className={`rounded-full px-4 py-2 text-xs font-bold transition shadow-sm ${
+                                coupon.status === 'active'
+                                  ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                                  : 'text-white hover:opacity-90'
+                              }`}
+                              style={coupon.status !== 'active' ? { backgroundColor: '#00D6CC', boxShadow: '0 2px 6px rgba(0, 214, 204, 0.2)' } : {}}
                               type="button"
                             >
                               {coupon.status === 'active' ? 'Deactivate' : 'Activate'}
@@ -245,7 +265,7 @@ const Coupons = ({ setActivePage }) => {
                           )}
                           <button
                             onClick={() => deleteCoupon(coupon.id)}
-                            className="rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white px-3 py-2 text-xs font-bold transition shadow-sm"
+                            className="rounded-full bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white px-4 py-2 text-xs font-bold transition border border-rose-200"
                             type="button"
                           >
                             Delete
@@ -266,7 +286,7 @@ const Coupons = ({ setActivePage }) => {
               <button className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-400 transition" disabled type="button">
                 <ChevronLeft size={14} />
               </button>
-              <button className="h-7 w-7 rounded-lg bg-[#00D6CC] text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-[#00D6CC]/15" type="button">
+              <button className="h-7 w-7 rounded-lg text-white flex items-center justify-center font-bold text-xs shadow-sm" style={{ backgroundColor: '#00D6CC' }} type="button">
                 1
               </button>
               <button className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-400 transition" disabled type="button">
