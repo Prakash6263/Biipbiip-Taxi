@@ -114,10 +114,10 @@ const SidebarContent = ({ items, activePage, setActivePage, themeMode, closeMobi
             const isOpen = expanded[item.key] ?? hasActiveSub;
 
             return (
-              <div key={item.key} className="space-y-1">
+              <div key={item.key} className="px-3 space-y-1">
                 <button
                   onClick={() => toggleGroup(item.key)}
-                  className="flex w-full items-center justify-between px-6 py-3 text-left text-sm font-semibold transition hover:bg-white/10 text-white"
+                  className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition hover:bg-white/10 text-white"
                 >
                   <div className="flex items-center gap-3">
                     <Icon size={18} className="text-white" />
