@@ -330,3 +330,113 @@ h1, h2, h3, h4, h5, h6 {
 .pagination button:hover    { background: #f8fafc; }
 .pagination button.active   { background: #00D6CC; color: #fff; border-color: #00D6CC; }
 .pagination button:disabled { color: #cbd5e1; cursor: not-allowed; }
+
+/* ─── Dark Mode Style Overrides ───────────────────────────────────────────── */
+[data-layout-mode="dark"] body {
+  background: #0B1220 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-layout-mode="dark"] .min-h-screen,
+[data-layout-mode="dark"] main {
+  background-color: #0B1220 !important;
+}
+
+[data-layout-mode="dark"] .card {
+  background-color: #111A2E !important;
+  border-color: #1E293B !important;
+  color: #f1f5f9 !important;
+}
+
+[data-layout-mode="dark"] .card-header {
+  background-color: #111A2E !important;
+  border-bottom-color: #1E293B !important;
+}
+
+[data-layout-mode="dark"] .card-header h3,
+[data-layout-mode="dark"] .card-header h5,
+[data-layout-mode="dark"] .section-title,
+[data-layout-mode="dark"] .page-header h2 {
+  color: #ffffff !important;
+}
+
+[data-layout-mode="dark"] .page-header p {
+  color: #94a3b8 !important;
+}
+
+/* Custom & Bootstrap Tables */
+[data-layout-mode="dark"] .data-table thead th,
+[data-layout-mode="dark"] .table thead th {
+  background-color: #182235 !important;
+  border-bottom-color: #1E293B !important;
+  color: #94a3b8 !important;
+}
+
+[data-layout-mode="dark"] .data-table tbody td,
+[data-layout-mode="dark"] .table tbody td,
+[data-layout-mode="dark"] .table td {
+  border-bottom-color: #1E293B !important;
+  color: #cbd5e1 !important;
+  background-color: #111A2E !important;
+}
+
+[data-layout-mode="dark"] .data-table tbody tr:hover td,
+[data-layout-mode="dark"] .table tbody tr:hover td {
+  background-color: #182235 !important;
+}
+
+[data-layout-mode="dark"] .table-striped>tbody>tr:nth-of-type(odd)>*,
+[data-layout-mode="dark"] .table-striped>tbody>tr:nth-of-type(odd) td {
+  background-color: #182235 !important;
+  color: #cbd5e1 !important;
+}
+
+/* Inputs, Textareas, Selects & Searches */
+[data-layout-mode="dark"] input,
+[data-layout-mode="dark"] select,
+[data-layout-mode="dark"] textarea {
+  background-color: #111A2E !important;
+  border-color: #1E293B !important;
+  color: #ffffff !important;
+}
+
+[data-layout-mode="dark"] input::placeholder {
+  color: #64748b !important;
+}
+
+/* Pill Badges, Tabs & Generic Classes */
+[data-layout-mode="dark"] .bg-white {
+  background-color: #111A2E !important;
+}
+
+[data-layout-mode="dark"] .bg-white.text-slate-600,
+[data-layout-mode="dark"] .bg-white.text-slate-500 {
+  color: #cbd5e1 !important;
+  border-color: #1E293B !important;
+}
+
+[data-layout-mode="dark"] .text-slate-950,
+[data-layout-mode="dark"] .text-slate-900 {
+  color: #ffffff !important;
+}
+
+[data-layout-mode="dark"] .text-slate-800,
+[data-layout-mode="dark"] .text-slate-700,
+[data-layout-mode="dark"] .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+[data-layout-mode="dark"] .text-slate-500,
+[data-layout-mode="dark"] .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+[data-layout-mode="dark"] .breadcrumb-label {
+  color: #94a3b8 !important;
+}
+
+[data-layout-mode="dark"] .badge-inactive {
+  background-color: #1E293B !important;
+  color: #94a3b8 !important;
+}
+
