@@ -179,6 +179,26 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.4rem;
   padding: 0.55rem 1.25rem;
   border-radius: 0.625rem;
+  background: #002E5B;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  box-shadow: 0 2px 8px rgba(0, 46, 91, 0.25);
+}
+
+.btn-primary:hover  { opacity: 0.9; }
+.btn-primary:active { transform: scale(0.98); }
+
+.btn-teal,
+.btn-cyan {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: 0.625rem;
   background: #00D6CC;
   color: #ffffff;
   font-size: 0.8rem;
@@ -186,11 +206,13 @@ h1, h2, h3, h4, h5, h6 {
   border: none;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.1s;
-  box-shadow: 0 2px 8px rgba(0,214,204,0.3);
+  box-shadow: 0 2px 8px rgba(0, 214, 204, 0.3);
 }
 
-.btn-primary:hover  { opacity: 0.9; }
-.btn-primary:active { transform: scale(0.98); }
+.btn-teal:hover,
+.btn-cyan:hover { opacity: 0.9; }
+.btn-teal:active,
+.btn-cyan:active { transform: scale(0.98); }
 
 .btn-dark {
   display: inline-flex;
@@ -198,7 +220,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.4rem;
   padding: 0.55rem 1.25rem;
   border-radius: 0.625rem;
-  background: #031E3C;
+  background: #002E5B;
   color: #ffffff;
   font-size: 0.8rem;
   font-weight: 600;

@@ -225,45 +225,60 @@ const Layout = ({ activePage, setActivePage, children }) => {
         </aside>
       )}
 
-      {/* ── Top Header bar (Pushed next to the sidebar on desktop) ── */}
+      {/* ── Top Header bar (Pushed next to sidebar on desktop, matches layout exactly) ── */}
       <header 
-        className="h-16 bg-white border-b-2 fixed top-0 right-0 left-0 lg:left-64 z-20 flex items-center justify-between px-4 lg:px-6 shadow-sm"
-        style={{ borderBottomColor: '#00D6CC' }}
+        className="h-16 fixed top-0 right-0 left-0 lg:left-64 z-20 flex items-center justify-between px-4 lg:px-6 shadow-sm border-b-2"
+        style={{ backgroundColor: '#002E5B', borderBottomColor: '#00D6CC' }}
       >
         <div className="flex items-center gap-4">
-          {/* Mobile menu button */}
+          {/* Mobile menu toggle button */}
           <button 
             onClick={() => setOpen(true)} 
-            className="lg:hidden p-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition text-slate-700"
+            className="lg:hidden p-2 rounded-xl border border-white/20 hover:bg-white/10 transition text-white"
           >
             <Menu size={20} />
           </button>
 
-          {/* Logo Branding */}
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="BIIPBIIP Logo" className="h-8 object-contain" />
-            <span className="hidden sm:inline-block font-extrabold text-[#031E3C] text-lg tracking-wide border-l border-slate-200 pl-3 ml-1">
-              Admin Portal
-            </span>
+          {/* Header Search input exactly matching reference image */}
+          <div className="relative hidden md:block w-60">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search here"
+              className="w-full rounded-xl border-0 bg-white py-1.5 pl-9 pr-4 text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-[#00D6CC] transition outline-none"
+            />
           </div>
         </div>
 
-        {/* Header Right Menu */}
+        {/* Header Right Side Menu */}
         <div className="flex items-center gap-4">
-          {/* User Profile dropdown */}
+          {/* "Visit Site" Button matching reference image */}
+          <button 
+            className="hidden sm:inline-flex items-center justify-center rounded-xl px-4 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
+            style={{ backgroundColor: '#00D6CC' }}
+          >
+            Visit Site
+          </button>
+
+          {/* User profile section matching exact styling */}
           <div className="relative">
             <button
               onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-xl transition text-left"
+              className="flex items-center gap-2 hover:bg-white/10 p-1.5 rounded-xl transition text-left"
             >
-              <div className="h-9 w-9 rounded-full bg-[#031E3C] text-white flex items-center justify-center font-bold text-sm uppercase shadow-sm">
+              <div className="h-9 w-9 rounded-full bg-white text-[#002E5B] flex items-center justify-center font-bold text-sm uppercase shadow-sm">
                 {currentUser.name ? currentUser.name.slice(0, 2) : 'AD'}
               </div>
               <div className="hidden md:block">
-                <div className="text-xs font-bold text-slate-800 leading-none">{currentUser.name || 'Administrator'}</div>
-                <div className="text-[10px] text-slate-400 font-semibold capitalize mt-1">{currentUser.role || 'Super Admin'}</div>
+                <div className="text-xs font-bold text-white leading-none">{currentUser.name || 'Administrator'}</div>
+                <div className="text-[10px] text-white/70 font-semibold capitalize mt-1">{currentUser.role || 'Super Admin'}</div>
               </div>
-              <ChevronDown size={14} className="text-slate-400 hidden md:block" />
+              <ChevronDown size={14} className="text-white/70 hidden md:block" />
+            </button>
+
+            {/* Dark mode toggle representation icon */}
+            <button className="text-white/80 hover:text-white p-1 rounded-lg transition ml-1 hidden sm:inline-block">
+              <Moon size={16} />
             </button>
 
             {userDropdownOpen && (
@@ -274,7 +289,7 @@ const Layout = ({ activePage, setActivePage, children }) => {
                 />
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in-50 slide-in-from-top-1">
                   <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="text-xs text-slate-400">Signed in as</p>
+                    <p className="text-xs text-slate-400 font-semibold">Signed in as</p>
                     <p className="text-xs font-bold text-slate-800 truncate mt-0.5">{currentUser.email}</p>
                   </div>
                   <button
@@ -326,7 +341,7 @@ const Layout = ({ activePage, setActivePage, children }) => {
           </div>
         )}
 
-        {/* ── Main Content Area (Shifted right on desktop) ── */}
+        {/* ── Main Content Area (Shifted right next to sidebar) ── */}
         <main className="flex-1 min-w-0 lg:pl-64 min-h-[calc(100vh-64px)]">
           <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
             {children}

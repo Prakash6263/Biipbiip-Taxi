@@ -31,7 +31,8 @@ const AddNewMaker = ({ setActivePage }) => {
       <div className="flex items-center gap-4">
         <button
           onClick={() => setActivePage('makers-list')}
-          className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
+          className="flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:opacity-90"
+          style={{ backgroundColor: '#00D6CC' }}
         >
           <ArrowLeft size={16} /> Back
         </button>
@@ -52,7 +53,7 @@ const AddNewMaker = ({ setActivePage }) => {
       {/* Form Card */}
       <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         {/* Card Header */}
-        <div className="px-6 py-4 border-b border-slate-100" style={{ backgroundColor: '#031E3C' }}>
+        <div className="px-6 py-4 border-b border-slate-100" style={{ backgroundColor: '#002E5B' }}>
           <h3 className="text-base font-bold text-white tracking-wide uppercase">ADD NEW BRAND</h3>
         </div>
 
@@ -86,7 +87,7 @@ const AddNewMaker = ({ setActivePage }) => {
                   className="rounded-xl px-5 py-2 text-sm font-bold capitalize transition"
                   style={
                     status === s
-                      ? { background: 'linear-gradient(135deg, #FFA447, #EB93C6)', color: '#fff' }
+                      ? { backgroundColor: '#00D6CC', color: '#fff' }
                       : { backgroundColor: '#f1f5f9', color: '#64748b' }
                   }
                 >
@@ -103,7 +104,7 @@ const AddNewMaker = ({ setActivePage }) => {
             <button
               type="submit"
               className="rounded-2xl px-10 py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-90 active:scale-95"
-              style={{ backgroundColor: '#031E3C', boxShadow: '0 4px 14px rgba(3,30,60,0.3)' }}
+              style={{ backgroundColor: '#002E5B', boxShadow: '0 4px 14px rgba(0, 46, 91, 0.2)' }}
             >
               ADD NEW BRAND
             </button>
