@@ -5,6 +5,15 @@ import { registerCompanyApi, loginCompanyApi, fetchCompanyCarsApi, loginSuperAdm
 
 const AppContext = createContext(null);
 
+const defaultCancelReasons = [
+  { id: '1', reasonText: 'No driver available; reservation cancelled by the system.', reasonTextPt: 'Sem motorista disponível; reserva cancelada pelo Sistema.', status: 'Active' },
+  { id: '2', reasonText: 'Change of plans', reasonTextPt: 'Mudança de planos', status: 'Active' },
+  { id: '3', reasonText: 'Driver is too far', reasonTextPt: 'O motorista está muito longe', status: 'Active' },
+  { id: '4', reasonText: 'Driver is not moving', reasonTextPt: 'O motorista não está a mover-se', status: 'Active' },
+  { id: '5', reasonText: 'Long wait time', reasonTextPt: 'Longo tempo de espera', status: 'Active' },
+  { id: '6', reasonText: 'System Auto-Cancel: Timeout (No Driver Accepted)', reasonTextPt: 'Cancelamento Automático: Tempo Limite (Sem Resposta do Motorista)', status: 'Active' },
+];
+
 const initialState = () => {
   const loaded = loadState();
   if (!loaded) {
@@ -16,6 +25,7 @@ const initialState = () => {
       coupons: seedState.coupons || [],
       allCompanyCars: seedState.allCompanyCars || [],
       driverRatings: seedState.driverRatings || [],
+      cancelReasons: defaultCancelReasons,
     };
   }
   return {
@@ -28,6 +38,7 @@ const initialState = () => {
     coupons: loaded.coupons || seedState.coupons || [],
     allCompanyCars: loaded.allCompanyCars || seedState.allCompanyCars || [],
     driverRatings: loaded.driverRatings ?? seedState.driverRatings ?? [],
+    cancelReasons: loaded.cancelReasons || defaultCancelReasons,
   };
 };
 
@@ -1045,6 +1056,41 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const addCancelReason = (reasonText, reasonTextPt) => {
+    setState((prev) => ({
+      ...prev,
+      cancelReasons: [
+        ...(prev.cancelReasons || []),
+        { id: uid('reason'), reasonText, reasonTextPt, status: 'Active' }
+      ]
+    }));
+  };
+
+  const updateCancelReason = (id, reasonText, reasonTextPt) => {
+    setState((prev) => ({
+      ...prev,
+      cancelReasons: (prev.cancelReasons || []).map((r) =>
+        r.id === id ? { ...r, reasonText, reasonTextPt } : r
+      )
+    }));
+  };
+
+  const toggleCancelReasonStatus = (id) => {
+    setState((prev) => ({
+      ...prev,
+      cancelReasons: (prev.cancelReasons || []).map((r) =>
+        r.id === id ? { ...r, status: r.status === 'Active' ? 'Deactive' : 'Active' } : r
+      )
+    }));
+  };
+
+  const deleteCancelReason = (id) => {
+    setState((prev) => ({
+      ...prev,
+      cancelReasons: (prev.cancelReasons || []).filter((r) => r.id !== id)
+    }));
+  };
+
   const resetDemoData = () => {
     setState({
       ...seedState,
@@ -1053,6 +1099,7 @@ export const AppProvider = ({ children }) => {
       companyNotifications: [],
       coupons: seedState.coupons || [],
       driverRatings: seedState.driverRatings || [],
+      cancelReasons: defaultCancelReasons,
     });
     setCurrentUser(null);
     localStorage.removeItem('car_rental_current_user');
@@ -1097,6 +1144,10 @@ export const AppProvider = ({ children }) => {
       verifyCompanyCar,
       rejectCompanyCar,
       deleteDriverRating,
+      addCancelReason,
+      updateCancelReason,
+      toggleCancelReasonStatus,
+      deleteCancelReason,
     }),
     [state, currentUser],
   );

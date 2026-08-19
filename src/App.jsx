@@ -40,6 +40,8 @@ import ModelList from './pages/super_admin/MakeAndModels/ModelList';
 import AddNewModel from './pages/super_admin/MakeAndModels/AddNewModel';
 import DriverRating from './pages/super_admin/Review/DriverRating';
 import RideStatements from './pages/super_admin/TripsAndRides/RideStatements';
+import DisplayCancelReasons from './pages/super_admin/CancelReasons/DisplayCancelReasons';
+import AddCancelReasons from './pages/super_admin/CancelReasons/AddCancelReasons';
 
 const ROLE_CONFIG = {
   public: {
@@ -97,6 +99,8 @@ const ROLE_CONFIG = {
       'daily-ride-statement',
       'monthly-ride-statement',
       'yearly-ride-statement',
+      'add-cancel-reason',
+      'display-cancel-reasons',
     ],
   },
 };
@@ -129,6 +133,7 @@ const App = () => {
   const [selectedNotificationId, setSelectedNotificationId] = useState(null);
   const [selectedCompanyCarId, setSelectedCompanyCarId] = useState(null);
   const [selectedCompanyCarReturnPage, setSelectedCompanyCarReturnPage] = useState('company-car-verification');
+  const [selectedCancelReason, setSelectedCancelReason] = useState(null);
 
   useEffect(() => {
     const hasAccess = roleConfig.allowedPages.includes(activePage);
@@ -365,6 +370,23 @@ const App = () => {
       'daily-ride-statement': <RideStatements mode="daily" />,
       'monthly-ride-statement': <RideStatements mode="monthly" />,
       'yearly-ride-statement': <RideStatements mode="yearly" />,
+      'add-cancel-reason': (
+        <AddCancelReasons
+          editReason={selectedCancelReason}
+          onCancel={() => {
+            setSelectedCancelReason(null);
+            setActivePage('display-cancel-reasons');
+          }}
+        />
+      ),
+      'display-cancel-reasons': (
+        <DisplayCancelReasons
+          onEdit={(reason) => {
+            setSelectedCancelReason(reason);
+            setActivePage('add-cancel-reason');
+          }}
+        />
+      ),
     };
 
     return pages[activePage] ?? pages[roleConfig.defaultPage];
@@ -383,6 +405,7 @@ const App = () => {
     selectedDriverRidesId,
     selectedNotificationId,
     selectedCompanyCarId,
+    selectedCancelReason,
   ]);
 
   return (

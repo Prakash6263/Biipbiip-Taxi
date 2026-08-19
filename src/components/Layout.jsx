@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { 
   Building2, Car, ClipboardList, Home, LogOut, Menu, ShieldCheck, 
   X, ChevronDown, ChevronUp, Users, User, Bell, Ticket, 
-  TrendingUp, Wrench, Search, Sun, Moon, Star
+  TrendingUp, Wrench, Search, Sun, Moon, Star, XCircle
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -86,7 +86,16 @@ const navConfig = {
         { key: 'overall-ride-statement',  label: 'Overall Ride Statement'  },
         { key: 'daily-ride-statement',    label: 'Daily Ride Statement'    },
         { key: 'monthly-ride-statement',  label: 'Monthly Ride Statement'  },
-        { key: 'yearly-ride-statement',   label: 'Yearly Ride Statement'   },
+        { key: 'yearly-ride-statement',   icon: Car, label: 'Yearly Ride Statement'   },
+      ],
+    },
+    {
+      key: 'cancel-reasons-group',
+      label: 'Cancel Reasons',
+      icon: XCircle,
+      submenu: [
+        { key: 'add-cancel-reason',       label: 'Add Cancel Reasons'      },
+        { key: 'display-cancel-reasons',  label: 'Display Cancel Reasons'  },
       ],
     },
   ],
