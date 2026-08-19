@@ -39,6 +39,7 @@ import AddNewMaker from './pages/super_admin/MakeAndModels/AddNewMaker';
 import ModelList from './pages/super_admin/MakeAndModels/ModelList';
 import AddNewModel from './pages/super_admin/MakeAndModels/AddNewModel';
 import DriverRating from './pages/super_admin/Review/DriverRating';
+import RideStatements from './pages/super_admin/TripsAndRides/RideStatements';
 
 const ROLE_CONFIG = {
   public: {
@@ -92,6 +93,10 @@ const ROLE_CONFIG = {
       'model-list',
       'add-new-model',
       'driver-rating',
+      'overall-ride-statement',
+      'daily-ride-statement',
+      'monthly-ride-statement',
+      'yearly-ride-statement',
     ],
   },
 };
@@ -356,6 +361,10 @@ const App = () => {
       'model-list':     <ModelList    setActivePage={setActivePage} />,
       'add-new-model':  <AddNewModel  setActivePage={setActivePage} />,
       'driver-rating':  <DriverRating />,
+      'overall-ride-statement': <RideStatements mode="overall" />,
+      'daily-ride-statement': <RideStatements mode="daily" />,
+      'monthly-ride-statement': <RideStatements mode="monthly" />,
+      'yearly-ride-statement': <RideStatements mode="yearly" />,
     };
 
     return pages[activePage] ?? pages[roleConfig.defaultPage];

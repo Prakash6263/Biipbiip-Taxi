@@ -78,6 +78,17 @@ const navConfig = {
         { key: 'driver-rating', label: 'Driver Rating' },
       ],
     },
+    {
+      key: 'trips-rides-group',
+      label: 'Trips / Rides',
+      icon: Car,
+      submenu: [
+        { key: 'overall-ride-statement',  label: 'Overall Ride Statement'  },
+        { key: 'daily-ride-statement',    label: 'Daily Ride Statement'    },
+        { key: 'monthly-ride-statement',  label: 'Monthly Ride Statement'  },
+        { key: 'yearly-ride-statement',   label: 'Yearly Ride Statement'   },
+      ],
+    },
   ],
   admin: [
     { key: 'admin-dashboard', label: 'Dashboard', icon: Home },
@@ -400,7 +411,7 @@ const Layout = ({ activePage, setActivePage, children }) => {
         )}
 
         {/* ── Main Content Area (Shifted right next to sidebar) ── */}
-        <main className="flex-1 min-w-0 lg:pl-64 min-h-[calc(100vh-64px)] relative" style={{ zIndex: 0, isolation: 'isolate' }}>
+        <main className="flex-1 min-w-0 lg:pl-64 min-h-[calc(100vh-64px)]">
           <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
             {children}
           </div>
