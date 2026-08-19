@@ -97,20 +97,21 @@ const CompanyCarVerification = ({ onShowDetail }) => {
             <table className="table table-bordered table-striped mb-0">
               <thead>
                 <tr>
-                  <th className="font-bold text-slate-400">Car Name</th>
-                  <th className="font-bold text-slate-400">Reg No</th>
-                  <th className="font-bold text-slate-400">Company</th>
-                  <th className="font-bold text-slate-400">Date Added</th>
-                  <th className="font-bold text-slate-400">Specifications</th>
-                  <th className="font-bold text-slate-400">Price / Day</th>
-                  <th className="font-bold text-slate-400 text-center">Status</th>
-                  <th className="font-bold text-slate-400 text-right">Actions</th>
+                  <th className="font-bold text-slate-400 min-w-[240px]">Car Name</th>
+                  <th className="font-bold text-slate-400 min-w-[120px]">Reg No</th>
+                  <th className="font-bold text-slate-400 min-w-[180px]">Company</th>
+                  <th className="font-bold text-slate-400 min-w-[120px]">Date Added</th>
+                  <th className="font-bold text-slate-400 min-w-[160px]">Specifications</th>
+                  <th className="font-bold text-slate-400 min-w-[120px]">Price / Day</th>
+                  <th className="font-bold text-slate-400 text-center min-w-[120px]">Status</th>
+                  <th className="font-bold text-slate-400 text-right min-w-[200px]">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedCars.map((car) => (
                   <tr key={car.id} className="hover:bg-slate-50/40 transition-colors">
-                    <td>
+                    {/* Car Name Column */}
+                    <td className="min-w-[240px] whitespace-normal">
                       <div className="flex items-center gap-3">
                         {car.image ? (
                           <img
@@ -130,17 +131,20 @@ const CompanyCarVerification = ({ onShowDetail }) => {
                       </div>
                     </td>
 
-                    <td>
+                    {/* Reg No */}
+                    <td className="min-w-[120px]">
                       <span className="font-mono text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 inline-block">
                         {car.registrationNo}
                       </span>
                     </td>
 
-                    <td className="font-bold text-slate-800 text-sm">{car.companyName}</td>
+                    {/* Company */}
+                    <td className="font-bold text-slate-800 text-sm min-w-[180px] whitespace-normal">{car.companyName}</td>
 
-                    <td className="text-xs text-slate-500">{formatDate(car.createdAt)}</td>
+                    {/* Date Added */}
+                    <td className="text-xs text-slate-500 min-w-[120px]">{formatDate(car.createdAt)}</td>
 
-                    <td>
+                    <td className="min-w-[160px]">
                       <div className="text-xs text-slate-600 space-y-1">
                         <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Year:</span> {car.year}</div>
                         <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Fuel:</span> {car.fuelType}</div>
@@ -149,12 +153,12 @@ const CompanyCarVerification = ({ onShowDetail }) => {
                       </div>
                     </td>
 
-                    <td>
+                    <td className="min-w-[120px]">
                       <div className="font-extrabold text-slate-900 text-base">₹{car.pricePerDay}</div>
                       <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Per Day</div>
                     </td>
 
-                    <td className="text-center">
+                    <td className="text-center min-w-[120px]">
                       <div className="inline-flex flex-col gap-1 items-center justify-center">
                         <span
                           className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
@@ -177,7 +181,7 @@ const CompanyCarVerification = ({ onShowDetail }) => {
                     </td>
 
                     {/* Actions */}
-                    <td className="text-right">
+                    <td className="text-right min-w-[200px]">
                       <div className="flex justify-end items-center gap-2">
                         <button
                           onClick={() => onShowDetail?.(car.id)}
