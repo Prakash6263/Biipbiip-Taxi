@@ -140,12 +140,13 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
                             setActivePage(sub.key);
                             closeMobile?.();
                           }}
-                          className={`flex w-full items-center gap-3 rounded-xl px-4 py-2 text-left text-xs font-semibold transition ${
-                            subActive ? 'text-white border-l-4 border-white' : 'text-white/80 hover:bg-white/10 hover:text-white'
+                          className={`relative flex w-full items-center gap-3 rounded-xl px-4 py-2 text-left text-xs font-semibold transition ${
+                            subActive ? 'text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'
                           }`}
                           style={subActive ? { backgroundColor: '#00D6CC' } : {}}
                         >
-                          {sub.label}
+                          {subActive && <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-white rounded-r-md" />}
+                          <span className={subActive ? 'pl-2' : ''}>{sub.label}</span>
                         </button>
                       );
                     })}
@@ -166,12 +167,13 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
                   setActivePage(item.key);
                   closeMobile?.();
                 }}
-                className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
-                  active ? 'text-white border-l-4 border-white shadow-md' : 'text-white hover:bg-white/10'
+                className={`relative flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
+                  active ? 'text-white shadow-md' : 'text-white hover:bg-white/10'
                 }`}
                 style={active ? { backgroundColor: '#00D6CC' } : {}}
               >
-                <div className="flex items-center gap-3">
+                {active && <span className="absolute left-0 top-2.5 bottom-2.5 w-1.5 bg-white rounded-r-md" />}
+                <div className="flex items-center gap-3" style={active ? { paddingLeft: '6px' } : {}}>
                   <Icon size={18} className="text-white" />
                   <span>{item.label}</span>
                 </div>
