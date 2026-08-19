@@ -416,17 +416,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 [data-layout-mode="dark"] .text-slate-950,
-[data-layout-mode="dark"] .text-slate-900 {
+[data-layout-mode="dark"] .text-slate-900,
+[data-layout-mode="dark"] .text-slate-800 {
   color: #ffffff !important;
 }
 
-[data-layout-mode="dark"] .text-slate-800,
 [data-layout-mode="dark"] .text-slate-700,
-[data-layout-mode="dark"] .text-slate-600 {
-  color: #cbd5e1 !important;
+[data-layout-mode="dark"] .text-slate-600,
+[data-layout-mode="dark"] .text-slate-500 {
+  color: #a3b3c9 !important;
 }
 
-[data-layout-mode="dark"] .text-slate-500,
 [data-layout-mode="dark"] .text-slate-400 {
   color: #94a3b8 !important;
 }
@@ -438,5 +438,14 @@ h1, h2, h3, h4, h5, h6 {
 [data-layout-mode="dark"] .badge-inactive {
   background-color: #1E293B !important;
   color: #94a3b8 !important;
+}
+
+/* KPI Widget Styles */
+[data-layout-mode="dark"] .dash-title {
+  color: #a3b3c9 !important;
+}
+
+[data-layout-mode="dark"] .dash-counts p {
+  color: #ffffff !important;
 }
 
