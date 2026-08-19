@@ -169,20 +169,22 @@ const Coupons = ({ setActivePage }) => {
 
       {/* Table Container Card */}
       {filteredCoupons.length > 0 ? (
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
+        <>
+          <div className="card card-table p-2">
+          <div className="card-body table-responsive">
+            <table className="table table-bordered table-striped mb-0">
+              <thead>
                 <tr>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Coupon Code</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Campaign Details</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Benefit Type</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Status</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Expiry Date</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-right">Actions</th>
+                  <th className="font-bold text-slate-400">Coupon Code</th>
+                  <th className="font-bold text-slate-400">Campaign Title</th>
+                  <th className="font-bold text-slate-400">Description</th>
+                  <th className="font-bold text-slate-400">Benefit Type</th>
+                  <th className="font-bold text-slate-400 text-center">Status</th>
+                  <th className="font-bold text-slate-400">Expiry Date</th>
+                  <th className="font-bold text-slate-400 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {filteredCoupons.map((coupon) => {
                   const isExpired = new Date(coupon.expiryDate) < new Date();
                   const computedStatus = coupon.status === 'active' && isExpired ? 'expired' : coupon.status;
@@ -192,7 +194,7 @@ const Coupons = ({ setActivePage }) => {
                   return (
                     <tr key={coupon.id} className="hover:bg-slate-50/40 transition-colors">
                       {/* Code Column */}
-                      <td className="px-6 py-5">
+                      <td>
                         <div className="flex items-center gap-3">
                           <div
                             className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm uppercase text-white"
@@ -207,26 +209,24 @@ const Coupons = ({ setActivePage }) => {
                         </div>
                       </td>
 
-                      {/* Campaign Details Column */}
-                      <td className="px-6 py-5">
-                        <div>
-                          <div className="font-bold text-slate-900 text-sm">{coupon.title}</div>
-                          {coupon.description && (
-                            <p className="text-xs text-slate-500 mt-1 line-clamp-1">{coupon.description}</p>
-                          )}
-                        </div>
+                      {/* Campaign Title */}
+                      <td className="font-bold text-slate-900 text-sm">{coupon.title}</td>
+
+                      {/* Description */}
+                      <td className="text-xs text-slate-500 max-w-[200px] truncate" title={coupon.description}>
+                        {coupon.description || '—'}
                       </td>
 
-                      {/* Benefit Type Column */}
-                      <td className="px-6 py-5">
+                      {/* Benefit Type */}
+                      <td>
                         <span className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1 text-xs font-bold ${benefit.color}`}>
                           <BenefitIcon size={12} />
                           {benefit.text}
                         </span>
                       </td>
 
-                      {/* Status Column */}
-                      <td className="px-6 py-5 text-center">
+                      {/* Status */}
+                      <td className="text-center">
                         <span
                           className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
                           style={
@@ -241,13 +241,11 @@ const Coupons = ({ setActivePage }) => {
                         </span>
                       </td>
 
-                      {/* Expiry Date Column */}
-                      <td className="px-6 py-5">
-                        <div className="text-xs font-bold text-slate-700">{coupon.expiryDate}</div>
-                      </td>
+                      {/* Expiry Date */}
+                      <td className="text-xs font-bold text-slate-700">{coupon.expiryDate}</td>
 
-                      {/* Actions Column */}
-                      <td className="px-6 py-5 text-right">
+                      {/* Actions */}
+                      <td className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           {!isExpired && (
                             <button
@@ -278,6 +276,7 @@ const Coupons = ({ setActivePage }) => {
               </tbody>
             </table>
           </div>
+        </div>
 
           {/* Table Footer */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 p-4 bg-slate-50/20 text-xs font-medium text-slate-500">
@@ -294,7 +293,7 @@ const Coupons = ({ setActivePage }) => {
               </button>
             </div>
           </div>
-        </div>
+        </>
       ) : (
         <EmptyState title="No coupons found" message="No coupon codes match your active search or category filters." />
       )}

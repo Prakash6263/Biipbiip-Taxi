@@ -77,18 +77,19 @@ const MakersList = ({ setActivePage }) => {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[500px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-4 font-bold">#</th>
-                <th className="px-6 py-4 font-bold">Brand Name</th>
-                <th className="px-6 py-4 font-bold">Status</th>
-                <th className="px-6 py-4 font-bold text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {paginated.map((maker, idx) => (
+        <div className="card card-table p-2">
+          <div className="card-body table-responsive">
+            <table className="table table-bordered table-striped mb-0">
+              <thead>
+                <tr>
+                  <th className="font-bold">#</th>
+                  <th className="font-bold">Brand Name</th>
+                  <th className="font-bold">Status</th>
+                  <th className="font-bold text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginated.map((maker, idx) => (
                 <tr key={maker.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="px-6 py-4 text-slate-400 font-semibold text-xs">
                     {(currentPage - 1) * itemsPerPage + idx + 1}
@@ -183,6 +184,7 @@ const MakersList = ({ setActivePage }) => {
             </tbody>
           </table>
         </div>
+      </div>
 
         {/* Pagination */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 px-6 py-4">

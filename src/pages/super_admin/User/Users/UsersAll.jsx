@@ -73,21 +73,21 @@ const UsersAll = () => {
       </div>
 
       {filteredUsers.length ? (
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
+        <div className="card card-table p-2">
+          <div className="card-body table-responsive">
+            <table className="table table-bordered table-striped mb-0">
+              <thead>
                 <tr>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">User</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Email</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Role</th>
+                  <th className="font-bold text-slate-400">User</th>
+                  <th className="font-bold text-slate-400">Email</th>
+                  <th className="font-bold text-slate-400 text-center">Role</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {paginatedUsers.map((u) => (
                   <tr key={u.id} className="hover:bg-slate-50/40 transition-colors">
                     {/* USER column */}
-                    <td className="px-6 py-5">
+                    <td>
                       <div className="flex items-center gap-3">
                         <div
                           className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm uppercase text-white"
@@ -103,12 +103,12 @@ const UsersAll = () => {
                     </td>
 
                     {/* EMAIL column */}
-                    <td className="px-6 py-5">
+                    <td>
                       <div className="text-sm text-slate-700">{u.email}</div>
                     </td>
 
                     {/* ROLE column */}
-                    <td className="px-6 py-5 text-center">
+                    <td className="text-center">
                       <span
                         className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
                         style={{ color: '#031E3C', borderColor: 'rgba(3, 30, 60, 0.2)', backgroundColor: 'rgba(3, 30, 60, 0.04)' }}

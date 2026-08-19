@@ -99,20 +99,23 @@ const RentalBookings = () => {
       </div>
 
       {filteredRentals.length ? (
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
+        <div className="card card-table p-2">
+          <div className="card-body table-responsive">
+            <table className="table table-bordered table-striped mb-0">
+              <thead>
                 <tr>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Customer</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Contact Details</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Duration</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Amount</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Status</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-right">Created</th>
+                  <th className="font-bold text-slate-400">Customer Name</th>
+                  <th className="font-bold text-slate-400">Car Name</th>
+                  <th className="font-bold text-slate-400">Phone</th>
+                  <th className="font-bold text-slate-400">Email</th>
+                  <th className="font-bold text-slate-400">Days</th>
+                  <th className="font-bold text-slate-400">Rental Dates</th>
+                  <th className="font-bold text-slate-400">Amount</th>
+                  <th className="font-bold text-slate-400 text-center">Status</th>
+                  <th className="font-bold text-slate-400 text-right">Created</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {paginatedRentals.map((r) => {
                   const days = Math.max(
                     1,
@@ -126,8 +129,8 @@ const RentalBookings = () => {
 
                   return (
                     <tr key={r.id} className="hover:bg-slate-50/40 transition-colors">
-                      {/* CUSTOMER column */}
-                      <td className="px-6 py-5">
+                      {/* Customer Name */}
+                      <td className="font-bold text-slate-900 text-sm">
                         <div className="flex items-center gap-3">
                           <div
                             className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm uppercase text-white"
@@ -135,46 +138,41 @@ const RentalBookings = () => {
                           >
                             {r.customerName.slice(0, 2)}
                           </div>
-                          <div>
-                            <div className="font-bold text-slate-900 text-sm">{r.customerName}</div>
-                            <div className="text-xs text-[#00D6CC] mt-0.5 font-bold">
-                              🚗 {car?.name || 'Unknown Car'}
-                            </div>
-                          </div>
+                          <span>{r.customerName}</span>
                         </div>
                       </td>
 
-                      {/* CONTACT DETAILS column */}
-                      <td className="px-6 py-5">
-                        <div>
-                          <div className="text-xs text-slate-600 font-semibold">{r.customerPhone}</div>
-                          <div className="text-xs text-slate-400">{r.customerEmail}</div>
-                        </div>
+                      {/* Car Name */}
+                      <td className="text-xs text-[#00D6CC] font-bold">
+                        🚗 {car?.name || 'Unknown Car'}
                       </td>
 
-                      {/* DURATION column */}
-                      <td className="px-6 py-5">
-                        <div>
-                          <div className="font-bold text-slate-800 text-xs flex items-center gap-1">
-                            <Calendar size={12} className="text-slate-400" />
-                            {days} {days === 1 ? 'day' : 'days'}
-                          </div>
-                          <div className="text-xs text-slate-500 mt-1">
-                            {r.pickupDate} → {r.returnDate}
-                          </div>
-                        </div>
+                      {/* Phone */}
+                      <td className="text-slate-600 font-semibold text-xs">{r.customerPhone}</td>
+
+                      {/* Email */}
+                      <td className="text-slate-600 text-xs">{r.customerEmail}</td>
+
+                      {/* Days */}
+                      <td className="font-bold text-slate-800 text-xs">
+                        {days} {days === 1 ? 'day' : 'days'}
                       </td>
 
-                      {/* AMOUNT column */}
-                      <td className="px-6 py-5">
+                      {/* Rental Dates */}
+                      <td className="text-xs text-slate-500">
+                        {r.pickupDate} → {r.returnDate}
+                      </td>
+
+                      {/* Amount */}
+                      <td>
                         <div className="font-extrabold text-slate-900 text-base">{currency(amount)}</div>
                         <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
                           <CreditCard size={10} /> Paid via wallet
                         </div>
                       </td>
 
-                      {/* STATUS column */}
-                      <td className="px-6 py-5 text-center">
+                      {/* Status */}
+                      <td className="text-center">
                         <span
                           className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
                           style={
@@ -189,9 +187,9 @@ const RentalBookings = () => {
                         </span>
                       </td>
 
-                      {/* CREATED column */}
-                      <td className="px-6 py-5 text-right">
-                        <div className="text-xs text-slate-500">{formatDate(r.createdAt)}</div>
+                      {/* Created */}
+                      <td className="text-right text-xs text-slate-500">
+                        {formatDate(r.createdAt)}
                       </td>
                     </tr>
                   );

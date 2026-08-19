@@ -141,20 +141,23 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
         {!drivers.length ? (
           <EmptyState title="No drivers available" message="There are no drivers registered in the system." />
         ) : filteredDrivers.length ? (
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] border-collapse text-left text-sm text-slate-500">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
+          <>
+            <div className="card card-table p-2">
+            <div className="card-body table-responsive">
+              <table className="table table-bordered table-striped mb-0">
+                <thead>
                   <tr>
-                    <th scope="col" className="px-6 py-4 font-bold">Driver Name</th>
-                    <th scope="col" className="px-6 py-4 font-bold">Contact Info</th>
-                    <th scope="col" className="px-6 py-4 font-bold">Car Details</th>
-                    <th scope="col" className="px-6 py-4 font-bold">Total Rides</th>
-                    <th scope="col" className="px-6 py-4 font-bold">Total Distance</th>
-                    <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
+                    <th className="font-bold">Driver Name</th>
+                    <th className="font-bold">Email</th>
+                    <th className="font-bold">Phone</th>
+                    <th className="font-bold">Car Name</th>
+                    <th className="font-bold">Reg No</th>
+                    <th className="font-bold">Total Rides</th>
+                    <th className="font-bold">Total Distance</th>
+                    <th className="font-bold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody>
                   {paginatedDrivers.map((d) => {
                     const stats = driverStatsMap[d.id] || { totalRides: 0, totalKm: 0 };
                     return (
@@ -163,7 +166,7 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
                         onClick={() => setSelectedDriverId(d.id)}
                         className="hover:bg-slate-50/50 transition-colors cursor-pointer font-medium"
                       >
-                        <td className="px-6 py-4">
+                        <td>
                           <div className="flex items-center gap-3">
                             <div className="rounded-xl bg-[#00D6CC]/10 p-2.5 text-[#00D6CC]">
                               <User size={18} />
@@ -174,38 +177,24 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="space-y-1 text-xs">
-                            <div className="flex items-center gap-1.5 text-slate-600">
-                              <Mail size={13} className="text-slate-400" />
-                              <span>{d.userEmail}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-slate-600">
-                              <Phone size={13} className="text-slate-400" />
-                              <span>{d.userPhone}</span>
-                            </div>
+                        <td className="text-slate-600 text-xs">{d.userEmail}</td>
+                        <td className="text-slate-600 text-xs">{d.userPhone}</td>
+                        <td className="text-slate-800 text-xs">
+                          <div className="flex items-center gap-2">
+                            <Car size={14} className="text-slate-400" />
+                            <span>{d.carName}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="rounded-xl bg-slate-100 p-2.5 text-slate-600">
-                              <Car size={18} />
-                            </div>
-                            <div>
-                              <p className="font-semibold text-slate-800">{d.carName}</p>
-                              <p className="font-mono text-xs text-slate-400 mt-0.5">{d.registrationNo}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
+                        <td className="text-slate-600 text-xs font-mono">{d.registrationNo}</td>
+                        <td>
                           <span className="inline-flex items-center gap-1 rounded-xl bg-[#00D6CC]/10 px-3 py-1.5 text-xs font-bold text-[#00D6CC]">
                             {stats.totalRides} Rides
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm font-bold text-slate-800">
+                        <td className="text-sm font-bold text-slate-800">
                           {stats.totalKm} <span className="text-xs font-semibold text-slate-400">km</span>
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="text-right">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -222,15 +211,16 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
                 </tbody>
               </table>
             </div>
+          </div>
 
-            {/* Table Pagination Footer */}
-            {filteredDrivers.length > 0 && (
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500">
-                <span>
-                  Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredDrivers.length)} to{' '}
-                  {Math.min(currentPage * itemsPerPage, filteredDrivers.length)} of {filteredDrivers.length} entries
-                </span>
-                <div className="flex items-center gap-1.5 self-end">
+          {/* Table Pagination Footer */}
+          {filteredDrivers.length > 0 && (
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500 mt-2 rounded-b-3xl">
+              <span>
+                Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredDrivers.length)} to{' '}
+                {Math.min(currentPage * itemsPerPage, filteredDrivers.length)} of {filteredDrivers.length} entries
+              </span>
+              <div className="flex items-center gap-1.5 self-end">
                   <button
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
@@ -265,7 +255,7 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
                 </div>
               </div>
             )}
-          </div>
+          </>
         ) : (
           <EmptyState title="No drivers found" message="No drivers match the search criteria." />
         )}
@@ -361,75 +351,44 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
       <div className="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden">
         <div className="border-b border-slate-100 p-5">
           <h3 className="font-bold text-slate-950 text-base">Ride History</h3>
-        </div>
-
-        {rides.length ? (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700">
-                <tr>
-                  <th scope="col" className="px-6 py-4 font-bold">Ride Details</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Customer</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Route</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Distance</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Fare</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Tip</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Total Price</th>
-                  <th scope="col" className="px-6 py-4 font-bold">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {rides.map((ride) => (
-                  <tr key={ride.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        <div className="font-semibold text-slate-900 text-xs">{ride.id.toUpperCase()}</div>
-                        <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium">
-                          <Calendar size={12} />
-                          <span>{formatDate(ride.date)}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        <div className="font-bold text-slate-900">{ride.customerName}</div>
-                        <div className="flex items-center gap-1 text-slate-400 text-xs font-medium">
-                          <Phone size={11} />
-                          <span>{ride.customerPhone}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-2 max-w-[280px]">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" title="Pickup" />
-                          <span className="text-xs font-semibold text-slate-800 truncate">{ride.pickup}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0" title="Drop point" />
-                          <span className="text-xs font-semibold text-slate-800 truncate">{ride.drop}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-bold text-slate-950">
-                      {ride.km} km
-                    </td>
-                    <td className="px-6 py-4 font-bold text-slate-950">
-                      ₹{ride.price}
-                    </td>
-                    <td className="px-6 py-4 font-bold text-slate-600">
-                      {ride.tip > 0 ? `₹${ride.tip}` : '—'}
-                    </td>
-                    <td className="px-6 py-4 font-bold text-[#00D6CC] text-base">
-                      ₹{ride.price + ride.tip}
-                    </td>
-                    <td className="px-6 py-4">
-                      {getStatusBadge(ride.status)}
-                    </td>
+        </div>        {rides.length ? (
+          <div className="card card-table p-2">
+            <div className="card-body table-responsive">
+              <table className="table table-bordered table-striped mb-0">
+                <thead>
+                  <tr>
+                    <th className="font-bold">Ride ID</th>
+                    <th className="font-bold">Date</th>
+                    <th className="font-bold">Customer Name</th>
+                    <th className="font-bold">Phone</th>
+                    <th className="font-bold">Pickup</th>
+                    <th className="font-bold">Drop Point</th>
+                    <th className="font-bold">Distance</th>
+                    <th className="font-bold">Fare</th>
+                    <th className="font-bold">Tip</th>
+                    <th className="font-bold">Total Price</th>
+                    <th className="font-bold">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {rides.map((ride) => (
+                    <tr key={ride.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="font-semibold text-slate-900 text-xs">{ride.id.toUpperCase()}</td>
+                      <td className="text-slate-600 text-xs">{formatDate(ride.date)}</td>
+                      <td className="font-bold text-slate-900 text-sm">{ride.customerName}</td>
+                      <td className="text-slate-600 text-xs">{ride.customerPhone}</td>
+                      <td className="text-xs font-semibold text-slate-800">{ride.pickup}</td>
+                      <td className="text-xs font-semibold text-slate-800">{ride.drop}</td>
+                      <td className="font-bold text-slate-950 text-xs">{ride.km} km</td>
+                      <td className="font-bold text-slate-950 text-xs">₹{ride.price}</td>
+                      <td className="font-bold text-slate-600 text-xs">{ride.tip > 0 ? `₹${ride.tip}` : '—'}</td>
+                      <td className="font-bold text-[#00D6CC] text-sm">₹{ride.price + ride.tip}</td>
+                      <td>{getStatusBadge(ride.status)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-12 text-center text-slate-400">

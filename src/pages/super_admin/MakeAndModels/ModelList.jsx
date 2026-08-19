@@ -96,110 +96,112 @@ const ModelList = ({ setActivePage }) => {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-4 font-bold">#</th>
-                <th className="px-6 py-4 font-bold">Brand Name</th>
-                <th className="px-6 py-4 font-bold">Model Name</th>
-                <th className="px-6 py-4 font-bold">Status</th>
-                <th className="px-6 py-4 font-bold text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {paginated.map((model, idx) => (
-                <tr key={model.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-6 py-4 text-slate-400 font-semibold text-xs">
-                    {(currentPage - 1) * itemsPerPage + idx + 1}
-                  </td>
-
-                  {/* Brand Name */}
-                  <td className="px-6 py-4">
-                    <span className="font-semibold text-slate-700">{model.makerName}</span>
-                  </td>
-
-                  {/* Model Name — inline edit */}
-                  <td className="px-6 py-4">
-                    {editingId === model.id ? (
-                      <input
-                        autoFocus
-                        value={editName}
-                        onChange={e => setEditName(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && handleSaveEdit()}
-                        className="rounded-xl border px-3 py-1.5 text-sm outline-none w-40"
-                        style={{ borderColor: '#00D6CC' }}
-                      />
-                    ) : (
-                      <span className="font-semibold text-slate-900">{model.name}</span>
-                    )}
-                  </td>
-
-                  {/* Status badge */}
-                  <td className="px-6 py-4">
-                    <button
-                      onClick={() => handleToggleStatus(model)}
-                      className="inline-flex items-center rounded-lg px-3 py-1 text-xs font-bold uppercase tracking-wider transition"
-                      style={
-                        model.status === 'active'
-                          ? { backgroundColor: '#031E3C', color: '#00D6CC' }
-                          : { backgroundColor: '#f1f5f9', color: '#94a3b8' }
-                      }
-                    >
-                      {model.status === 'active' ? 'ACTIVE' : 'INACTIVE'}
-                    </button>
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-6 py-4 text-right">
-                    {deleteConfirmId === model.id ? (
-                      <div className="inline-flex items-center gap-2">
-                        <span className="text-xs text-slate-500">Delete?</span>
-                        <button
-                          onClick={() => { deleteModel(model.id); setDeleteConfirmId(null); }}
-                          className="rounded-lg bg-rose-500 p-1.5 text-white hover:bg-rose-600 transition"
-                        >
-                          <Check size={12} />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirmId(null)}
-                          className="rounded-lg bg-slate-200 p-1.5 text-slate-600 hover:bg-slate-300 transition"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ) : editingId === model.id ? (
-                      <div className="inline-flex items-center gap-2">
-                        <button onClick={handleSaveEdit} className="rounded-lg p-1.5 text-white transition" style={{ backgroundColor: '#00D6CC' }}>
-                          <Check size={14} />
-                        </button>
-                        <button onClick={() => setEditingId(null)} className="rounded-lg bg-slate-200 p-1.5 text-slate-600 hover:bg-slate-300 transition">
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="inline-flex items-center gap-2">
-                        <button
-                          onClick={() => handleEdit(model)}
-                          className="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-50 hover:text-[#00D6CC] transition"
-                          title="Edit"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirmId(model.id)}
-                          className="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition"
-                          title="Delete"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    )}
-                  </td>
+        <div className="card card-table p-2">
+          <div className="card-body table-responsive">
+            <table className="table table-bordered table-striped mb-0 w-full min-w-[600px] text-left text-sm">
+              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-4 font-bold">#</th>
+                  <th className="px-6 py-4 font-bold">Brand Name</th>
+                  <th className="px-6 py-4 font-bold">Model Name</th>
+                  <th className="px-6 py-4 font-bold">Status</th>
+                  <th className="px-6 py-4 font-bold text-right">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {paginated.map((model, idx) => (
+                  <tr key={model.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-6 py-4 text-slate-400 font-semibold text-xs">
+                      {(currentPage - 1) * itemsPerPage + idx + 1}
+                    </td>
+
+                    {/* Brand Name */}
+                    <td className="px-6 py-4">
+                      <span className="font-semibold text-slate-700">{model.makerName}</span>
+                    </td>
+
+                    {/* Model Name — inline edit */}
+                    <td className="px-6 py-4">
+                      {editingId === model.id ? (
+                        <input
+                          autoFocus
+                          value={editName}
+                          onChange={e => setEditName(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && handleSaveEdit()}
+                          className="rounded-xl border px-3 py-1.5 text-sm outline-none w-40"
+                          style={{ borderColor: '#00D6CC' }}
+                        />
+                      ) : (
+                        <span className="font-semibold text-slate-900">{model.name}</span>
+                      )}
+                    </td>
+
+                    {/* Status badge */}
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleToggleStatus(model)}
+                        className="inline-flex items-center rounded-lg px-3 py-1 text-xs font-bold uppercase tracking-wider transition"
+                        style={
+                          model.status === 'active'
+                            ? { backgroundColor: '#031E3C', color: '#00D6CC' }
+                            : { backgroundColor: '#f1f5f9', color: '#94a3b8' }
+                        }
+                      >
+                        {model.status === 'active' ? 'ACTIVE' : 'INACTIVE'}
+                      </button>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-6 py-4 text-right">
+                      {deleteConfirmId === model.id ? (
+                        <div className="inline-flex items-center gap-2">
+                          <span className="text-xs text-slate-500">Delete?</span>
+                          <button
+                            onClick={() => { deleteModel(model.id); setDeleteConfirmId(null); }}
+                            className="rounded-lg bg-rose-500 p-1.5 text-white hover:bg-rose-600 transition"
+                          >
+                            <Check size={12} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirmId(null)}
+                            className="rounded-lg bg-slate-200 p-1.5 text-slate-600 hover:bg-slate-300 transition"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ) : editingId === model.id ? (
+                        <div className="inline-flex items-center gap-2">
+                          <button onClick={handleSaveEdit} className="rounded-lg p-1.5 text-white transition" style={{ backgroundColor: '#00D6CC' }}>
+                            <Check size={14} />
+                          </button>
+                          <button onClick={() => setEditingId(null)} className="rounded-lg bg-slate-200 p-1.5 text-slate-600 hover:bg-slate-300 transition">
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="inline-flex items-center gap-2">
+                          <button
+                            onClick={() => handleEdit(model)}
+                            className="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-50 hover:text-[#00D6CC] transition"
+                            title="Edit"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirmId(model.id)}
+                            className="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition"
+                            title="Delete"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Pagination */}

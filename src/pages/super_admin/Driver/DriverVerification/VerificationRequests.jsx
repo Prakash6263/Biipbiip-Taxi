@@ -101,20 +101,22 @@ const VerificationRequests = ({ onShowDetail }) => {
 
       {/* Table Container */}
       {filteredRequests.length ? (
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
+        <div className="card card-table p-2">
+          <div className="card-body table-responsive">
+            <table className="table table-bordered table-striped mb-0">
+              <thead>
                 <tr>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Driver</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Contact Details</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Car Details</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Status</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Submitted On</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-right">Actions</th>
+                  <th className="font-bold text-slate-400">Driver</th>
+                  <th className="font-bold text-slate-400">Phone</th>
+                  <th className="font-bold text-slate-400">Email</th>
+                  <th className="font-bold text-slate-400">Car Name</th>
+                  <th className="font-bold text-slate-400">Reg No</th>
+                  <th className="font-bold text-slate-400 text-center">Status</th>
+                  <th className="font-bold text-slate-400">Submitted On</th>
+                  <th className="font-bold text-slate-400 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {paginatedRequests.map((reqItem) => {
                   const { date, time } = formatDateTimeSplit(reqItem.createdAt);
                   return (
@@ -123,7 +125,7 @@ const VerificationRequests = ({ onShowDetail }) => {
                       className="hover:bg-slate-50/40 transition-colors"
                     >
                       {/* Driver Column */}
-                      <td className="px-6 py-5">
+                      <td>
                         <div className="flex items-center gap-3">
                           <div
                             className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm uppercase text-white"
@@ -138,29 +140,29 @@ const VerificationRequests = ({ onShowDetail }) => {
                         </div>
                       </td>
 
-                      {/* Contact Info Column */}
-                      <td className="px-6 py-5">
-                        <div>
-                          <div className="text-xs text-slate-600 font-semibold">{reqItem.userPhone}</div>
-                          <div className="text-xs text-slate-400">{reqItem.userEmail}</div>
+                      {/* Phone */}
+                      <td className="text-slate-600 font-semibold text-xs">{reqItem.userPhone}</td>
+
+                      {/* Email */}
+                      <td className="text-slate-600 text-xs">{reqItem.userEmail}</td>
+
+                      {/* Car Name */}
+                      <td className="text-slate-800 text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <Car size={12} className="text-slate-400" />
+                          {reqItem.carName}
                         </div>
                       </td>
 
-                      {/* Car Details Column */}
-                      <td className="px-6 py-5">
-                        <div>
-                          <div className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
-                            <Car size={12} className="text-slate-400" />
-                            {reqItem.carName}
-                          </div>
-                          <span className="inline-block bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded text-[10px] tracking-wide mt-1.5 border border-slate-200">
-                            {reqItem.registrationNo}
-                          </span>
-                        </div>
+                      {/* Reg No */}
+                      <td>
+                        <span className="inline-block bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded text-[10px] tracking-wide border border-slate-200">
+                          {reqItem.registrationNo}
+                        </span>
                       </td>
 
-                      {/* Status Column */}
-                      <td className="px-6 py-5 text-center">
+                      {/* Status */}
+                      <td className="text-center">
                         <span
                           className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
                           style={
@@ -175,16 +177,16 @@ const VerificationRequests = ({ onShowDetail }) => {
                         </span>
                       </td>
 
-                      {/* Submitted On Column */}
-                      <td className="px-6 py-5">
-                        <div className="text-xs">
+                      {/* Submitted On */}
+                      <td className="text-slate-500 text-xs">
+                        <div>
                           <p className="font-bold text-slate-700">{date}</p>
                           <p className="text-[10px] text-slate-400 mt-0.5 font-medium">{time}</p>
                         </div>
                       </td>
 
-                      {/* Actions Column */}
-                      <td className="px-6 py-5 text-right">
+                      {/* Actions */}
+                      <td className="text-right">
                         <button
                           onClick={() => onShowDetail(reqItem.id)}
                           className="inline-flex items-center justify-center rounded-full px-5 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm"

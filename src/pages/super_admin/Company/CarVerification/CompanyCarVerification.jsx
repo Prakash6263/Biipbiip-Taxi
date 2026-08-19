@@ -92,24 +92,25 @@ const CompanyCarVerification = ({ onShowDetail }) => {
       </div>
 
       {cars.length ? (
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1000px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
+        <div className="card card-table p-2">
+          <div className="card-body table-responsive">
+            <table className="table table-bordered table-striped mb-0">
+              <thead>
                 <tr>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Car Details</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Company</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Specifications</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Price / Day</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Status</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-right">Actions</th>
+                  <th className="font-bold text-slate-400">Car Name</th>
+                  <th className="font-bold text-slate-400">Reg No</th>
+                  <th className="font-bold text-slate-400">Company</th>
+                  <th className="font-bold text-slate-400">Date Added</th>
+                  <th className="font-bold text-slate-400">Specifications</th>
+                  <th className="font-bold text-slate-400">Price / Day</th>
+                  <th className="font-bold text-slate-400 text-center">Status</th>
+                  <th className="font-bold text-slate-400 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {paginatedCars.map((car) => (
                   <tr key={car.id} className="hover:bg-slate-50/40 transition-colors">
-                    {/* CAR DETAILS column */}
-                    <td className="px-6 py-5">
+                    <td>
                       <div className="flex items-center gap-3">
                         {car.image ? (
                           <img
@@ -125,23 +126,21 @@ const CompanyCarVerification = ({ onShowDetail }) => {
                         <div>
                           <div className="font-bold text-slate-900 text-sm">{car.name}</div>
                           <div className="text-xs text-slate-400 mt-0.5">{car.brand} {car.model}</div>
-                          <div className="text-xs text-slate-500 mt-1 font-mono bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 inline-block">
-                            {car.registrationNo}
-                          </div>
                         </div>
                       </div>
                     </td>
 
-                    {/* COMPANY column */}
-                    <td className="px-6 py-5">
-                      <div>
-                        <div className="font-bold text-slate-800 text-sm">{car.companyName}</div>
-                        <div className="text-xs text-slate-400 mt-1">Added: {formatDate(car.createdAt)}</div>
-                      </div>
+                    <td>
+                      <span className="font-mono text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 inline-block">
+                        {car.registrationNo}
+                      </span>
                     </td>
 
-                    {/* SPECIFICATIONS column */}
-                    <td className="px-6 py-5">
+                    <td className="font-bold text-slate-800 text-sm">{car.companyName}</td>
+
+                    <td className="text-xs text-slate-500">{formatDate(car.createdAt)}</td>
+
+                    <td>
                       <div className="text-xs text-slate-600 space-y-1">
                         <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Year:</span> {car.year}</div>
                         <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Fuel:</span> {car.fuelType}</div>
@@ -150,14 +149,12 @@ const CompanyCarVerification = ({ onShowDetail }) => {
                       </div>
                     </td>
 
-                    {/* PRICE column */}
-                    <td className="px-6 py-5">
+                    <td>
                       <div className="font-extrabold text-slate-900 text-base">₹{car.pricePerDay}</div>
                       <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Per Day</div>
                     </td>
 
-                    {/* STATUS column */}
-                    <td className="px-6 py-5 text-center">
+                    <td className="text-center">
                       <div className="inline-flex flex-col gap-1 items-center justify-center">
                         <span
                           className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
@@ -179,27 +176,27 @@ const CompanyCarVerification = ({ onShowDetail }) => {
                       </div>
                     </td>
 
-                    {/* ACTIONS column */}
-                    <td className="px-6 py-5 text-right">
+                    {/* Actions */}
+                    <td className="text-right">
                       <div className="flex justify-end items-center gap-2">
                         <button
                           onClick={() => onShowDetail?.(car.id)}
-                          className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white hover:bg-slate-50 p-2 text-slate-600 transition"
-                          title="View Details"
+                          className="inline-flex items-center justify-center rounded-full px-5 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm animate-pulse-subtle"
+                          style={{ backgroundColor: '#00D6CC', boxShadow: '0 2px 6px rgba(0, 214, 204, 0.2)' }}
                         >
-                          <Eye size={14} />
+                          Show Details
                         </button>
                         {car.status === 'pending' && (
                           <>
                             <button
                               onClick={() => handleVerify(car.id)}
-                              className="inline-flex items-center justify-center rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 text-xs font-bold transition shadow-sm"
+                              className="inline-flex items-center justify-center rounded-full bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 text-xs font-bold transition shadow-sm"
                             >
                               Verify
                             </button>
                             <button
                               onClick={() => setRejectModal({ open: true, carId: car.id, reason: '' })}
-                              className="inline-flex items-center justify-center rounded-xl bg-rose-500 hover:bg-rose-600 text-white px-3 py-2 text-xs font-bold transition shadow-sm"
+                              className="inline-flex items-center justify-center rounded-full bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 text-xs font-bold transition shadow-sm"
                             >
                               Reject
                             </button>

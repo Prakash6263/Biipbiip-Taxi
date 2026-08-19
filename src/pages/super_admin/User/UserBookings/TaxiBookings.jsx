@@ -98,25 +98,36 @@ const TaxiBookings = () => {
       </div>
 
       {filteredTaxi.length ? (
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
+        <div className="card card-table p-2">
+          <div className="card-body table-responsive">
+            <table className="table table-bordered table-striped mb-0">
+              <thead>
                 <tr>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Customer</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Driver Assignment</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Pickup → Drop</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Booking ID</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Fare</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Status</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-right">Created</th>
+                  <th className="font-bold text-slate-400">Booking ID</th>
+                  <th className="font-bold text-slate-400">Customer Name</th>
+                  <th className="font-bold text-slate-400">Phone</th>
+                  <th className="font-bold text-slate-400">Driver Name</th>
+                  <th className="font-bold text-slate-400">Car Name</th>
+                  <th className="font-bold text-slate-400">Car No</th>
+                  <th className="font-bold text-slate-400">Pickup</th>
+                  <th className="font-bold text-slate-400">Drop Point</th>
+                  <th className="font-bold text-slate-400">Fare</th>
+                  <th className="font-bold text-slate-400 text-center">Status</th>
+                  <th className="font-bold text-slate-400 text-right">Created</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {paginatedTaxi.map((t) => (
                   <tr key={t.id} className="hover:bg-slate-50/40 transition-colors">
-                    {/* CUSTOMER column */}
-                    <td className="px-6 py-5">
+                    {/* Booking ID */}
+                    <td>
+                      <span className="font-mono text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 rounded px-2 py-0.5">
+                        {t.id}
+                      </span>
+                    </td>
+
+                    {/* Customer Name */}
+                    <td className="font-bold text-slate-900 text-sm">
                       <div className="flex items-center gap-3">
                         <div
                           className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm uppercase text-white"
@@ -124,56 +135,33 @@ const TaxiBookings = () => {
                         >
                           {t.customerName.slice(0, 2)}
                         </div>
-                        <div>
-                          <div className="font-bold text-slate-900 text-sm">{t.customerName}</div>
-                          <div className="text-xs text-slate-400 mt-0.5">{t.customerPhone}</div>
-                        </div>
+                        <span>{t.customerName}</span>
                       </div>
                     </td>
 
-                    {/* DRIVER ASSIGNMENT column */}
-                    <td className="px-6 py-5">
-                      <div>
-                        <div className="font-bold text-slate-800 text-sm">{t.driverName || '—'}</div>
-                        {t.carName && t.carName !== '—' && (
-                          <div className="text-xs text-[#00D6CC] font-semibold mt-0.5 flex items-center gap-1">
-                            🚗 {t.carName}
-                          </div>
-                        )}
-                        {t.carNumber && t.carNumber !== '—' && (
-                          <div className="text-[10px] text-slate-400 font-mono mt-0.5">{t.carNumber}</div>
-                        )}
-                      </div>
-                    </td>
+                    {/* Customer Phone */}
+                    <td className="text-slate-600 text-xs">{t.customerPhone}</td>
 
-                    {/* PICKUP -> DROP column */}
-                    <td className="px-6 py-5">
-                      <div className="max-w-[250px]">
-                        <div className="text-xs text-slate-700 font-medium truncate flex items-center gap-1" title={t.pickup}>
-                          <MapPin size={11} className="text-emerald-500 shrink-0" />
-                          {t.pickup}
-                        </div>
-                        <div className="text-xs text-slate-500 truncate flex items-center gap-1 mt-1.5" title={t.drop}>
-                          <MapPin size={11} className="text-rose-500 shrink-0" />
-                          {t.drop}
-                        </div>
-                      </div>
-                    </td>
+                    {/* Driver Name */}
+                    <td className="text-slate-800 font-semibold text-sm">{t.driverName || '—'}</td>
 
-                    {/* BOOKING ID column */}
-                    <td className="px-6 py-5">
-                      <span className="font-mono text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 rounded px-2 py-0.5">
-                        {t.id}
-                      </span>
-                    </td>
+                    {/* Car Name */}
+                    <td className="text-slate-600 text-xs">{t.carName || '—'}</td>
 
-                    {/* FARE column */}
-                    <td className="px-6 py-5">
-                      <div className="font-extrabold text-slate-900 text-base">{currency(t.fare || 0)}</div>
-                    </td>
+                    {/* Car No */}
+                    <td className="text-slate-600 font-mono text-xs">{t.carNumber || '—'}</td>
 
-                    {/* STATUS column */}
-                    <td className="px-6 py-5 text-center">
+                    {/* Pickup */}
+                    <td className="text-xs text-slate-700 max-w-[200px] truncate" title={t.pickup}>{t.pickup}</td>
+
+                    {/* Drop */}
+                    <td className="text-xs text-slate-700 max-w-[200px] truncate" title={t.drop}>{t.drop}</td>
+
+                    {/* Fare */}
+                    <td className="font-extrabold text-slate-900 text-base">{currency(t.fare || 0)}</td>
+
+                    {/* Status */}
+                    <td className="text-center">
                       <span
                         className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
                         style={
@@ -188,9 +176,9 @@ const TaxiBookings = () => {
                       </span>
                     </td>
 
-                    {/* CREATED column */}
-                    <td className="px-6 py-5 text-right">
-                      <div className="text-xs text-slate-500">{formatDate(t.createdAt)}</div>
+                    {/* Created */}
+                    <td className="text-right text-xs text-slate-500">
+                      {formatDate(t.createdAt)}
                     </td>
                   </tr>
                 ))}
