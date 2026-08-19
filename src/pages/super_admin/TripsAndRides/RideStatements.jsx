@@ -366,24 +366,24 @@ const RideStatements = ({ mode = 'overall' }) => {
               // ── Overall Statement Table Headers ──
               <thead>
                 <tr className="border-b border-[#49e3dd]/30 bg-[#002E5B]/5">
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider w-20">Ride ID</th>
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider">Picked Up</th>
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider">Dropped</th>
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider w-40">Date On</th>
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider w-28">Total Amount</th>
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider text-center w-28">Status</th>
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-20">Ride ID</th>
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider">Picked Up</th>
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider">Dropped</th>
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-40">Date On</th>
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-28">Total Amount</th>
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider text-center w-28">Status</th>
                 </tr>
               </thead>
             ) : (
               // ── Grouped Statement Table Headers (Daily, Monthly, Yearly) ──
               <thead>
                 <tr className="border-b border-[#49e3dd]/30 bg-[#002E5B]/5">
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider">Period / Date</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider text-center">Total Trips</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider text-center">Total Distance</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider">Total Fare</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider">Total Tips</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider text-right">Commission Earned</th>
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider">Period / Date</th>
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider text-center">Total Trips</th>
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider text-center">Total Distance</th>
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider">Total Fare</th>
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider">Total Tips</th>
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider text-right">Commission Earned</th>
                 </tr>
               </thead>
             )}
