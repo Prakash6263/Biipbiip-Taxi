@@ -297,6 +297,3 @@ const CompanyCarVerification = ({ onShowDetail }) => {
 };
 
 export default CompanyCarVerification;
-};
-
-export default CompanyCarVerification;
