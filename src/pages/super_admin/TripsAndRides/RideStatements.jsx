@@ -4,20 +4,13 @@ import { getDriverRides } from '../../../data/ridesData';
 import { formatDate, currency } from '../../../utils/storage';
 import {
   Calendar,
-  Car,
   Search,
   ChevronLeft,
   ChevronRight,
-  TrendingUp,
   MapPin,
-  Filter,
   FileText,
   X,
-  XCircle,
-  CheckCircle,
-  IndianRupee,
-  ArrowLeft,
-  ClipboardList
+  ArrowLeft
 } from 'lucide-react';
 
 const RideStatements = ({ mode = 'overall' }) => {
@@ -28,10 +21,6 @@ const RideStatements = ({ mode = 'overall' }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-  
-  // Custom navigation state for detail view when clicking cards
-  const [viewMode, setViewMode] = useState('list'); 
-  const [cardStatusFilter, setCardStatusFilter] = useState('all');
 
   // Retrieve all verified drivers
   const drivers = useMemo(() => {
@@ -97,8 +86,7 @@ const RideStatements = ({ mode = 'overall' }) => {
         return false;
       }
       // Status filter
-      const currentStatusFilter = viewMode === 'detail-list' ? cardStatusFilter : selectedStatus;
-      if (currentStatusFilter !== 'all' && ride.status.toLowerCase() !== currentStatusFilter.toLowerCase()) {
+      if (selectedStatus !== 'all' && ride.status.toLowerCase() !== selectedStatus.toLowerCase()) {
         return false;
       }
       // Search term filter
@@ -115,22 +103,7 @@ const RideStatements = ({ mode = 'overall' }) => {
       }
       return true;
     });
-  }, [timeframeRides, selectedDriver, selectedStatus, cardStatusFilter, viewMode, searchTerm]);
-
-  // Overall KPI Stats based on the timeframe rides
-  const stats = useMemo(() => {
-    const totalRides = timeframeRides.length;
-    const cancelledRides = timeframeRides.filter(r => r.status === 'Cancelled').length;
-    const completedRides = timeframeRides.filter(r => r.status === 'Completed').length;
-    
-    // Sum price of completed rides
-    const totalFare = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.price, 0);
-    const totalTips = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.tip, 0);
-    const totalRevenue = totalFare + totalTips;
-    const totalCommission = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.commission, 0);
-
-    return { totalRides, cancelledRides, completedRides, totalRevenue, totalCommission };
-  }, [timeframeRides]);
+  }, [timeframeRides, selectedDriver, selectedStatus, searchTerm]);
 
   // Pagination for lists
   const totalPages = Math.ceil(filteredRides.length / entriesPerPage) || 1;
@@ -159,13 +132,6 @@ const RideStatements = ({ mode = 'overall' }) => {
     }
   };
 
-  // Handles card "MORE INFO" action
-  const handleCardClick = (statusFilter) => {
-    setCardStatusFilter(statusFilter);
-    setViewMode('detail-list');
-    setCurrentPage(1);
-  };
-
   return (
     <div className="space-y-6 text-left">
       
@@ -176,113 +142,13 @@ const RideStatements = ({ mode = 'overall' }) => {
         <p>Track passenger trip statements, revenues, and platform commission records.</p>
       </div>
 
-      {/* ── Statement History Dark Banner Header (Restored from Reference) ── */}
-      <div className="bg-[#0b132b] text-white px-6 py-4 rounded-xl flex items-center gap-3">
-        <ClipboardList size={20} className="text-[#00D6CC]" />
-        <span className="font-bold text-sm tracking-wider uppercase">
-          {viewMode === 'detail-list' ? 'History Booking' : 'Statement History'}
-        </span>
-      </div>
-
-      {/* ── Four Colored KPI Cards (Restored from Reference) ── */}
-      {viewMode === 'list' && (
-        <div className="row g-4 mt-1">
-          <div className="col-xl-3 col-sm-6 col-12">
-            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#00A7E1' }}>
-              <div className="card-body p-4 pb-12 position-relative">
-                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.totalRides}</h3>
-                <p className="text-xs font-semibold opacity-90">Total No Of Ride</p>
-                <div className="absolute right-4 bottom-14 opacity-20">
-                  <Car size={56} />
-                </div>
-              </div>
-              <button 
-                onClick={() => handleCardClick('all')}
-                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
-              >
-                More Info <ChevronRight size={10} />
-              </button>
-            </div>
-          </div>
-
-          <div className="col-xl-3 col-sm-6 col-12">
-            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#E63946' }}>
-              <div className="card-body p-4 pb-12 position-relative">
-                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.cancelledRides}</h3>
-                <p className="text-xs font-semibold opacity-90">Cancelled Ride</p>
-                <div className="absolute right-4 bottom-14 opacity-20">
-                  <FileText size={56} />
-                </div>
-              </div>
-              <button 
-                onClick={() => handleCardClick('cancelled')}
-                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
-              >
-                More Info <ChevronRight size={10} />
-              </button>
-            </div>
-          </div>
-
-          <div className="col-xl-3 col-sm-6 col-12">
-            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#06D6A0' }}>
-              <div className="card-body p-4 pb-12 position-relative">
-                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.completedRides}</h3>
-                <p className="text-xs font-semibold opacity-90">Completed Ride</p>
-                <div className="absolute right-4 bottom-14 opacity-20">
-                  <FileText size={56} />
-                </div>
-              </div>
-              <button 
-                onClick={() => handleCardClick('completed')}
-                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
-              >
-                More Info <ChevronRight size={10} />
-              </button>
-            </div>
-          </div>
-
-          <div className="col-xl-3 col-sm-6 col-12">
-            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#343a40' }}>
-              <div className="card-body p-4 pb-12 position-relative">
-                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">₹ : {stats.totalRevenue.toLocaleString('en-IN')}</h3>
-                <p className="text-xs font-semibold opacity-90">Revenue From {stats.completedRides} Rides</p>
-                <div className="absolute right-4 bottom-14 opacity-20">
-                  <TrendingUp size={56} />
-                </div>
-              </div>
-              <button 
-                onClick={() => handleCardClick('completed')}
-                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
-              >
-                More Info <ChevronRight size={10} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Heading and Back navigation button ──────────────── */}
-      <div className="pt-4 flex items-center justify-between">
-        <h3 className="text-lg font-bold text-[#031E3C]">History Booking</h3>
-        
-        {viewMode === 'detail-list' && (
-          <button
-            onClick={() => { setViewMode('list'); setCardStatusFilter('all'); }}
-            className="flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
-            style={{ backgroundColor: '#002E5B', borderColor: '#00D6CC' }}
-          >
-            <ArrowLeft size={14} /> Back
-          </button>
-        )}
-      </div>
-
       {/* ── Table Card (Standard clean white page table layout) ── */}
-      <div className="card card-table p-2">
+      <div className="card card-table p-2 mt-4">
         
         {/* Toolbar Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 px-6 py-4">
           <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-            {viewMode === 'detail-list' ? 'Display History Booking' : `Display ${getModeTitle()}`}
+            Display {getModeTitle()} List
           </h3>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -341,7 +207,7 @@ const RideStatements = ({ mode = 'overall' }) => {
           </div>
         </div>
 
-        {/* Card Body and Table wrapper (Using standard table-striped and plain solid rows) */}
+        {/* Card Body and Table wrapper */}
         <div className="card-body table-responsive">
           <table className="table table-bordered table-striped mb-0 text-left">
             <thead>
@@ -381,7 +247,7 @@ const RideStatements = ({ mode = 'overall' }) => {
                         <span className="text-[10px] text-slate-400 block mt-0.5">{timeStr}</span>
                       </td>
                       <td className="font-bold text-slate-900 text-xs">
-                        {ride.price.toFixed(2)}
+                        ₹ {ride.price.toFixed(2)}
                       </td>
                       <td className="text-center">
                         <span
