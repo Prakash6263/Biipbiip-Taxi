@@ -105,9 +105,9 @@ const SuperAdminDashboard = () => {
             </span>
           </div>
         </div>
-        <div className="card-body p-0 bg-white">
+        <div className="card-body p-0">
           <div className="table-responsive">
-            <table className="table table-striped mb-0 bg-white">
+            <table className="table table-striped mb-0" style={{ backgroundColor: 'transparent' }}>
               <thead>
                 <tr>
                   <th className="px-4 py-3 text-slate-400 font-bold text-xs uppercase">#</th>
