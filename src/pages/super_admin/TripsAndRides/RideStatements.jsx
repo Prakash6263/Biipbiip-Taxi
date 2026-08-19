@@ -13,7 +13,10 @@ import {
   Filter,
   FileText,
   X,
-  ClipboardList
+  ClipboardList,
+  CheckCircle,
+  XCircle,
+  IndianRupee
 } from 'lucide-react';
 
 const RideStatements = ({ mode = 'overall' }) => {
@@ -36,8 +39,7 @@ const RideStatements = ({ mode = 'overall' }) => {
     drivers.forEach(driver => {
       const driverRides = getDriverRides(driver.id);
       driverRides.forEach((ride, i) => {
-        // Generate more unique numerical ride IDs matching reference style (e.g. 2327, 2326, etc)
-        const numericId = 2300 + (driver.id.charCodeAt(driver.id.length - 1) * 3) + i;
+        const numericId = 2400 + (driver.id.charCodeAt(driver.id.length - 1) * 3) + i;
         ridesList.push({
           ...ride,
           displayId: String(numericId),
@@ -151,72 +153,140 @@ const RideStatements = ({ mode = 'overall' }) => {
     return { dateStr, timeStr };
   };
 
+  const getModeTitle = () => {
+    switch (mode) {
+      case 'daily':
+        return 'Daily Ride Statement';
+      case 'monthly':
+        return 'Monthly Ride Statement';
+      case 'yearly':
+        return 'Yearly Ride Statement';
+      default:
+        return 'Overall Ride Statement';
+    }
+  };
+
   return (
     <div className="space-y-6 text-left">
       
-      {/* ── Statement History Dark Banner Header ──────────────── */}
-      <div className="bg-[#0b132b] text-white px-6 py-4 rounded-t-xl flex items-center gap-3">
+      {/* ── Statement History Banner Styled to Match Header Theme ──────────────── */}
+      <div 
+        className="text-white px-6 py-4 rounded-2xl flex items-center gap-3 border shadow-sm" 
+        style={{ backgroundColor: '#002E5B', borderColor: '#00D6CC' }}
+      >
         <ClipboardList size={20} className="text-[#00D6CC]" />
         <span className="font-bold text-sm tracking-wider uppercase">Statement History</span>
       </div>
 
-      {/* ── Four Stat Cards ───────────────────────────────── */}
+      {/* ── Four Stat Cards Styled in Site White-to-Teal Gradient ───────────────── */}
       <div className="row g-4 mt-1">
         <div className="col-xl-3 col-sm-6 col-12">
-          <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#00A7E1' }}>
-            <div className="card-body p-4 pb-12 position-relative">
-              <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.totalRides}</h3>
-              <p className="text-xs font-semibold opacity-90">Total No Of Ride</p>
-              <div className="absolute right-4 bottom-14 opacity-20">
-                <Car size={56} />
+          <div 
+            className="card h-100 shadow-sm overflow-hidden" 
+            style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
+          >
+            <div className="card-body p-4 pb-4">
+              <div className="dash-widget-header">
+                <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
+                  <Car size={22} color="#fff" />
+                </span>
+                <div className="dash-count">
+                  <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
+                    Total No Of Ride
+                  </div>
+                  <div className="dash-counts">
+                    <p className="text-slate-950 font-bold mb-0 text-2xl">
+                      {stats.totalRides}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="bg-black/85 text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1">
+            <div className="bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20">
               More Info <ChevronRight size={10} />
             </div>
           </div>
         </div>
 
         <div className="col-xl-3 col-sm-6 col-12">
-          <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#E63946' }}>
-            <div className="card-body p-4 pb-12 position-relative">
-              <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.cancelledRides}</h3>
-              <p className="text-xs font-semibold opacity-90">Cancelled Ride</p>
-              <div className="absolute right-4 bottom-14 opacity-20">
-                <FileText size={56} />
+          <div 
+            className="card h-100 shadow-sm overflow-hidden" 
+            style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
+          >
+            <div className="card-body p-4 pb-4">
+              <div className="dash-widget-header">
+                <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
+                  <XCircle size={22} color="#fff" />
+                </span>
+                <div className="dash-count">
+                  <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
+                    Cancelled Ride
+                  </div>
+                  <div className="dash-counts">
+                    <p className="text-slate-950 font-bold mb-0 text-2xl">
+                      {stats.cancelledRides}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="bg-black/85 text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1">
+            <div className="bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20">
               More Info <ChevronRight size={10} />
             </div>
           </div>
         </div>
 
         <div className="col-xl-3 col-sm-6 col-12">
-          <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#06D6A0' }}>
-            <div className="card-body p-4 pb-12 position-relative">
-              <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.completedRides}</h3>
-              <p className="text-xs font-semibold opacity-90">Completed Ride</p>
-              <div className="absolute right-4 bottom-14 opacity-20">
-                <FileText size={56} />
+          <div 
+            className="card h-100 shadow-sm overflow-hidden" 
+            style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
+          >
+            <div className="card-body p-4 pb-4">
+              <div className="dash-widget-header">
+                <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
+                  <CheckCircle size={22} color="#fff" />
+                </span>
+                <div className="dash-count">
+                  <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
+                    Completed Ride
+                  </div>
+                  <div className="dash-counts">
+                    <p className="text-slate-950 font-bold mb-0 text-2xl">
+                      {stats.completedRides}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="bg-black/85 text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1">
+            <div className="bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20">
               More Info <ChevronRight size={10} />
             </div>
           </div>
         </div>
 
         <div className="col-xl-3 col-sm-6 col-12">
-          <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#343a40' }}>
-            <div className="card-body p-4 pb-12 position-relative">
-              <h3 className="text-4xl font-extrabold mb-1 tracking-tight">₹ : {stats.totalRevenue.toLocaleString('en-IN')}</h3>
-              <p className="text-xs font-semibold opacity-90">Revenue From {stats.completedRides} Rides</p>
-              <div className="absolute right-4 bottom-14 opacity-20">
-                <TrendingUp size={56} />
+          <div 
+            className="card h-100 shadow-sm overflow-hidden" 
+            style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
+          >
+            <div className="card-body p-4 pb-4">
+              <div className="dash-widget-header">
+                <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
+                  <IndianRupee size={22} color="#fff" />
+                </span>
+                <div className="dash-count">
+                  <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
+                    Revenue From {stats.completedRides} Rides
+                  </div>
+                  <div className="dash-counts">
+                    <p className="text-slate-950 font-bold mb-0 text-2xl">
+                      ₹ : {stats.totalRevenue.toLocaleString('en-IN')}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="bg-black/85 text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1">
+            <div className="bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20">
               More Info <ChevronRight size={10} />
             </div>
           </div>
@@ -225,43 +295,46 @@ const RideStatements = ({ mode = 'overall' }) => {
 
       {/* ── Table Area Title ────────────────────────────────── */}
       <div className="pt-4">
-        <h3 className="text-lg font-bold text-slate-800">History Booking</h3>
+        <h3 className="text-lg font-bold text-[#031E3C]">{getModeTitle()}</h3>
       </div>
 
-      {/* ── Search and Filter Controls ──────────────────────── */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* ── Search and Filter Controls Styled in Site Theme ── */}
+      <div 
+        className="card rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4"
+        style={{ backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
+      >
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-500">Search:</span>
+          <span className="text-xs font-semibold text-slate-700">Search:</span>
           <div className="relative">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-              className="border border-slate-200 px-3 py-1.5 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#00D6CC] transition w-56"
+              className="border border-slate-300 bg-white px-3 py-1.5 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#00D6CC]/20 focus:border-[#00D6CC] transition w-56 text-slate-800 font-medium"
             />
           </div>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500">Show</span>
+            <span className="text-xs font-semibold text-slate-700">Show</span>
             <select
               value={entriesPerPage}
               onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setCurrentPage(1); }}
-              className="border border-slate-200 px-2 py-1 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#00D6CC]"
+              className="border border-slate-300 bg-white px-2 py-1 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#00D6CC]/20 text-slate-800 font-semibold"
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
               <option value={50}>50</option>
             </select>
-            <span className="text-xs font-semibold text-slate-500">entries</span>
+            <span className="text-xs font-semibold text-slate-700">entries</span>
           </div>
 
           <div className="flex items-center gap-2">
             <select
               value={selectedDriver}
               onChange={(e) => { setSelectedDriver(e.target.value); setCurrentPage(1); }}
-              className="border border-slate-200 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 focus:outline-none"
+              className="border border-slate-300 bg-white px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 focus:outline-none"
             >
               <option value="all">All Drivers</option>
               {[...new Set(allRides.map(r => r.driverName))].map(name => (
@@ -272,7 +345,7 @@ const RideStatements = ({ mode = 'overall' }) => {
             <select
               value={selectedStatus}
               onChange={(e) => { setSelectedStatus(e.target.value); setCurrentPage(1); }}
-              className="border border-slate-200 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 focus:outline-none"
+              className="border border-slate-300 bg-white px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 focus:outline-none"
             >
               <option value="all">All Statuses</option>
               <option value="completed">Completed</option>
@@ -282,32 +355,35 @@ const RideStatements = ({ mode = 'overall' }) => {
         </div>
       </div>
 
-      {/* ── Table Card ───────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      {/* ── Table Card Styled in Site Theme with Gradient Backdrop ── */}
+      <div 
+        className="card rounded-2xl shadow-sm overflow-hidden"
+        style={{ backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
+      >
         <div className="table-responsive">
-          <table className="table table-striped mb-0 align-middle">
+          <table className="table table-striped mb-0 align-middle" style={{ backgroundColor: 'transparent' }}>
             {mode === 'overall' ? (
               // ── Overall Statement Table Headers ──
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-20">Ride ID</th>
-                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Picked Up</th>
-                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Dropped</th>
-                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-40">Date On</th>
-                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-28">Total Amount</th>
-                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-28">Status</th>
+                <tr className="border-b border-[#49e3dd]/30 bg-[#002E5B]/5">
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider w-20">Ride ID</th>
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider">Picked Up</th>
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider">Dropped</th>
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider w-40">Date On</th>
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider w-28">Total Amount</th>
+                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] uppercase tracking-wider text-center w-28">Status</th>
                 </tr>
               </thead>
             ) : (
               // ── Grouped Statement Table Headers (Daily, Monthly, Yearly) ──
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Period / Date</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Total Trips</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Total Distance</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Total Fare</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Total Tips</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Commission Earned</th>
+                <tr className="border-b border-[#49e3dd]/30 bg-[#002E5B]/5">
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider">Period / Date</th>
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider text-center">Total Trips</th>
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider text-center">Total Distance</th>
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider">Total Fare</th>
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider">Total Tips</th>
+                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] uppercase tracking-wider text-right">Commission Earned</th>
                 </tr>
               </thead>
             )}
@@ -315,7 +391,7 @@ const RideStatements = ({ mode = 'overall' }) => {
             <tbody>
               {paginatedData.length === 0 ? (
                 <tr>
-                  <td colSpan={mode === 'overall' ? 6 : 6} className="px-6 py-12 text-center text-slate-400 font-semibold">
+                  <td colSpan={mode === 'overall' ? 6 : 6} className="px-6 py-12 text-center text-slate-500 font-bold">
                     No matching trip statements found. Try adjusting your filters.
                   </td>
                 </tr>
@@ -324,21 +400,21 @@ const RideStatements = ({ mode = 'overall' }) => {
                 paginatedData.map((ride) => {
                   const { dateStr, timeStr } = formatRideDate(ride.date);
                   return (
-                    <tr key={ride.id} className="border-b border-slate-100 hover:bg-slate-50 transition">
-                      <td className="px-4 py-3 font-semibold text-slate-900 text-xs">
+                    <tr key={ride.id} className="border-b border-[#49e3dd]/20 hover:bg-[#00D6CC]/5 transition">
+                      <td className="px-4 py-3 font-bold text-[#031E3C] text-xs">
                         {ride.displayId}
                       </td>
-                      <td className="px-4 py-3 text-slate-700 text-xs leading-relaxed max-w-[280px]">
+                      <td className="px-4 py-3 text-[#031E3C] font-semibold text-xs leading-relaxed max-w-[280px]">
                         {ride.pickup}
                       </td>
-                      <td className="px-4 py-3 text-slate-700 text-xs leading-relaxed max-w-[280px]">
+                      <td className="px-4 py-3 text-[#031E3C] font-semibold text-xs leading-relaxed max-w-[280px]">
                         {ride.drop}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-slate-800 text-xs block font-medium">{dateStr}</span>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">{timeStr}</span>
+                        <span className="text-[#031E3C] text-xs block font-bold">{dateStr}</span>
+                        <span className="text-[10px] text-slate-500 block mt-0.5 font-bold">{timeStr}</span>
                       </td>
-                      <td className="px-4 py-3 font-bold text-slate-900 text-xs">
+                      <td className="px-4 py-3 font-extrabold text-[#031E3C] text-xs">
                         {ride.price.toFixed(2)}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -351,7 +427,7 @@ const RideStatements = ({ mode = 'overall' }) => {
                         </span>
                         <button
                           onClick={() => setSelectedInvoice(ride)}
-                          className="block mx-auto mt-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800 underline focus:outline-none"
+                          className="block mx-auto mt-1 text-[11px] font-bold text-[#002E5B] hover:text-[#00D6CC] underline focus:outline-none"
                         >
                           View Invoice
                         </button>
@@ -362,21 +438,21 @@ const RideStatements = ({ mode = 'overall' }) => {
               ) : (
                 // ── Grouped Statement Table Body (Daily, Monthly, Yearly) ──
                 paginatedData.map((group, idx) => (
-                  <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50 transition">
+                  <tr key={idx} className="border-b border-[#49e3dd]/20 hover:bg-[#00D6CC]/5 transition">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <Calendar size={16} className="text-slate-400" />
-                        <span className="font-bold text-slate-900 text-sm">{group.label}</span>
+                        <Calendar size={16} className="text-[#031E3C]" />
+                        <span className="font-extrabold text-[#031E3C] text-sm">{group.label}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="font-semibold text-slate-800 text-sm">{group.rideCount} rides</span>
+                      <span className="font-bold text-[#031E3C] text-sm">{group.rideCount} rides</span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="font-semibold text-slate-600 text-sm">{group.totalKm} km</span>
+                      <span className="font-bold text-slate-600 text-sm">{group.totalKm} km</span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-bold text-slate-900 text-sm">{currency(group.totalFare)}</span>
+                      <span className="font-extrabold text-[#031E3C] text-sm">{currency(group.totalFare)}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="font-semibold text-slate-600 text-sm">{currency(group.totalTips)}</span>
@@ -391,24 +467,24 @@ const RideStatements = ({ mode = 'overall' }) => {
           </table>
         </div>
 
-        {/* ── Pagination controls ────────────────────────────── */}
+        {/* ── Pagination controls ── */}
         {totalPages > 1 && (
-          <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50">
-            <span className="text-xs text-slate-500 font-semibold">
-              Showing page <span className="text-slate-800 font-bold">{currentPage}</span> of <span className="text-slate-800 font-bold">{totalPages}</span>
+          <div className="px-6 py-4 border-t border-[#49e3dd]/20 flex items-center justify-between bg-[#002E5B]/5">
+            <span className="text-xs text-slate-700 font-bold">
+              Showing page <span className="text-[#031E3C] font-extrabold">{currentPage}</span> of <span className="text-[#031E3C] font-extrabold">{totalPages}</span>
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
-                className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
+                className="p-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
               >
                 <ChevronLeft size={16} />
               </button>
               <button
                 onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
+                className="p-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
               >
                 <ChevronRight size={16} />
               </button>
@@ -422,7 +498,7 @@ const RideStatements = ({ mode = 'overall' }) => {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in-50">
           <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-100 animate-in zoom-in-95">
             {/* Modal Header */}
-            <div className="bg-[#0b132b] text-white px-6 py-4 flex items-center justify-between">
+            <div className="text-white px-6 py-4 flex items-center justify-between" style={{ backgroundColor: '#002E5B' }}>
               <div className="flex items-center gap-2">
                 <FileText size={18} className="text-[#00D6CC]" />
                 <span className="font-bold text-sm tracking-wider uppercase">Trip Invoice #{selectedInvoice.displayId}</span>
@@ -436,7 +512,7 @@ const RideStatements = ({ mode = 'overall' }) => {
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-6 text-left">
               {/* Top Details Grid */}
               <div className="grid grid-cols-2 gap-4 border-b border-slate-100 pb-4">
                 <div>
@@ -515,7 +591,8 @@ const RideStatements = ({ mode = 'overall' }) => {
             <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-end">
               <button
                 onClick={() => setSelectedInvoice(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                className="px-4 py-2 hover:opacity-90 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                style={{ backgroundColor: '#002E5B' }}
               >
                 Close Receipt
               </button>
