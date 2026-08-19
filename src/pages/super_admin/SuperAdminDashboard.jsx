@@ -94,10 +94,10 @@ const SuperAdminDashboard = () => {
       </div>
 
       {/* ── Recent Company Registrations Table ─────────────── */}
-      <div className="card border border-slate-200 bg-white overflow-hidden rounded-3xl shadow-sm">
-        <div className="px-6 py-4 flex items-center justify-between" style={{ backgroundColor: '#00D6CC' }}>
+      <div className="card card-purple overflow-hidden rounded-3xl border border-[#49e3dd]/40">
+        <div className="card-header bg-transparent border-0 px-6 py-4 flex items-center justify-between">
           <div className="d-flex justify-content-between align-items-center w-100">
-            <h5 className="card-title text-white mb-0" style={{ fontSize: '1rem', fontWeight: 600 }}>
+            <h5 className="card-title mb-0 font-bold" style={{ color: '#031E3C', fontSize: '1.05rem' }}>
               Recent Company Registrations
             </h5>
             <span className="badge bg-warning text-dark font-bold uppercase tracking-wider text-[10px] px-2.5 py-1.5 rounded-pill">
@@ -105,9 +105,9 @@ const SuperAdminDashboard = () => {
             </span>
           </div>
         </div>
-        <div className="card-body p-0">
+        <div className="card-body p-0 bg-white">
           <div className="table-responsive">
-            <table className="table table-striped mb-0">
+            <table className="table table-striped mb-0 bg-white">
               <thead>
                 <tr>
                   <th className="px-4 py-3 text-slate-400 font-bold text-xs uppercase">#</th>
