@@ -60,17 +60,6 @@ const navConfig = {
       ],
     },
     {
-      key: 'make-models-group',
-      label: 'Make And Models',
-      icon: Wrench,
-      submenu: [
-        { key: 'makers-list',    label: 'Makers List'    },
-        { key: 'add-new-maker', label: 'Add New Maker'  },
-        { key: 'model-list',    label: 'Model List'     },
-        { key: 'add-new-model', label: 'Add New Model'  },
-      ],
-    },
-    {
       key: 'review-group',
       label: 'Review',
       icon: Star,
