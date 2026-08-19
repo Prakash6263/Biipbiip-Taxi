@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { 
   Building2, Car, ClipboardList, Home, LogOut, Menu, ShieldCheck, 
   X, ChevronDown, ChevronUp, Users, User, Bell, Ticket, 
@@ -210,10 +210,9 @@ const Layout = ({ activePage, setActivePage, children }) => {
   const role = currentUser?.role || 'public';
 
   // Synchronize layout mode attribute on the root HTML tag
-  useState(() => {
-    const saved = sessionStorage.getItem('data-layout-mode') || 'light';
-    document.documentElement.setAttribute('data-layout-mode', saved);
-  });
+  useEffect(() => {
+    document.documentElement.setAttribute('data-layout-mode', themeMode);
+  }, [themeMode]);
 
   const toggleTheme = () => {
     const nextMode = themeMode === 'dark' ? 'light' : 'dark';
@@ -223,6 +222,7 @@ const Layout = ({ activePage, setActivePage, children }) => {
   };
 
   const items = useMemo(() => navConfig[role] || navConfig.public, [role]);
+  const showSidebar = !!currentUser;
   const isDark = themeMode === 'dark';
 
   if (!currentUser) {
