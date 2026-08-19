@@ -110,6 +110,13 @@ h1, h2, h3, h4, h5, h6 {
   text-transform: uppercase;
 }
 
+.card-header-dashboard {
+  background: #002E5B !important;
+  border-bottom: none;
+  color: #ffffff;
+  padding: 0.875rem 1.5rem;
+}
+
 .card-body {
   padding: 1.5rem;
 }
