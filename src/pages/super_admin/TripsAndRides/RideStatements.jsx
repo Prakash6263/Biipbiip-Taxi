@@ -13,9 +13,8 @@ import {
   Filter,
   FileText,
   X,
-  ClipboardList,
-  CheckCircle,
   XCircle,
+  CheckCircle,
   IndianRupee,
   ArrowLeft
 } from 'lucide-react';
@@ -29,8 +28,8 @@ const RideStatements = ({ mode = 'overall' }) => {
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   
-  // Custom navigation state for detail view when clicking cards
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'detail-list'
+  // Custom navigation state for detail view when clicking cards (if still needed or used for back navigation)
+  const [viewMode, setViewMode] = useState('list'); 
   const [cardStatusFilter, setCardStatusFilter] = useState('all');
 
   // Retrieve all verified drivers
@@ -60,7 +59,6 @@ const RideStatements = ({ mode = 'overall' }) => {
   }, [drivers]);
 
   // Timeframe filtered rides based on the mode (Overall, Daily, Monthly, Yearly)
-  // Let's use Aug 19, 2026 as the mock "today's reference" since local time is set to Aug 19, 2026.
   const timeframeRides = useMemo(() => {
     const todayRef = new Date('2026-08-19');
     
@@ -97,7 +95,7 @@ const RideStatements = ({ mode = 'overall' }) => {
       if (selectedDriver !== 'all' && ride.driverName !== selectedDriver) {
         return false;
       }
-      // Status filter (from dropdown or card click)
+      // Status filter
       const currentStatusFilter = viewMode === 'detail-list' ? cardStatusFilter : selectedStatus;
       if (currentStatusFilter !== 'all' && ride.status.toLowerCase() !== currentStatusFilter.toLowerCase()) {
         return false;
@@ -118,22 +116,7 @@ const RideStatements = ({ mode = 'overall' }) => {
     });
   }, [timeframeRides, selectedDriver, selectedStatus, cardStatusFilter, viewMode, searchTerm]);
 
-  // Overall KPI Stats based on the timeframe rides
-  const stats = useMemo(() => {
-    const totalRides = timeframeRides.length;
-    const cancelledRides = timeframeRides.filter(r => r.status === 'Cancelled').length;
-    const completedRides = timeframeRides.filter(r => r.status === 'Completed').length;
-    
-    // Sum price of completed rides
-    const totalFare = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.price, 0);
-    const totalTips = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.tip, 0);
-    const totalRevenue = totalFare + totalTips;
-    const totalCommission = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.commission, 0);
-
-    return { totalRides, cancelledRides, completedRides, totalRevenue, totalCommission };
-  }, [timeframeRides]);
-
-  // Pagination for lists (All pages now use timeframeRides list layout)
+  // Pagination for lists
   const totalPages = Math.ceil(filteredRides.length / entriesPerPage) || 1;
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * entriesPerPage;
@@ -160,253 +143,107 @@ const RideStatements = ({ mode = 'overall' }) => {
     }
   };
 
-  // Handles card "MORE INFO" action
-  const handleCardClick = (statusFilter) => {
-    setCardStatusFilter(statusFilter);
-    setViewMode('detail-list');
-    setCurrentPage(1);
-  };
-
   return (
     <div className="space-y-6 text-left">
       
-      {/* ── Statement History Banner Styled to Match Header Theme ──────────────── */}
-      <div 
-        className="text-white px-6 py-4 rounded-2xl flex items-center gap-3 border shadow-sm" 
-        style={{ backgroundColor: '#002E5B', borderColor: '#00D6CC' }}
-      >
-        <ClipboardList size={20} className="text-[#00D6CC]" />
-        <span className="font-bold text-sm tracking-wider uppercase">
-          {viewMode === 'detail-list' ? 'History Booking' : 'Statement History'}
-        </span>
+      {/* ── Page Header (Matching exact format of other table pages) ────────── */}
+      <div className="page-header">
+        <p className="breadcrumb-label">TRIPS / RIDES</p>
+        <h2>{getModeTitle()}</h2>
+        <p>View and track passenger trip statements, fares, tips, and platform commission records.</p>
       </div>
 
-      {/* ── Show Stat Cards only on main overview page view ── */}
-      {viewMode === 'list' && (
-        <div className="row g-4 mt-1">
-          <div className="col-xl-3 col-sm-6 col-12">
-            <div 
-              className="card h-100 shadow-sm overflow-hidden" 
-              style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
-            >
-              <div className="card-body p-4 pb-4">
-                <div className="dash-widget-header">
-                  <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
-                    <Car size={22} color="#fff" />
-                  </span>
-                  <div className="dash-count">
-                    <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
-                      Total No Of Ride
-                    </div>
-                    <div className="dash-counts">
-                      <p className="text-slate-950 font-bold mb-0 text-2xl">
-                        {stats.totalRides}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <button 
-                onClick={() => handleCardClick('all')}
-                className="w-full border-0 bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20"
-              >
-                More Info <ChevronRight size={10} />
-              </button>
-            </div>
-          </div>
-
-          <div className="col-xl-3 col-sm-6 col-12">
-            <div 
-              className="card h-100 shadow-sm overflow-hidden" 
-              style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
-            >
-              <div className="card-body p-4 pb-4">
-                <div className="dash-widget-header">
-                  <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
-                    <XCircle size={22} color="#fff" />
-                  </span>
-                  <div className="dash-count">
-                    <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
-                      Cancelled Ride
-                    </div>
-                    <div className="dash-counts">
-                      <p className="text-slate-950 font-bold mb-0 text-2xl">
-                        {stats.cancelledRides}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <button 
-                onClick={() => handleCardClick('cancelled')}
-                className="w-full border-0 bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20"
-              >
-                More Info <ChevronRight size={10} />
-              </button>
-            </div>
-          </div>
-
-          <div className="col-xl-3 col-sm-6 col-12">
-            <div 
-              className="card h-100 shadow-sm overflow-hidden" 
-              style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
-            >
-              <div className="card-body p-4 pb-4">
-                <div className="dash-widget-header">
-                  <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
-                    <CheckCircle size={22} color="#fff" />
-                  </span>
-                  <div className="dash-count">
-                    <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
-                      Completed Ride
-                    </div>
-                    <div className="dash-counts">
-                      <p className="text-slate-950 font-bold mb-0 text-2xl">
-                        {stats.completedRides}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <button 
-                onClick={() => handleCardClick('completed')}
-                className="w-full border-0 bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20"
-              >
-                More Info <ChevronRight size={10} />
-              </button>
-            </div>
-          </div>
-
-          <div className="col-xl-3 col-sm-6 col-12">
-            <div 
-              className="card h-100 shadow-sm overflow-hidden" 
-              style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
-            >
-              <div className="card-body p-4 pb-4">
-                <div className="dash-widget-header">
-                  <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
-                    <IndianRupee size={22} color="#fff" />
-                  </span>
-                  <div className="dash-count">
-                    <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
-                      Revenue From {stats.completedRides} Rides
-                    </div>
-                    <div className="dash-counts">
-                      <p className="text-slate-950 font-bold mb-0 text-2xl">
-                        ₹ : {stats.totalRevenue.toLocaleString('en-IN')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <button 
-                onClick={() => handleCardClick('completed')}
-                className="w-full border-0 bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20"
-              >
-                More Info <ChevronRight size={10} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Heading and Back navigation button ──────────────── */}
-      <div className="pt-2 flex items-center justify-between">
-        <h3 className="text-lg font-bold text-[#031E3C]">
-          {viewMode === 'detail-list' ? 'History Booking' : getModeTitle()}
-        </h3>
+      {/* ── Table Card (Matching the standard card-table p-2 wrapper layout) ── */}
+      <div className="card card-table p-2">
         
-        {viewMode === 'detail-list' && (
-          <button
-            onClick={() => { setViewMode('list'); setCardStatusFilter('all'); }}
-            className="flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
-            style={{ backgroundColor: '#002E5B', borderColor: '#00D6CC' }}
-          >
-            <ArrowLeft size={14} /> Back
-          </button>
-        )}
-      </div>
+        {/* Toolbar Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 px-6 py-4">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+              {viewMode === 'detail-list' ? 'History Booking' : `Display ${getModeTitle()}`}
+            </h3>
+            {viewMode === 'detail-list' && (
+              <button
+                onClick={() => { setViewMode('list'); setCardStatusFilter('all'); }}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200 text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 transition"
+              >
+                <ArrowLeft size={12} /> Back
+              </button>
+            )}
+          </div>
 
-      {/* ── Search and Filter Controls Styled in Site Theme ── */}
-      <div 
-        className="card rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4"
-        style={{ backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
-      >
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-700">Search:</span>
-          <div className="relative">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-              className="border border-slate-300 bg-white px-3 py-1.5 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#00D6CC]/20 focus:border-[#00D6CC] transition w-56 text-slate-800 font-medium"
-            />
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Search Input Box */}
+            <div className="relative w-56">
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                className="w-full rounded-2xl border border-slate-200 bg-white py-1.5 pl-9 pr-4 text-xs outline-none transition focus:border-[#00D6CC]"
+              />
+            </div>
+
+            {/* Entries Size Dropdown */}
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
+              <span>Show</span>
+              <select
+                value={entriesPerPage}
+                onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setCurrentPage(1); }}
+                className="border border-slate-200 px-2 py-1 rounded-lg focus:outline-none"
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+              </select>
+              <span>entries</span>
+            </div>
+
+            {/* Filters */}
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedDriver}
+                onChange={(e) => { setSelectedDriver(e.target.value); setCurrentPage(1); }}
+                className="border border-slate-200 px-2 py-1 rounded-lg text-xs font-bold text-slate-600 focus:outline-none bg-white"
+              >
+                <option value="all">All Drivers</option>
+                {[...new Set(timeframeRides.map(r => r.driverName))].map(name => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+              </select>
+
+              <select
+                value={selectedStatus}
+                onChange={(e) => { setSelectedStatus(e.target.value); setCurrentPage(1); }}
+                className="border border-slate-200 px-2 py-1 rounded-lg text-xs font-bold text-slate-600 focus:outline-none bg-white"
+              >
+                <option value="all">All Statuses</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-700">Show</span>
-            <select
-              value={entriesPerPage}
-              onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setCurrentPage(1); }}
-              className="border border-slate-300 bg-white px-2 py-1 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#00D6CC]/20 text-slate-800 font-semibold"
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
-            <span className="text-xs font-semibold text-slate-700">entries</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <select
-              value={selectedDriver}
-              onChange={(e) => { setSelectedDriver(e.target.value); setCurrentPage(1); }}
-              className="border border-slate-300 bg-white px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 focus:outline-none"
-            >
-              <option value="all">All Drivers</option>
-              {[...new Set(timeframeRides.map(r => r.driverName))].map(name => (
-                <option key={name} value={name}>{name}</option>
-              ))}
-            </select>
-
-            <select
-              value={selectedStatus}
-              onChange={(e) => { setSelectedStatus(e.target.value); setCurrentPage(1); }}
-              className="border border-slate-300 bg-white px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 focus:outline-none"
-            >
-              <option value="all">All Statuses</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Table Card Styled in Site Theme with Gradient Backdrop ── */}
-      <div 
-        className="card rounded-2xl shadow-sm overflow-hidden"
-        style={{ backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
-      >
-        <div className="table-responsive">
-          <table className="table table-striped mb-0 align-middle" style={{ backgroundColor: 'transparent' }}>
-            {/* All modes now show the exact individual bookings list in the reference format */}
+        {/* Card Body and Table wrapper */}
+        <div className="card-body table-responsive">
+          <table className="table table-bordered table-striped mb-0 text-left">
             <thead>
-              <tr className="border-b border-[#49e3dd]/30 bg-[#002E5B]/5">
-                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-20">Ride ID</th>
-                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider">Picked Up</th>
-                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider">Dropped</th>
-                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-40">Date On</th>
-                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-28">Total Amount</th>
-                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider text-center w-28">Status</th>
+              <tr>
+                <th className="font-bold text-slate-400 w-20">Ride ID</th>
+                <th className="font-bold text-slate-400">Picked Up</th>
+                <th className="font-bold text-slate-400">Dropped</th>
+                <th className="font-bold text-slate-400 w-40">Date On</th>
+                <th className="font-bold text-slate-400 w-28">Total Amount</th>
+                <th className="font-bold text-slate-400 text-center w-28">Status</th>
               </tr>
             </thead>
 
             <tbody>
               {paginatedData.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500 font-bold">
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400 font-semibold">
                     No matching trip statements found. Try adjusting your filters.
                   </td>
                 </tr>
@@ -414,26 +251,26 @@ const RideStatements = ({ mode = 'overall' }) => {
                 paginatedData.map((ride) => {
                   const { dateStr, timeStr } = formatRideDate(ride.date);
                   return (
-                    <tr key={ride.id} className="border-b border-[#49e3dd]/20 hover:bg-[#00D6CC]/5 transition">
-                      <td className="px-4 py-3 font-bold text-[#031E3C] text-xs">
+                    <tr key={ride.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="font-semibold text-slate-500 text-xs">
                         {ride.displayId}
                       </td>
-                      <td className="px-4 py-3 text-[#031E3C] font-semibold text-xs leading-relaxed max-w-[280px]">
+                      <td className="text-slate-700 text-xs leading-relaxed max-w-[280px]">
                         {ride.pickup}
                       </td>
-                      <td className="px-4 py-3 text-[#031E3C] font-semibold text-xs leading-relaxed max-w-[280px]">
+                      <td className="text-slate-700 text-xs leading-relaxed max-w-[280px]">
                         {ride.drop}
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="text-[#031E3C] text-xs block font-bold">{dateStr}</span>
-                        <span className="text-[10px] text-slate-500 block mt-0.5 font-bold">{timeStr}</span>
+                      <td className="text-slate-600 text-xs">
+                        <span className="font-medium block">{dateStr}</span>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">{timeStr}</span>
                       </td>
-                      <td className="px-4 py-3 font-extrabold text-[#031E3C] text-xs">
-                        {ride.price.toFixed(2)}
+                      <td className="font-bold text-slate-900 text-xs">
+                        ₹ {ride.price.toFixed(2)}
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="text-center">
                         <span
-                          className={`inline-flex rounded px-2.5 py-1 text-[10px] font-bold text-white uppercase ${
+                          className={`inline-flex rounded px-2 py-0.5 text-[10px] font-bold text-white uppercase ${
                             ride.status === 'Completed' ? 'bg-[#00B5AD]' : 'bg-[#E63946]'
                           }`}
                         >
@@ -441,7 +278,7 @@ const RideStatements = ({ mode = 'overall' }) => {
                         </span>
                         <button
                           onClick={() => setSelectedInvoice(ride)}
-                          className="block mx-auto mt-1 text-[11px] font-bold text-[#002E5B] hover:text-[#00D6CC] underline focus:outline-none"
+                          className="block mx-auto mt-1 text-[11px] font-semibold text-slate-400 hover:text-slate-700 underline focus:outline-none"
                         >
                           View Invoice
                         </button>
@@ -454,26 +291,26 @@ const RideStatements = ({ mode = 'overall' }) => {
           </table>
         </div>
 
-        {/* ── Pagination controls ── */}
+        {/* Pagination Section */}
         {totalPages > 1 && (
-          <div className="px-6 py-4 border-t border-[#49e3dd]/20 flex items-center justify-between bg-[#002E5B]/5">
-            <span className="text-xs text-slate-700 font-bold">
-              Showing page <span className="text-[#031E3C] font-extrabold">{currentPage}</span> of <span className="text-[#031E3C] font-extrabold">{totalPages}</span>
+          <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 bg-slate-50/30">
+            <span className="text-xs text-slate-400 font-semibold">
+              Showing page <span className="text-slate-800 font-bold">{currentPage}</span> of <span className="text-slate-800 font-bold">{totalPages}</span>
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
-                className="p-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
+                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={14} />
               </button>
               <button
                 onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
+                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={14} />
               </button>
             </div>
           </div>
