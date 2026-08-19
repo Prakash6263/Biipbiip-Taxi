@@ -91,9 +91,9 @@ const RideStatements = ({ mode = 'overall' }) => {
       let key = '';
 
       if (mode === 'daily') {
-        key = rideDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        key = rideDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
       } else if (mode === 'monthly') {
-        key = rideDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+        key = rideDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
       } else if (mode === 'yearly') {
         key = rideDate.getFullYear().toString();
       }
