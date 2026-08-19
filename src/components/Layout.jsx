@@ -128,7 +128,8 @@ const SidebarContent = ({ items, activePage, setActivePage, themeMode, closeMobi
                 (sub.key === 'company-car-verification' && activePage === 'company-car-detail')
             );
             const isOpen = expanded[item.key] ?? hasActiveSub;
-            const groupActive = isOpen && hasActiveSub;
+            // Parent group never gets the teal highlight — only children do
+            const groupActive = false;
 
             return (
               <div key={item.key} style={{ padding: '0 10px' }}>
@@ -141,10 +142,10 @@ const SidebarContent = ({ items, activePage, setActivePage, themeMode, closeMobi
                     borderRadius: '10px',
                     padding: '11px 14px',
                     color: '#ffffff',
-                    backgroundColor: groupActive ? '#00D6CC' : 'transparent',
+                    backgroundColor: 'transparent',
                   }}
-                  onMouseEnter={e => { if (!groupActive) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; }}
-                  onMouseLeave={e => { if (!groupActive) e.currentTarget.style.backgroundColor = 'transparent'; }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <Icon size={18} color="#ffffff" />
