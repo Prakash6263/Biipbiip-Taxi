@@ -184,21 +184,34 @@ const RideStatements = ({ mode = 'overall' }) => {
         </div>
       )}
 
-      {/* ── Four Colored KPI Cards (Shown ONLY on main overview page view) ── */}
+      {/* ── Four Colored KPI Cards Styled in Site White-to-Teal Gradient (Shown ONLY on main overview page view) ── */}
       {viewMode === 'list' && (
         <div className="row g-4 mt-1">
           <div className="col-xl-3 col-sm-6 col-12">
-            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#00A7E1' }}>
-              <div className="card-body p-4 pb-12 position-relative">
-                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.totalRides}</h3>
-                <p className="text-xs font-semibold opacity-90">Total No Of Ride</p>
-                <div className="absolute right-4 bottom-14 opacity-20">
-                  <Car size={56} />
+            <div 
+              className="card h-100 shadow-sm overflow-hidden" 
+              style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
+            >
+              <div className="card-body p-4 pb-4">
+                <div className="dash-widget-header">
+                  <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
+                    <Car size={22} color="#fff" />
+                  </span>
+                  <div className="dash-count">
+                    <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
+                      Total No Of Ride
+                    </div>
+                    <div className="dash-counts">
+                      <p className="text-slate-950 font-bold mb-0 text-2xl">
+                        {stats.totalRides}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
               <button 
                 onClick={() => handleCardClick('all')}
-                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
+                className="w-full border-0 bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20"
               >
                 More Info <ChevronRight size={10} />
               </button>
@@ -206,17 +219,30 @@ const RideStatements = ({ mode = 'overall' }) => {
           </div>
 
           <div className="col-xl-3 col-sm-6 col-12">
-            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#E63946' }}>
-              <div className="card-body p-4 pb-12 position-relative">
-                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.cancelledRides}</h3>
-                <p className="text-xs font-semibold opacity-90">Cancelled Ride</p>
-                <div className="absolute right-4 bottom-14 opacity-20">
-                  <FileText size={56} />
+            <div 
+              className="card h-100 shadow-sm overflow-hidden" 
+              style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
+            >
+              <div className="card-body p-4 pb-4">
+                <div className="dash-widget-header">
+                  <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
+                    <XCircle size={22} color="#fff" />
+                  </span>
+                  <div className="dash-count">
+                    <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
+                      Cancelled Ride
+                    </div>
+                    <div className="dash-counts">
+                      <p className="text-slate-950 font-bold mb-0 text-2xl">
+                        {stats.cancelledRides}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
               <button 
                 onClick={() => handleCardClick('cancelled')}
-                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
+                className="w-full border-0 bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20"
               >
                 More Info <ChevronRight size={10} />
               </button>
@@ -224,17 +250,30 @@ const RideStatements = ({ mode = 'overall' }) => {
           </div>
 
           <div className="col-xl-3 col-sm-6 col-12">
-            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#06D6A0' }}>
-              <div className="card-body p-4 pb-12 position-relative">
-                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.completedRides}</h3>
-                <p className="text-xs font-semibold opacity-90">Completed Ride</p>
-                <div className="absolute right-4 bottom-14 opacity-20">
-                  <FileText size={56} />
+            <div 
+              className="card h-100 shadow-sm overflow-hidden" 
+              style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
+            >
+              <div className="card-body p-4 pb-4">
+                <div className="dash-widget-header">
+                  <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
+                    <CheckCircle size={22} color="#fff" />
+                  </span>
+                  <div className="dash-count">
+                    <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
+                      Completed Ride
+                    </div>
+                    <div className="dash-counts">
+                      <p className="text-slate-950 font-bold mb-0 text-2xl">
+                        {stats.completedRides}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
               <button 
                 onClick={() => handleCardClick('completed')}
-                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
+                className="w-full border-0 bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20"
               >
                 More Info <ChevronRight size={10} />
               </button>
@@ -242,17 +281,30 @@ const RideStatements = ({ mode = 'overall' }) => {
           </div>
 
           <div className="col-xl-3 col-sm-6 col-12">
-            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#343a40' }}>
-              <div className="card-body p-4 pb-12 position-relative">
-                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">₹ : {stats.totalRevenue.toLocaleString('en-IN')}</h3>
-                <p className="text-xs font-semibold opacity-90">Revenue From {stats.completedRides} Rides</p>
-                <div className="absolute right-4 bottom-14 opacity-20">
-                  <TrendingUp size={56} />
+            <div 
+              className="card h-100 shadow-sm overflow-hidden" 
+              style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}
+            >
+              <div className="card-body p-4 pb-4">
+                <div className="dash-widget-header">
+                  <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
+                    <IndianRupee size={22} color="#fff" />
+                  </span>
+                  <div className="dash-count">
+                    <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
+                      Revenue From {stats.completedRides} Rides
+                    </div>
+                    <div className="dash-counts">
+                      <p className="text-slate-950 font-bold mb-0 text-2xl">
+                        ₹ : {stats.totalRevenue.toLocaleString('en-IN')}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
               <button 
                 onClick={() => handleCardClick('completed')}
-                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
+                className="w-full border-0 bg-[#002E5B] text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:opacity-90 transition flex items-center justify-center gap-1 border-t border-[#00D6CC]/20"
               >
                 More Info <ChevronRight size={10} />
               </button>
