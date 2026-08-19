@@ -27,7 +27,7 @@ const StatCard = ({
   const cardColorClass = CLASS_MAP[variantKey] || 'card-blue';
 
   return (
-    <div className={`card ${cardColorClass} h-100 mb-0 shadow-sm`} style={{ borderRadius: '16px' }}>
+    <div className={`card ${cardColorClass} h-100 mb-0 shadow-sm`} style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}>
       <div className="card-body p-4">
         <div className="dash-widget-header">
           <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
