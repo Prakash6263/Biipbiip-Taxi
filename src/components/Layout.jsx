@@ -263,14 +263,6 @@ const Layout = ({ activePage, setActivePage, children }) => {
 
         {/* Header Right Side Menu */}
         <div className="flex items-center gap-3 sm:gap-4">
-          {/* "Visit Site" Button matching reference image */}
-          <button 
-            className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
-            style={{ backgroundColor: '#00D6CC' }}
-          >
-            Visit Site
-          </button>
-
           {/* Dark mode toggle icon - horizontally aligned next to avatar */}
           <button 
             onClick={toggleTheme}
