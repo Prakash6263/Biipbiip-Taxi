@@ -41,7 +41,7 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
   return (
     <div className="space-y-6">
       <div className="page-header">
-        <p className="breadcrumb-label">Management</p>
+        <p className="breadcrumb-label">MANAGEMENT</p>
         <h2>All Drivers</h2>
         <p>View and manage taxi drivers registered on the platform.</p>
       </div>
@@ -59,7 +59,7 @@ const DriverList = ({ onShowDetail, onShowRides }) => {
               }`}
               style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
             >
-              {item === 'all' ? 'All' : item}
+              {item.toUpperCase()}
             </button>
           ))}
         </div>

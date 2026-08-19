@@ -43,10 +43,14 @@ const RentRequests = () => {
           <button
             key={item}
             onClick={() => setFilter(item)}
-            className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${filter === item ? 'bg-[#00D6CC] text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300'
-              }`}
+            className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
+              filter === item
+                ? 'text-white'
+                : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+            }`}
+            style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
           >
-            {item === 'all' ? 'All' : item.charAt(0).toUpperCase() + item.slice(1)}
+            {item.toUpperCase()}
           </button>
         ))}
       </div>

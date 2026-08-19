@@ -61,7 +61,7 @@ const RentalBookings = () => {
   return (
     <div className="space-y-6">
       <div className="page-header">
-        <p className="breadcrumb-label">Management</p>
+        <p className="breadcrumb-label">MANAGEMENT</p>
         <h2>Rental Bookings</h2>
         <p>Monitor and track rental requests and bookings made on the platform.</p>
       </div>
@@ -79,7 +79,7 @@ const RentalBookings = () => {
               }`}
               style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
             >
-              {item === 'all' ? 'All' : item}
+              {item.toUpperCase()}
             </button>
           ))}
         </div>

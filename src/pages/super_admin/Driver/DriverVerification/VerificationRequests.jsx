@@ -61,7 +61,7 @@ const VerificationRequests = ({ onShowDetail }) => {
     <div className="space-y-6">
       {/* Top Header Section */}
       <div className="page-header">
-        <p className="breadcrumb-label">Verification</p>
+        <p className="breadcrumb-label">VERIFICATION</p>
         <h2>Driver Verification</h2>
         <p>Review and verify documentation submitted by drivers.</p>
       </div>
@@ -80,7 +80,7 @@ const VerificationRequests = ({ onShowDetail }) => {
               }`}
               style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
             >
-              {item === 'all' ? 'All' : item}
+              {item.toUpperCase()}
             </button>
           ))}
         </div>

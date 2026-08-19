@@ -54,7 +54,7 @@ const CompanyCarVerification = ({ onShowDetail }) => {
   return (
     <div className="space-y-6">
       <div className="page-header">
-        <p className="breadcrumb-label">Verification</p>
+        <p className="breadcrumb-label">VERIFICATION</p>
         <h2>Company Car Verification</h2>
         <p>Verify and manage company car submissions for the rental catalog.</p>
       </div>
@@ -72,7 +72,7 @@ const CompanyCarVerification = ({ onShowDetail }) => {
               }`}
               style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
             >
-              {item === 'all' ? 'All' : item}
+              {item.toUpperCase()}
             </button>
           ))}
         </div>
