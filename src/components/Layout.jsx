@@ -94,8 +94,8 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
     <div className="flex h-full flex-col text-white" style={{ backgroundColor: '#002E5B' }}>
       
       {/* Sidebar Header Brand Title */}
-      <div className="px-6 py-5 border-b border-white/10 shrink-0">
-        <h1 className="text-2xl font-bold text-white tracking-wide">Admin</h1>
+      <div className="px-6 py-4 border-b border-white/10 shrink-0 flex items-center justify-start">
+        <img src="/logo.png" alt="BIIPBIIP Logo" className="h-8 object-contain" />
       </div>
 
       {/* Navigation Items */}
