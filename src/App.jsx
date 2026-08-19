@@ -42,6 +42,7 @@ import DriverRating from './pages/super_admin/Review/DriverRating';
 import RideStatements from './pages/super_admin/TripsAndRides/RideStatements';
 import DisplayCancelReasons from './pages/super_admin/CancelReasons/DisplayCancelReasons';
 import AddCancelReasons from './pages/super_admin/CancelReasons/AddCancelReasons';
+import SupportSystem from './pages/shared/SupportSystem';
 
 const ROLE_CONFIG = {
   public: {
@@ -57,6 +58,7 @@ const ROLE_CONFIG = {
       'car-detail',
       'requests',
       'company-profile',
+      'support-system',
     ],
   },
 
@@ -101,6 +103,7 @@ const ROLE_CONFIG = {
       'yearly-ride-statement',
       'add-cancel-reason',
       'display-cancel-reasons',
+      'support-system',
     ],
   },
 };
@@ -387,6 +390,7 @@ const App = () => {
           }}
         />
       ),
+      'support-system': <SupportSystem />,
     };
 
     return pages[activePage] ?? pages[roleConfig.defaultPage];

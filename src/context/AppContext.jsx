@@ -14,6 +14,54 @@ const defaultCancelReasons = [
   { id: '6', reasonText: 'System Auto-Cancel: Timeout (No Driver Accepted)', reasonTextPt: 'Cancelamento Automático: Tempo Limite (Sem Resposta do Motorista)', status: 'Active' },
 ];
 
+const defaultSupportTickets = [
+  {
+    id: 't-1',
+    companyId: 'company_1',
+    companyName: 'Apex Rentals',
+    subject: 'Delayed car registration approval',
+    category: 'Car Verification',
+    description: 'We submitted a vehicle (Registration No: MH-12-AB-1234) for verification 3 days ago, but the status is still pending. Can you please expedite this?',
+    status: 'Open',
+    createdAt: '2026-08-18T10:00:00.000Z',
+    messages: [
+      {
+        id: 'msg-1',
+        sender: 'company',
+        senderName: 'Apex Rentals',
+        text: 'We submitted a vehicle (Registration No: MH-12-AB-1234) for verification 3 days ago, but the status is still pending. Can you please expedite this?',
+        timestamp: '2026-08-18T10:00:00.000Z'
+      }
+    ]
+  },
+  {
+    id: 't-2',
+    companyId: 'company_2',
+    companyName: 'DriveEase Ltd',
+    subject: 'Commission payout issue',
+    category: 'Billing',
+    description: 'My invoice shows wrong commission calculation for Maharashtra trips.',
+    status: 'In Progress',
+    createdAt: '2026-08-17T12:30:00.000Z',
+    messages: [
+      {
+        id: 'msg-2',
+        sender: 'company',
+        senderName: 'DriveEase Ltd',
+        text: 'My invoice shows wrong commission calculation for Maharashtra trips.',
+        timestamp: '2026-08-17T12:30:00.000Z'
+      },
+      {
+        id: 'msg-3',
+        sender: 'super_admin',
+        senderName: 'Super Admin',
+        text: 'Hello DriveEase. We are looking into the Maharashtra region commission splits. I will update you here shortly.',
+        timestamp: '2026-08-17T14:45:00.000Z'
+      }
+    ]
+  }
+];
+
 const initialState = () => {
   const loaded = loadState();
   if (!loaded) {
@@ -26,6 +74,7 @@ const initialState = () => {
       allCompanyCars: seedState.allCompanyCars || [],
       driverRatings: seedState.driverRatings || [],
       cancelReasons: defaultCancelReasons,
+      supportTickets: defaultSupportTickets,
     };
   }
   return {
@@ -39,6 +88,7 @@ const initialState = () => {
     allCompanyCars: loaded.allCompanyCars || seedState.allCompanyCars || [],
     driverRatings: loaded.driverRatings ?? seedState.driverRatings ?? [],
     cancelReasons: loaded.cancelReasons || defaultCancelReasons,
+    supportTickets: loaded.supportTickets || defaultSupportTickets,
   };
 };
 
@@ -1091,6 +1141,74 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const createSupportTicket = (subject, category, description, companyId, companyName) => {
+    const newTicket = {
+      id: uid('ticket'),
+      companyId: companyId || 'company_1',
+      companyName: companyName || 'Apex Rentals',
+      subject,
+      category,
+      description,
+      status: 'Open',
+      createdAt: new Date().toISOString(),
+      messages: [
+        {
+          id: uid('msg'),
+          sender: 'company',
+          senderName: companyName || 'Apex Rentals',
+          text: description,
+          timestamp: new Date().toISOString()
+        }
+      ]
+    };
+
+    setState((prev) => ({
+      ...prev,
+      supportTickets: [
+        newTicket,
+        ...(prev.supportTickets || [])
+      ]
+    }));
+  };
+
+  const addSupportTicketMessage = (ticketId, text, sender, senderName) => {
+    setState((prev) => ({
+      ...prev,
+      supportTickets: (prev.supportTickets || []).map((ticket) => {
+        if (ticket.id !== ticketId) return ticket;
+        return {
+          ...ticket,
+          messages: [
+            ...ticket.messages,
+            {
+              id: uid('msg'),
+              sender, // 'company' or 'super_admin'
+              senderName,
+              text,
+              timestamp: new Date().toISOString()
+            }
+          ]
+        };
+      })
+    }));
+  };
+
+  const updateSupportTicketStatus = (ticketId, status) => {
+    setState((prev) => ({
+      ...prev,
+      supportTickets: (prev.supportTickets || []).map((ticket) =>
+        ticket.id === ticketId ? { ...ticket, status } : ticket
+      )
+    }));
+  };
+
+  const deleteSupportTicket = (ticketId) => {
+    setState((prev) => ({
+      ...prev,
+      supportTickets: (prev.supportTickets || []).filter((t) => t.id !== ticketId)
+    }));
+  };
+
   const resetDemoData = () => {
     setState({
       ...seedState,
@@ -1100,6 +1218,7 @@ export const AppProvider = ({ children }) => {
       coupons: seedState.coupons || [],
       driverRatings: seedState.driverRatings || [],
       cancelReasons: defaultCancelReasons,
+      supportTickets: defaultSupportTickets,
     });
     setCurrentUser(null);
     localStorage.removeItem('car_rental_current_user');
@@ -1148,6 +1267,10 @@ export const AppProvider = ({ children }) => {
       updateCancelReason,
       toggleCancelReasonStatus,
       deleteCancelReason,
+      createSupportTicket,
+      addSupportTicketMessage,
+      updateSupportTicketStatus,
+      deleteSupportTicket,
     }),
     [state, currentUser],
   );

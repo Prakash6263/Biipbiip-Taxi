@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { 
   Building2, Car, ClipboardList, Home, LogOut, Menu, ShieldCheck, 
   X, ChevronDown, ChevronUp, Users, User, Bell, Ticket, 
-  TrendingUp, Wrench, Search, Sun, Moon, Star, XCircle
+  TrendingUp, Wrench, Search, Sun, Moon, Star, XCircle, Headphones
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -98,12 +98,14 @@ const navConfig = {
         { key: 'display-cancel-reasons',  label: 'Display Cancel Reasons'  },
       ],
     },
+    { key: 'support-system', label: 'Support System', icon: Headphones },
   ],
   admin: [
     { key: 'admin-dashboard', label: 'Dashboard', icon: Home },
     { key: 'cars', label: 'Cars', icon: Car },
     { key: 'requests', label: 'Rent Requests', icon: ClipboardList },
     { key: 'company-profile', label: 'Company Profile', icon: Building2 },
+    { key: 'support-system', label: 'Support System', icon: Headphones },
   ],
   public: [
     { key: 'login', label: 'Login', icon: ShieldCheck },
