@@ -16,7 +16,8 @@ import {
   XCircle,
   CheckCircle,
   IndianRupee,
-  ArrowLeft
+  ArrowLeft,
+  ClipboardList
 } from 'lucide-react';
 
 const RideStatements = ({ mode = 'overall' }) => {
@@ -28,7 +29,7 @@ const RideStatements = ({ mode = 'overall' }) => {
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   
-  // Custom navigation state for detail view when clicking cards (if still needed or used for back navigation)
+  // Custom navigation state for detail view when clicking cards
   const [viewMode, setViewMode] = useState('list'); 
   const [cardStatusFilter, setCardStatusFilter] = useState('all');
 
@@ -116,6 +117,21 @@ const RideStatements = ({ mode = 'overall' }) => {
     });
   }, [timeframeRides, selectedDriver, selectedStatus, cardStatusFilter, viewMode, searchTerm]);
 
+  // Overall KPI Stats based on the timeframe rides
+  const stats = useMemo(() => {
+    const totalRides = timeframeRides.length;
+    const cancelledRides = timeframeRides.filter(r => r.status === 'Cancelled').length;
+    const completedRides = timeframeRides.filter(r => r.status === 'Completed').length;
+    
+    // Sum price of completed rides
+    const totalFare = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.price, 0);
+    const totalTips = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.tip, 0);
+    const totalRevenue = totalFare + totalTips;
+    const totalCommission = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.commission, 0);
+
+    return { totalRides, cancelledRides, completedRides, totalRevenue, totalCommission };
+  }, [timeframeRides]);
+
   // Pagination for lists
   const totalPages = Math.ceil(filteredRides.length / entriesPerPage) || 1;
   const paginatedData = useMemo(() => {
@@ -143,46 +159,145 @@ const RideStatements = ({ mode = 'overall' }) => {
     }
   };
 
+  // Handles card "MORE INFO" action
+  const handleCardClick = (statusFilter) => {
+    setCardStatusFilter(statusFilter);
+    setViewMode('detail-list');
+    setCurrentPage(1);
+  };
+
   return (
     <div className="space-y-6 text-left">
       
-      {/* ── Page Header (Matching exact format of other table pages) ────────── */}
+      {/* ── Page Header (Standard Layout Header block) ──────────────────────── */}
       <div className="page-header">
         <p className="breadcrumb-label">TRIPS / RIDES</p>
         <h2>{getModeTitle()}</h2>
-        <p>View and track passenger trip statements, fares, tips, and platform commission records.</p>
+        <p>Track passenger trip statements, revenues, and platform commission records.</p>
       </div>
 
-      {/* ── Table Card (Matching the standard card-table p-2 wrapper layout) ── */}
+      {/* ── Statement History Dark Banner Header (Restored from Reference) ── */}
+      <div className="bg-[#0b132b] text-white px-6 py-4 rounded-xl flex items-center gap-3">
+        <ClipboardList size={20} className="text-[#00D6CC]" />
+        <span className="font-bold text-sm tracking-wider uppercase">
+          {viewMode === 'detail-list' ? 'History Booking' : 'Statement History'}
+        </span>
+      </div>
+
+      {/* ── Four Colored KPI Cards (Restored from Reference) ── */}
+      {viewMode === 'list' && (
+        <div className="row g-4 mt-1">
+          <div className="col-xl-3 col-sm-6 col-12">
+            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#00A7E1' }}>
+              <div className="card-body p-4 pb-12 position-relative">
+                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.totalRides}</h3>
+                <p className="text-xs font-semibold opacity-90">Total No Of Ride</p>
+                <div className="absolute right-4 bottom-14 opacity-20">
+                  <Car size={56} />
+                </div>
+              </div>
+              <button 
+                onClick={() => handleCardClick('all')}
+                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
+              >
+                More Info <ChevronRight size={10} />
+              </button>
+            </div>
+          </div>
+
+          <div className="col-xl-3 col-sm-6 col-12">
+            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#E63946' }}>
+              <div className="card-body p-4 pb-12 position-relative">
+                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.cancelledRides}</h3>
+                <p className="text-xs font-semibold opacity-90">Cancelled Ride</p>
+                <div className="absolute right-4 bottom-14 opacity-20">
+                  <FileText size={56} />
+                </div>
+              </div>
+              <button 
+                onClick={() => handleCardClick('cancelled')}
+                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
+              >
+                More Info <ChevronRight size={10} />
+              </button>
+            </div>
+          </div>
+
+          <div className="col-xl-3 col-sm-6 col-12">
+            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#06D6A0' }}>
+              <div className="card-body p-4 pb-12 position-relative">
+                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.completedRides}</h3>
+                <p className="text-xs font-semibold opacity-90">Completed Ride</p>
+                <div className="absolute right-4 bottom-14 opacity-20">
+                  <FileText size={56} />
+                </div>
+              </div>
+              <button 
+                onClick={() => handleCardClick('completed')}
+                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
+              >
+                More Info <ChevronRight size={10} />
+              </button>
+            </div>
+          </div>
+
+          <div className="col-xl-3 col-sm-6 col-12">
+            <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#343a40' }}>
+              <div className="card-body p-4 pb-12 position-relative">
+                <h3 className="text-4xl font-extrabold mb-1 tracking-tight">₹ : {stats.totalRevenue.toLocaleString('en-IN')}</h3>
+                <p className="text-xs font-semibold opacity-90">Revenue From {stats.completedRides} Rides</p>
+                <div className="absolute right-4 bottom-14 opacity-20">
+                  <TrendingUp size={56} />
+                </div>
+              </div>
+              <button 
+                onClick={() => handleCardClick('completed')}
+                className="w-full border-0 bg-black/85 text-[#00D6CC] text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1"
+              >
+                More Info <ChevronRight size={10} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Heading and Back navigation button ──────────────── */}
+      <div className="pt-4 flex items-center justify-between">
+        <h3 className="text-lg font-bold text-[#031E3C]">History Booking</h3>
+        
+        {viewMode === 'detail-list' && (
+          <button
+            onClick={() => { setViewMode('list'); setCardStatusFilter('all'); }}
+            className="flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
+            style={{ backgroundColor: '#002E5B', borderColor: '#00D6CC' }}
+          >
+            <ArrowLeft size={14} /> Back
+          </button>
+        )}
+      </div>
+
+      {/* ── Table Card (Standard clean white page table layout) ── */}
       <div className="card card-table p-2">
         
         {/* Toolbar Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 px-6 py-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-              {viewMode === 'detail-list' ? 'History Booking' : `Display ${getModeTitle()}`}
-            </h3>
-            {viewMode === 'detail-list' && (
-              <button
-                onClick={() => { setViewMode('list'); setCardStatusFilter('all'); }}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200 text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 transition"
-              >
-                <ArrowLeft size={12} /> Back
-              </button>
-            )}
-          </div>
+          <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+            {viewMode === 'detail-list' ? 'Display History Booking' : `Display ${getModeTitle()}`}
+          </h3>
 
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input Box */}
-            <div className="relative w-56">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                className="w-full rounded-2xl border border-slate-200 bg-white py-1.5 pl-9 pr-4 text-xs outline-none transition focus:border-[#00D6CC]"
-              />
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-500">Search:</span>
+              <div className="relative w-48">
+                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                  className="w-full rounded-2xl border border-slate-200 bg-white py-1.5 pl-9 pr-4 text-xs outline-none transition focus:border-[#00D6CC]"
+                />
+              </div>
             </div>
 
             {/* Entries Size Dropdown */}
@@ -226,7 +341,7 @@ const RideStatements = ({ mode = 'overall' }) => {
           </div>
         </div>
 
-        {/* Card Body and Table wrapper */}
+        {/* Card Body and Table wrapper (Using standard table-striped and plain solid rows) */}
         <div className="card-body table-responsive">
           <table className="table table-bordered table-striped mb-0 text-left">
             <thead>
@@ -266,7 +381,7 @@ const RideStatements = ({ mode = 'overall' }) => {
                         <span className="text-[10px] text-slate-400 block mt-0.5">{timeStr}</span>
                       </td>
                       <td className="font-bold text-slate-900 text-xs">
-                        ₹ {ride.price.toFixed(2)}
+                        {ride.price.toFixed(2)}
                       </td>
                       <td className="text-center">
                         <span
