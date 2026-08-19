@@ -1,8 +1,6 @@
-import { Building2, Car, CheckCircle2, Clock3, Users, TrendingUp, DollarSign } from 'lucide-react';
-import StatCard from '../../components/StatCard';
-import Badge from '../../components/Badge';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
+import StatCard from '../../components/StatCard';
 
 const SuperAdminDashboard = () => {
   const { state } = useApp();
@@ -12,7 +10,7 @@ const SuperAdminDashboard = () => {
   // Demo driver stats
   const totalDrivers   = 124;
   const activeDrivers  = 87;
-  const totalRides     = 1_420;
+  const totalRides     = 1420;
 
   return (
     <div className="space-y-6">
@@ -24,110 +22,135 @@ const SuperAdminDashboard = () => {
         <p>Welcome back! Here's what's happening with your platform today.</p>
       </div>
 
-      {/* ── Stat Cards ──────────────────────────────────────── */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          title="Total Companies"
-          value={state.companies.length}
-          icon={Building2}
-          hint="Registered on platform"
-          colorIndex={0}
-        />
-        <StatCard
-          title="Pending Verification"
-          value={pending.length}
-          icon={Clock3}
-          hint="Awaiting review"
-          colorIndex={2}
-        />
-        <StatCard
-          title="Verified Companies"
-          value={verified.length}
-          icon={CheckCircle2}
-          hint="Approved & active"
-          colorIndex={3}
-        />
-        <StatCard
-          title="Total Cars Listed"
-          value={state.cars.length}
-          icon={Car}
-          hint="Across all companies"
-          colorIndex={1}
-        />
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard
-          title="Total Drivers"
-          value={totalDrivers}
-          icon={Users}
-          hint={`${activeDrivers} currently active`}
-          colorIndex={4}
-        />
-        <StatCard
-          title="Total Rides"
-          value={totalRides.toLocaleString()}
-          icon={TrendingUp}
-          hint="All time"
-          colorIndex={1}
-        />
-        <StatCard
-          title="Platform Revenue"
-          value="₹9,04,250"
-          icon={DollarSign}
-          hint="This month"
-          colorIndex={3}
-        />
-      </div>
-
-      {/* ── Recent Company Registrations ─────────────────────── */}
-      <div className="card">
-        <div className="card-header">
-          <h3>Recent Company Registrations</h3>
-          <span className="badge badge-pending">Pending</span>
+      {/* ── First Row: 4 KPI Cards ──────────────────────────── */}
+      <div className="row mb-3 g-4">
+        <div className="col-xl-3 col-sm-6 col-12">
+          <StatCard
+            title="Total Companies"
+            value={state.companies.length}
+            colorClass="card-purple"
+            faIcon="fa-solid fa-building"
+          />
         </div>
-        <div className="overflow-x-auto">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Company</th>
-                <th>Owner</th>
-                <th>Contact</th>
-                <th>Status</th>
-                <th>Registered</th>
-              </tr>
-            </thead>
-            <tbody>
-              {state.companies.slice(0, 6).map((company, idx) => (
-                <tr key={company.id}>
-                  <td className="text-slate-400 font-semibold text-xs">{idx + 1}</td>
-                  <td>
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="h-8 w-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
-                        style={{ backgroundColor: '#031E3C' }}
-                      >
-                        {company.companyName?.slice(0, 2).toUpperCase()}
-                      </div>
-                      <span className="font-semibold text-slate-900">{company.companyName}</span>
-                    </div>
-                  </td>
-                  <td className="text-slate-600">{company.ownerName}</td>
-                  <td>
-                    <p className="text-slate-700">{company.email}</p>
-                    <p className="text-xs text-slate-400">{company.phone}</p>
-                  </td>
-                  <td>
-                    <span className={`badge badge-${company.status}`}>
-                      {company.status}
-                    </span>
-                  </td>
-                  <td className="text-slate-500 text-xs">{formatDate(company.createdAt)}</td>
+        <div className="col-xl-3 col-sm-6 col-12">
+          <StatCard
+            title="Pending Verification"
+            value={pending.length}
+            colorClass="card-blue"
+            faIcon="fa-solid fa-clock-rotate-left"
+          />
+        </div>
+        <div className="col-xl-3 col-sm-6 col-12">
+          <StatCard
+            title="Verified Companies"
+            value={verified.length}
+            colorClass="card-pink"
+            faIcon="fa-solid fa-check-double"
+          />
+        </div>
+        <div className="col-xl-3 col-sm-6 col-12">
+          <StatCard
+            title="Total Cars Listed"
+            value={state.cars.length}
+            colorClass="card-green"
+            faIcon="fa-solid fa-car"
+          />
+        </div>
+      </div>
+
+      {/* ── Second Row: 3 KPI Cards ─────────────────────────── */}
+      <div className="row mb-3 g-4">
+        <div className="col-xl-4 col-sm-6 col-12">
+          <StatCard
+            title="Total Drivers"
+            value={totalDrivers}
+            colorClass="card-purple"
+            faIcon="fa-solid fa-users"
+          />
+        </div>
+        <div className="col-xl-4 col-sm-6 col-12">
+          <StatCard
+            title="Total Rides"
+            value={totalRides.toLocaleString()}
+            colorClass="card-blue"
+            faIcon="fa-solid fa-route"
+          />
+        </div>
+        <div className="col-xl-4 col-sm-12 col-12">
+          <StatCard
+            title="Platform Revenue"
+            value="₹9,04,250"
+            colorClass="card-pink"
+            faIcon="fa-solid fa-sack-dollar"
+          />
+        </div>
+      </div>
+
+      {/* ── Recent Company Registrations Table ─────────────── */}
+      <div className="card card-purple">
+        <div className="card-header card-header-dashboard">
+          <div className="d-flex justify-content-between align-items-center w-100">
+            <h5 className="card-title text-white mb-0" style={{ fontSize: '1rem', fontWeight: 600 }}>
+              Recent Company Registrations
+            </h5>
+            <span className="badge bg-warning text-dark font-bold uppercase tracking-wider text-[10px] px-2.5 py-1.5 rounded-pill">
+              Pending Action
+            </span>
+          </div>
+        </div>
+        <div className="card-body p-0">
+          <div className="table-responsive">
+            <table className="table table-striped mb-0">
+              <thead>
+                <tr>
+                  <th className="px-4 py-3 text-slate-400 font-bold text-xs uppercase">#</th>
+                  <th className="px-4 py-3 text-slate-400 font-bold text-xs uppercase">Company</th>
+                  <th className="px-4 py-3 text-slate-400 font-bold text-xs uppercase">Owner</th>
+                  <th className="px-4 py-3 text-slate-400 font-bold text-xs uppercase">Contact Info</th>
+                  <th className="px-4 py-3 text-slate-400 font-bold text-xs uppercase">Status</th>
+                  <th className="px-4 py-3 text-slate-400 font-bold text-xs uppercase">Registered On</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {state.companies.slice(0, 6).map((company, idx) => (
+                  <tr key={company.id} className="align-middle">
+                    <td className="px-4 py-3 text-slate-400 font-semibold text-xs">{idx + 1}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-8 w-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0"
+                          style={{ backgroundColor: '#031E3C' }}
+                        >
+                          {company.companyName?.slice(0, 2).toUpperCase()}
+                        </div>
+                        <span className="font-semibold text-slate-900 text-sm">{company.companyName}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-slate-600 text-sm">{company.ownerName}</td>
+                    <td className="px-4 py-3">
+                      <div className="text-xs text-slate-700 font-medium">{company.email}</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">{company.phone}</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className="inline-flex items-center justify-center rounded-full border px-3 py-0.5 text-[10px] font-bold capitalize"
+                        style={
+                          company.status === 'verified'
+                            ? { color: '#10b981', borderColor: '#d1fae5', backgroundColor: '#f0fdf4' }
+                            : company.status === 'pending'
+                            ? { color: '#f59e0b', borderColor: '#fef3c7', backgroundColor: '#fffbeb' }
+                            : { color: '#ef4444', borderColor: '#fee2e2', backgroundColor: '#fef2f2' }
+                        }
+                      >
+                        {company.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-xs">{formatDate(company.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
