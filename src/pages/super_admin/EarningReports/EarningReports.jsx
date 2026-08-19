@@ -40,27 +40,52 @@ const demoCompanyReports = [
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const SummaryCard = ({ icon: Icon, label, value, accent }) => (
-  <div
-    className="flex items-center gap-4 rounded-2xl p-5 shadow-sm"
-    style={{ background: accent ? '#00D6CC' : '#031E3C' }}
-  >
+const SUMMARY_VARIANTS = [
+  { border: '#00D6CC', iconBg: 'linear-gradient(135deg, #f0fdfc 0%, #ccfbf1 100%)', iconColor: '#00D6CC', glow: 'rgba(0,214,204,0.12)' },
+  { border: '#6366f1', iconBg: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)', iconColor: '#6366f1', glow: 'rgba(99,102,241,0.12)' },
+];
+
+const SummaryCard = ({ icon: Icon, label, value, accent }) => {
+  const v = accent ? SUMMARY_VARIANTS[0] : SUMMARY_VARIANTS[1];
+  return (
     <div
-      className="flex h-14 w-14 items-center justify-center rounded-xl"
-      style={{ backgroundColor: accent ? 'rgba(255,255,255,0.25)' : 'rgba(0,214,204,0.15)' }}
+      style={{
+        background: '#ffffff',
+        borderRadius: '16px',
+        border: '1px solid #e2e8f0',
+        borderLeft: `4px solid ${v.border}`,
+        padding: '20px',
+        boxShadow: `0 2px 12px ${v.glow}, 0 1px 3px rgba(0,0,0,0.06)`,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+      }}
     >
-      <Icon size={26} color={accent ? '#031E3C' : '#00D6CC'} />
+      <div
+        style={{
+          flexShrink: 0,
+          width: '56px',
+          height: '56px',
+          borderRadius: '14px',
+          background: v.iconBg,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Icon size={24} color={v.iconColor} />
+      </div>
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <p style={{ margin: 0, fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8' }}>
+          {label}
+        </p>
+        <p style={{ margin: '4px 0 0', fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
+          {value}
+        </p>
+      </div>
     </div>
-    <div>
-      <p className="text-xs font-bold uppercase tracking-widest" style={{ color: accent ? '#031E3C99' : '#ffffff88' }}>
-        {label}
-      </p>
-      <p className="mt-0.5 text-2xl font-extrabold" style={{ color: accent ? '#031E3C' : '#ffffff' }}>
-        {value}
-      </p>
-    </div>
-  </div>
-);
+  );
+};
 
 const Pagination = ({ currentPage, totalPages, onChange }) => (
   <div className="flex items-center gap-1.5">
@@ -295,10 +320,10 @@ const EarningReports = ({ defaultTab = 'driver' }) => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Super Admin</p>
-        <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Earning Reports</h2>
-        <p className="mt-1 text-slate-500 text-sm">Track driver and company payment history with commission breakdowns.</p>
+      <div className="page-header">
+        <p className="breadcrumb-label">SUPER ADMIN</p>
+        <h2>Earning Reports</h2>
+        <p>Track driver and company payment history with commission breakdowns.</p>
       </div>
 
       {/* Tabs */}
