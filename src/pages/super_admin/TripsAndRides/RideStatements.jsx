@@ -10,7 +10,10 @@ import {
   ChevronRight,
   TrendingUp,
   MapPin,
-  Filter
+  Filter,
+  FileText,
+  X,
+  ClipboardList
 } from 'lucide-react';
 
 const RideStatements = ({ mode = 'overall' }) => {
@@ -19,7 +22,8 @@ const RideStatements = ({ mode = 'overall' }) => {
   const [selectedDriver, setSelectedDriver] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
 
   // Retrieve all verified drivers
   const drivers = useMemo(() => {
@@ -31,9 +35,12 @@ const RideStatements = ({ mode = 'overall' }) => {
     const ridesList = [];
     drivers.forEach(driver => {
       const driverRides = getDriverRides(driver.id);
-      driverRides.forEach(ride => {
+      driverRides.forEach((ride, i) => {
+        // Generate more unique numerical ride IDs matching reference style (e.g. 2327, 2326, etc)
+        const numericId = 2300 + (driver.id.charCodeAt(driver.id.length - 1) * 3) + i;
         ridesList.push({
           ...ride,
+          displayId: String(numericId),
           driverName: driver.userName,
           driverPhone: driver.userPhone,
           carName: driver.carName,
@@ -61,7 +68,7 @@ const RideStatements = ({ mode = 'overall' }) => {
       if (searchTerm) {
         const query = searchTerm.toLowerCase();
         const matchesSearch =
-          ride.id.toLowerCase().includes(query) ||
+          ride.displayId.includes(query) ||
           ride.customerName.toLowerCase().includes(query) ||
           ride.driverName.toLowerCase().includes(query) ||
           ride.pickup.toLowerCase().includes(query) ||
@@ -114,202 +121,161 @@ const RideStatements = ({ mode = 'overall' }) => {
     return Object.values(groups);
   }, [filteredRides, mode]);
 
-  // Overall KPI Stats
+  // Overall KPI Stats based on all rides
   const stats = useMemo(() => {
     const totalRides = filteredRides.length;
-    const totalKm = filteredRides.reduce((sum, r) => sum + r.km, 0);
-    const totalFare = filteredRides.reduce((sum, r) => sum + r.price, 0);
-    const totalTips = filteredRides.reduce((sum, r) => sum + r.tip, 0);
-    const totalCommission = filteredRides.reduce((sum, r) => sum + r.commission, 0);
+    const cancelledRides = filteredRides.filter(r => r.status === 'Cancelled').length;
+    const completedRides = filteredRides.filter(r => r.status === 'Completed').length;
+    
+    // Sum price of completed rides
+    const totalFare = filteredRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.price, 0);
+    const totalTips = filteredRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.tip, 0);
     const totalRevenue = totalFare + totalTips;
+    const totalCommission = filteredRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.commission, 0);
 
-    return { totalRides, totalKm, totalRevenue, totalCommission };
+    return { totalRides, cancelledRides, completedRides, totalRevenue, totalCommission };
   }, [filteredRides]);
 
   // Pagination for lists
   const dataList = mode === 'overall' ? filteredRides : groupedData;
-  const totalPages = Math.ceil(dataList.length / itemsPerPage) || 1;
+  const totalPages = Math.ceil(dataList.length / entriesPerPage) || 1;
   const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return dataList.slice(startIndex, startIndex + itemsPerPage);
-  }, [dataList, currentPage, itemsPerPage]);
+    const startIndex = (currentPage - 1) * entriesPerPage;
+    return dataList.slice(startIndex, startIndex + entriesPerPage);
+  }, [dataList, currentPage, entriesPerPage]);
 
-  const getStatusBadge = (status) => {
-    switch (String(status).toLowerCase()) {
-      case 'completed':
-        return (
-          <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold ring-1 ring-emerald-200 text-emerald-700">
-            Completed
-          </span>
-        );
-      case 'ongoing':
-        return (
-          <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold ring-1 ring-amber-200 text-amber-700">
-            Ongoing
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold ring-1 ring-rose-200 text-rose-700">
-            Cancelled
-          </span>
-        );
-    }
-  };
-
-  const getModeTitle = () => {
-    switch (mode) {
-      case 'daily':
-        return 'Daily Ride Statement';
-      case 'monthly':
-        return 'Monthly Ride Statement';
-      case 'yearly':
-        return 'Yearly Ride Statement';
-      default:
-        return 'Overall Ride Statement';
-    }
+  const formatRideDate = (dateString) => {
+    const d = new Date(dateString);
+    const dateStr = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return { dateStr, timeStr };
   };
 
   return (
-    <div className="space-y-6">
-      {/* ── Page Header ─────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-[#031E3C]">{getModeTitle()}</h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Track passenger trip statements, revenues, and commissions earned across the platform.
-          </p>
-        </div>
+    <div className="space-y-6 text-left">
+      
+      {/* ── Statement History Dark Banner Header ──────────────── */}
+      <div className="bg-[#0b132b] text-white px-6 py-4 rounded-t-xl flex items-center gap-3">
+        <ClipboardList size={20} className="text-[#00D6CC]" />
+        <span className="font-bold text-sm tracking-wider uppercase">Statement History</span>
       </div>
 
-      {/* ── Summary KPI Cards ───────────────────────────────── */}
-      <div className="row g-4 text-left">
+      {/* ── Four Stat Cards ───────────────────────────────── */}
+      <div className="row g-4 mt-1">
         <div className="col-xl-3 col-sm-6 col-12">
-          <div className="card h-100 shadow-sm" style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}>
-            <div className="card-body p-4">
-              <div className="dash-widget-header">
-                <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
-                  <Car size={22} color="#fff" />
-                </span>
-                <div className="dash-count">
-                  <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
-                    Total Rides Listed
-                  </div>
-                  <div className="dash-counts">
-                    <p className="text-slate-950 font-bold mb-0 text-2xl">
-                      {stats.totalRides}
-                    </p>
-                  </div>
-                </div>
+          <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#00A7E1' }}>
+            <div className="card-body p-4 pb-12 position-relative">
+              <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.totalRides}</h3>
+              <p className="text-xs font-semibold opacity-90">Total No Of Ride</p>
+              <div className="absolute right-4 bottom-14 opacity-20">
+                <Car size={56} />
               </div>
+            </div>
+            <div className="bg-black/85 text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1">
+              More Info <ChevronRight size={10} />
             </div>
           </div>
         </div>
 
         <div className="col-xl-3 col-sm-6 col-12">
-          <div className="card h-100 shadow-sm" style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}>
-            <div className="card-body p-4">
-              <div className="dash-widget-header">
-                <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
-                  <TrendingUp size={22} color="#fff" />
-                </span>
-                <div className="dash-count">
-                  <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
-                    Total Kilometers (KM)
-                  </div>
-                  <div className="dash-counts">
-                    <p className="text-slate-950 font-bold mb-0 text-2xl">
-                      {stats.totalKm} km
-                    </p>
-                  </div>
-                </div>
+          <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#E63946' }}>
+            <div className="card-body p-4 pb-12 position-relative">
+              <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.cancelledRides}</h3>
+              <p className="text-xs font-semibold opacity-90">Cancelled Ride</p>
+              <div className="absolute right-4 bottom-14 opacity-20">
+                <FileText size={56} />
               </div>
+            </div>
+            <div className="bg-black/85 text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1">
+              More Info <ChevronRight size={10} />
             </div>
           </div>
         </div>
 
         <div className="col-xl-3 col-sm-6 col-12">
-          <div className="card h-100 shadow-sm" style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}>
-            <div className="card-body p-4">
-              <div className="dash-widget-header">
-                <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
-                  <span className="text-white font-bold text-lg">₹</span>
-                </span>
-                <div className="dash-count">
-                  <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
-                    Total Fare Revenue
-                  </div>
-                  <div className="dash-counts">
-                    <p className="text-slate-950 font-bold mb-0 text-2xl">
-                      {currency(stats.totalRevenue)}
-                    </p>
-                  </div>
-                </div>
+          <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#06D6A0' }}>
+            <div className="card-body p-4 pb-12 position-relative">
+              <h3 className="text-4xl font-extrabold mb-1 tracking-tight">{stats.completedRides}</h3>
+              <p className="text-xs font-semibold opacity-90">Completed Ride</p>
+              <div className="absolute right-4 bottom-14 opacity-20">
+                <FileText size={56} />
               </div>
+            </div>
+            <div className="bg-black/85 text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1">
+              More Info <ChevronRight size={10} />
             </div>
           </div>
         </div>
 
         <div className="col-xl-3 col-sm-6 col-12">
-          <div className="card h-100 shadow-sm" style={{ borderRadius: '16px', backgroundImage: 'linear-gradient(to bottom, #dfecff70, #00b5ad96)', border: '1px solid #49e3dd' }}>
-            <div className="card-body p-4">
-              <div className="dash-widget-header">
-                <span className="dash-widget-icon bg-1 flex items-center justify-center shrink-0">
-                  <span className="text-white font-bold text-lg">%</span>
-                </span>
-                <div className="dash-count">
-                  <div className="dash-title text-slate-800 font-semibold mb-1" style={{ fontSize: '0.85rem' }}>
-                    Total Comm. Earned (10%)
-                  </div>
-                  <div className="dash-counts">
-                    <p className="text-slate-950 font-bold mb-0 text-2xl">
-                      {currency(stats.totalCommission)}
-                    </p>
-                  </div>
-                </div>
+          <div className="card h-100 border-0 shadow-sm overflow-hidden text-white" style={{ borderRadius: '16px', backgroundColor: '#343a40' }}>
+            <div className="card-body p-4 pb-12 position-relative">
+              <h3 className="text-4xl font-extrabold mb-1 tracking-tight">₹ : {stats.totalRevenue.toLocaleString('en-IN')}</h3>
+              <p className="text-xs font-semibold opacity-90">Revenue From {stats.completedRides} Rides</p>
+              <div className="absolute right-4 bottom-14 opacity-20">
+                <TrendingUp size={56} />
               </div>
+            </div>
+            <div className="bg-black/85 text-center py-2 text-[10px] font-bold tracking-widest uppercase cursor-pointer hover:bg-black transition flex items-center justify-center gap-1">
+              More Info <ChevronRight size={10} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Filters Card ─────────────────────────────────────── */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center gap-4 text-left">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input
-            type="text"
-            placeholder="Search by Ride ID, customer, driver, route or car..."
-            value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-            className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00D6CC]/20 focus:border-[#00D6CC] text-sm text-slate-700 transition"
-          />
+      {/* ── Table Area Title ────────────────────────────────── */}
+      <div className="pt-4">
+        <h3 className="text-lg font-bold text-slate-800">History Booking</h3>
+      </div>
+
+      {/* ── Search and Filter Controls ──────────────────────── */}
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-slate-500">Search:</span>
+          <div className="relative">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+              className="border border-slate-200 px-3 py-1.5 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#00D6CC] transition w-56"
+            />
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Filter size={16} className="text-slate-400" />
+            <span className="text-xs font-semibold text-slate-500">Show</span>
+            <select
+              value={entriesPerPage}
+              onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setCurrentPage(1); }}
+              className="border border-slate-200 px-2 py-1 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#00D6CC]"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+            <span className="text-xs font-semibold text-slate-500">entries</span>
+          </div>
+
+          <div className="flex items-center gap-2">
             <select
               value={selectedDriver}
               onChange={(e) => { setSelectedDriver(e.target.value); setCurrentPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00D6CC]/20 transition"
+              className="border border-slate-200 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 focus:outline-none"
             >
               <option value="all">All Drivers</option>
               {[...new Set(allRides.map(r => r.driverName))].map(name => (
                 <option key={name} value={name}>{name}</option>
               ))}
             </select>
-          </div>
 
-          <div className="flex items-center gap-2">
             <select
               value={selectedStatus}
               onChange={(e) => { setSelectedStatus(e.target.value); setCurrentPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00D6CC]/20 transition"
+              className="border border-slate-200 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 focus:outline-none"
             >
               <option value="all">All Statuses</option>
               <option value="completed">Completed</option>
-              <option value="ongoing">Ongoing</option>
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
@@ -317,32 +283,31 @@ const RideStatements = ({ mode = 'overall' }) => {
       </div>
 
       {/* ── Table Card ───────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-left">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="table-responsive">
           <table className="table table-striped mb-0 align-middle">
             {mode === 'overall' ? (
               // ── Overall Statement Table Headers ──
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Ride Info</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Customer</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Driver / Vehicle</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Trip Route</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Fare / Tip</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Commission</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
+                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-20">Ride ID</th>
+                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Picked Up</th>
+                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Dropped</th>
+                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-40">Date On</th>
+                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-28">Total Amount</th>
+                  <th className="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-28">Status</th>
                 </tr>
               </thead>
             ) : (
               // ── Grouped Statement Table Headers (Daily, Monthly, Yearly) ──
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Period / Date</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Total Trips</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Total Distance</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Total Fare</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Total Tips</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Commission Earned</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Period / Date</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Total Trips</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Total Distance</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Total Fare</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Total Tips</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Commission Earned</th>
                 </tr>
               </thead>
             )}
@@ -350,54 +315,50 @@ const RideStatements = ({ mode = 'overall' }) => {
             <tbody>
               {paginatedData.length === 0 ? (
                 <tr>
-                  <td colSpan={mode === 'overall' ? 7 : 6} className="px-6 py-12 text-center text-slate-400 font-semibold">
+                  <td colSpan={mode === 'overall' ? 6 : 6} className="px-6 py-12 text-center text-slate-400 font-semibold">
                     No matching trip statements found. Try adjusting your filters.
                   </td>
                 </tr>
               ) : mode === 'overall' ? (
                 // ── Overall Statement Table Body ──
-                paginatedData.map((ride) => (
-                  <tr key={ride.id} className="border-b border-slate-100 hover:bg-slate-50 transition">
-                    <td className="px-6 py-4">
-                      <span className="font-bold text-slate-900 text-sm block">{ride.id.toUpperCase()}</span>
-                      <span className="text-[10px] text-slate-400 font-medium block mt-0.5">{formatDate(ride.date)}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-slate-800 text-sm">{ride.customerName}</span>
-                        <span className="text-[10px] text-slate-400 mt-0.5">{ride.customerPhone}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-slate-800 text-sm">{ride.driverName}</span>
-                        <span className="text-[10px] text-slate-500 mt-0.5 font-medium">{ride.carName} • <span className="font-bold text-slate-800">{ride.registrationNo}</span></span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col max-w-[220px]">
-                        <div className="flex items-center gap-1.5 text-xs text-slate-700 font-medium">
-                          <MapPin size={11} className="text-[#00D6CC] shrink-0" />
-                          <span className="truncate">{ride.pickup}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs text-slate-700 font-medium mt-1">
-                          <MapPin size={11} className="text-rose-500 shrink-0" />
-                          <span className="truncate">{ride.drop}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="font-bold text-slate-900 text-sm block">{currency(ride.price)}</span>
-                      <span className="text-[10px] text-slate-400 font-medium block mt-0.5">Tip: {currency(ride.tip)}</span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="font-extrabold text-[#00D6CC] text-sm">{currency(ride.commission)}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      {getStatusBadge(ride.status)}
-                    </td>
-                  </tr>
-                ))
+                paginatedData.map((ride) => {
+                  const { dateStr, timeStr } = formatRideDate(ride.date);
+                  return (
+                    <tr key={ride.id} className="border-b border-slate-100 hover:bg-slate-50 transition">
+                      <td className="px-4 py-3 font-semibold text-slate-900 text-xs">
+                        {ride.displayId}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700 text-xs leading-relaxed max-w-[280px]">
+                        {ride.pickup}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700 text-xs leading-relaxed max-w-[280px]">
+                        {ride.drop}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-slate-800 text-xs block font-medium">{dateStr}</span>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">{timeStr}</span>
+                      </td>
+                      <td className="px-4 py-3 font-bold text-slate-900 text-xs">
+                        {ride.price.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span
+                          className={`inline-flex rounded px-2.5 py-1 text-[10px] font-bold text-white uppercase ${
+                            ride.status === 'Completed' ? 'bg-[#00B5AD]' : 'bg-[#E63946]'
+                          }`}
+                        >
+                          {ride.status}
+                        </span>
+                        <button
+                          onClick={() => setSelectedInvoice(ride)}
+                          className="block mx-auto mt-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800 underline focus:outline-none"
+                        >
+                          View Invoice
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 // ── Grouped Statement Table Body (Daily, Monthly, Yearly) ──
                 paginatedData.map((group, idx) => (
@@ -455,6 +416,113 @@ const RideStatements = ({ mode = 'overall' }) => {
           </div>
         )}
       </div>
+
+      {/* ── Premium Invoice Modal Popup ────────────────────── */}
+      {selectedInvoice && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in-50">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-100 animate-in zoom-in-95">
+            {/* Modal Header */}
+            <div className="bg-[#0b132b] text-white px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText size={18} className="text-[#00D6CC]" />
+                <span className="font-bold text-sm tracking-wider uppercase">Trip Invoice #{selectedInvoice.displayId}</span>
+              </div>
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="text-white/80 hover:text-white p-1 hover:bg-white/10 rounded-lg transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Top Details Grid */}
+              <div className="grid grid-cols-2 gap-4 border-b border-slate-100 pb-4">
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Date & Time</span>
+                  <p className="text-xs text-slate-800 font-semibold mt-0.5">{formatDate(selectedInvoice.date)}</p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Ride Status</span>
+                  <p className="mt-0.5">
+                    <span className={`inline-flex rounded px-2 py-0.5 text-[9px] font-bold text-white uppercase ${
+                      selectedInvoice.status === 'Completed' ? 'bg-[#00B5AD]' : 'bg-[#E63946]'
+                    }`}>
+                      {selectedInvoice.status}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Customer Name</span>
+                  <p className="text-xs text-slate-800 font-semibold mt-0.5">{selectedInvoice.customerName}</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">{selectedInvoice.customerPhone}</p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Driver / Car</span>
+                  <p className="text-xs text-slate-800 font-semibold mt-0.5">{selectedInvoice.driverName}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5 font-medium">{selectedInvoice.carName} • {selectedInvoice.registrationNo}</p>
+                </div>
+              </div>
+
+              {/* Trip Route Addresses */}
+              <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <div className="flex gap-3">
+                  <div className="flex flex-col items-center">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#00D6CC] mt-1 shrink-0" />
+                    <div className="w-0.5 h-6 bg-slate-300" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#00D6CC] font-bold uppercase tracking-wider">Pickup Location</span>
+                    <p className="text-xs text-slate-700 font-medium mt-0.5">{selectedInvoice.pickup}</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0 mt-1" />
+                  <div>
+                    <span className="text-[10px] text-rose-500 font-bold uppercase tracking-wider">Drop Location</span>
+                    <p className="text-xs text-slate-700 font-medium mt-0.5">{selectedInvoice.drop}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pricing breakdown */}
+              <div className="space-y-2 pt-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-500 font-medium">Distance Traveled</span>
+                  <span className="text-slate-800 font-bold">{selectedInvoice.km} km</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-500 font-medium">Base Trip Fare</span>
+                  <span className="text-slate-800 font-bold">{currency(selectedInvoice.price - selectedInvoice.tip)}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-500 font-medium">Driver Tips</span>
+                  <span className="text-slate-800 font-bold">{currency(selectedInvoice.tip)}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs border-b border-slate-100 pb-3">
+                  <span className="text-slate-500 font-medium">Admin Commission (10%)</span>
+                  <span className="text-[#00D6CC] font-bold">{currency(selectedInvoice.commission)}</span>
+                </div>
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-slate-800 font-bold text-sm">Total Amount Paid</span>
+                  <span className="text-slate-950 font-extrabold text-lg">{currency(selectedInvoice.price)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-end">
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition shadow-sm"
+              >
+                Close Receipt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
