@@ -15,13 +15,6 @@ const SuperAdminDashboard = () => {
   return (
     <div className="space-y-6">
 
-      {/* ── Page Header ─────────────────────────────────────── */}
-      <div className="page-header">
-        <p className="breadcrumb-label">Overview</p>
-        <h2>Super Admin Dashboard</h2>
-        <p>Welcome back! Here's what's happening with your platform today.</p>
-      </div>
-
       {/* ── First Row: 4 KPI Cards ──────────────────────────── */}
       <div className="row mb-3 g-4">
         <div className="col-xl-3 col-sm-6 col-12">
