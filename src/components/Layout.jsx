@@ -86,21 +86,29 @@ const SidebarContent = ({ items, activePage, setActivePage, themeMode, closeMobi
   const { logout } = useApp();
   const [expanded, setExpanded] = useState({});
   const isDark = themeMode === 'dark';
+  const sidebarBg = isDark ? '#111A2E' : '#002E5B';
 
   const toggleGroup = (key) => {
     setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  // Shared button base style — overrides global `button { font: inherit }` cascade
+  const btnBase = {
+    display: 'flex', width: '100%', alignItems: 'center', textAlign: 'left',
+    border: 'none', cursor: 'pointer', transition: 'background 0.15s',
+    fontFamily: 'inherit', fontWeight: 600, fontSize: '0.875rem',
+  };
+
   return (
-    <div className="flex h-full flex-col text-white" style={{ backgroundColor: isDark ? '#111A2E' : '#002E5B' }}>
+    <div className="flex h-full flex-col" style={{ backgroundColor: sidebarBg }}>
       
       {/* Sidebar Header Brand Title */}
-      <div className="px-6 py-4 border-b border-white/10 shrink-0 flex items-center justify-start">
+      <div className="px-6 py-4 shrink-0 flex items-center justify-start" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
         <img src="/logo.png" alt="BIIPBIIP Logo" className="h-8 object-contain" />
       </div>
 
       {/* Navigation Items */}
-      <nav className="flex-1 space-y-1.5 py-4 overflow-y-auto">
+      <nav className="flex-1 py-3 overflow-y-auto" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
         {items.map((item) => {
           if (item.submenu) {
             const Icon = item.icon;
@@ -112,25 +120,36 @@ const SidebarContent = ({ items, activePage, setActivePage, themeMode, closeMobi
                 (sub.key === 'company-car-verification' && activePage === 'company-car-detail')
             );
             const isOpen = expanded[item.key] ?? hasActiveSub;
+            const groupActive = isOpen && hasActiveSub;
 
             return (
-              <div key={item.key} className="px-3 space-y-1">
+              <div key={item.key} style={{ padding: '0 10px' }}>
+                {/* Group Header */}
                 <button
                   onClick={() => toggleGroup(item.key)}
-                  className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition text-white ${
-                    isOpen && hasActiveSub ? '' : 'hover:bg-white/10'
-                  }`}
-                  style={isOpen && hasActiveSub ? { backgroundColor: '#00D6CC' } : {}}
+                  style={{
+                    ...btnBase,
+                    justifyContent: 'space-between',
+                    borderRadius: '10px',
+                    padding: '11px 14px',
+                    color: '#ffffff',
+                    backgroundColor: groupActive ? '#00D6CC' : 'transparent',
+                  }}
+                  onMouseEnter={e => { if (!groupActive) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; }}
+                  onMouseLeave={e => { if (!groupActive) e.currentTarget.style.backgroundColor = 'transparent'; }}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon size={18} className="text-white" />
-                    <span>{item.label}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Icon size={18} color="#ffffff" />
+                    <span style={{ color: '#ffffff' }}>{item.label}</span>
                   </div>
-                  {isOpen ? <ChevronUp size={16} className="text-white" /> : <ChevronDown size={16} className="text-white" />}
+                  {isOpen
+                    ? <ChevronUp size={16} color="#ffffff" />
+                    : <ChevronDown size={16} color="#ffffff" />}
                 </button>
 
+                {/* Submenu Items */}
                 {isOpen && (
-                  <div className="space-y-1">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', marginTop: '2px' }}>
                     {item.submenu.map((sub) => {
                       const subActive =
                         activePage === sub.key ||
@@ -140,16 +159,18 @@ const SidebarContent = ({ items, activePage, setActivePage, themeMode, closeMobi
                       return (
                         <button
                           key={sub.key}
-                          onClick={() => {
-                            setActivePage(sub.key);
-                            closeMobile?.();
+                          onClick={() => { setActivePage(sub.key); closeMobile?.(); }}
+                          style={{
+                            ...btnBase,
+                            borderRadius: '10px',
+                            padding: '10px 14px 10px 24px',
+                            color: '#ffffff',
+                            backgroundColor: subActive ? '#00D6CC' : 'transparent',
                           }}
-                          className={`flex w-full items-center gap-3 rounded-xl px-6 py-2.5 text-left text-sm font-semibold transition ${
-                            subActive ? 'text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'
-                          }`}
-                          style={subActive ? { backgroundColor: '#00D6CC' } : {}}
+                          onMouseEnter={e => { if (!subActive) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; }}
+                          onMouseLeave={e => { if (!subActive) e.currentTarget.style.backgroundColor = 'transparent'; }}
                         >
-                          <span>{sub.label}</span>
+                          <span style={{ color: '#ffffff' }}>{sub.label}</span>
                         </button>
                       );
                     })}
@@ -160,48 +181,59 @@ const SidebarContent = ({ items, activePage, setActivePage, themeMode, closeMobi
           }
 
           const Icon = item.icon;
-          const active = activePage === item.key || 
+          const active = activePage === item.key ||
             (item.key === 'verification-requests' && activePage === 'verification-detail') ||
             (item.key === 'cars' && activePage === 'car-detail');
+
           return (
-            <div key={item.key} className="px-3">
+            <div key={item.key} style={{ padding: '0 10px' }}>
               <button
-                onClick={() => {
-                  setActivePage(item.key);
-                  closeMobile?.();
+                onClick={() => { setActivePage(item.key); closeMobile?.(); }}
+                style={{
+                  ...btnBase,
+                  justifyContent: 'space-between',
+                  borderRadius: '10px',
+                  padding: '11px 14px',
+                  color: '#ffffff',
+                  backgroundColor: active ? '#00D6CC' : 'transparent',
                 }}
-                className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
-                  active ? 'text-white shadow-md' : 'text-white hover:bg-white/10'
-                }`}
-                style={active ? { backgroundColor: '#00D6CC' } : {}}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.backgroundColor = 'transparent'; }}
               >
-                <div className="flex items-center gap-3">
-                  <Icon size={18} className="text-white" />
-                  <span>{item.label}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Icon size={18} color="#ffffff" />
+                  <span style={{ color: '#ffffff' }}>{item.label}</span>
                 </div>
               </button>
             </div>
           );
         })}
 
-        {/* Manual Logout menu item at the bottom of sidebar list */}
-        <div className="px-3 pt-4 border-t border-white/10 mt-4">
+        {/* Logout */}
+        <div style={{ padding: '0 10px', marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px' }}>
           <button
-            onClick={() => {
-              logout();
-              setActivePage('login');
-              closeMobile?.();
+            onClick={() => { logout(); setActivePage('login'); closeMobile?.(); }}
+            style={{
+              ...btnBase,
+              borderRadius: '10px',
+              padding: '11px 14px',
+              color: '#ffffff',
+              backgroundColor: 'transparent',
             }}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition text-white hover:bg-white/10"
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
           >
-            <LogOut size={18} className="text-white" />
-            <span>Logout</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <LogOut size={18} color="#ffffff" />
+              <span style={{ color: '#ffffff' }}>Logout</span>
+            </div>
           </button>
         </div>
       </nav>
     </div>
   );
 };
+
 
 const Layout = ({ activePage, setActivePage, children }) => {
   const { currentUser, logout } = useApp();
