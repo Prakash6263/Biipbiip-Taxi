@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import Badge from '../../../components/Badge';
 import EmptyState from '../../../components/EmptyState';
+import StatCard from '../../../components/StatCard';
 import {
   Ticket,
   Plus,
@@ -93,44 +94,27 @@ const Coupons = ({ setActivePage }) => {
 
       {/* KPI Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft relative overflow-hidden" style={{ borderLeft: '4px solid #6366f1' }}>
-          <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50">
-              <Ticket size={24} className="text-indigo-500" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Created</p>
-              <h4 className="mt-1 text-2xl font-extrabold text-slate-900">{totalCoupons}</h4>
-              <p className="text-[10px] text-slate-500 truncate mt-0.5">Historical log count</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft relative overflow-hidden" style={{ borderLeft: '4px solid #10b981' }}>
-          <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50">
-              <CheckCircle2 size={24} className="text-emerald-500" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Active Promotions</p>
-              <h4 className="mt-1 text-2xl font-extrabold text-slate-900">{activeCoupons}</h4>
-              <p className="text-[10px] text-slate-500 truncate mt-0.5">Currently eligible checkout offers</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft relative overflow-hidden" style={{ borderLeft: '4px solid #ef4444' }}>
-          <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50">
-              <Calendar size={24} className="text-rose-500" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Expired / Inactive</p>
-              <h4 className="mt-1 text-2xl font-extrabold text-slate-900">{expiredCoupons}</h4>
-              <p className="text-[10px] text-slate-500 truncate mt-0.5">Offers no longer available</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="Total Created"
+          value={totalCoupons}
+          subtitle="Historical log count"
+          icon={Ticket}
+          colorVariant="purple"
+        />
+        <StatCard
+          title="Active Promotions"
+          value={activeCoupons}
+          subtitle="Currently eligible checkout offers"
+          icon={CheckCircle2}
+          colorVariant="green"
+        />
+        <StatCard
+          title="Expired / Inactive"
+          value={expiredCoupons}
+          subtitle="Offers no longer available"
+          icon={Calendar}
+          colorVariant="rose"
+        />
       </div>
 
       {/* Filter and Search Section */}

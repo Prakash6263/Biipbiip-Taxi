@@ -28,7 +28,8 @@ const SuperAdminDashboard = () => {
           <StatCard
             title="Total Companies"
             value={state.companies.length}
-            colorClass="card-purple"
+            subtitle="Registered on platform"
+            colorVariant="purple"
             faIcon="fa-solid fa-building"
           />
         </div>
@@ -36,7 +37,8 @@ const SuperAdminDashboard = () => {
           <StatCard
             title="Pending Verification"
             value={pending.length}
-            colorClass="card-blue"
+            subtitle="Awaiting review"
+            colorVariant="amber"
             faIcon="fa-solid fa-clock-rotate-left"
           />
         </div>
@@ -44,7 +46,8 @@ const SuperAdminDashboard = () => {
           <StatCard
             title="Verified Companies"
             value={verified.length}
-            colorClass="card-pink"
+            subtitle="Approved & active"
+            colorVariant="green"
             faIcon="fa-solid fa-check-double"
           />
         </div>
@@ -52,7 +55,8 @@ const SuperAdminDashboard = () => {
           <StatCard
             title="Total Cars Listed"
             value={state.cars.length}
-            colorClass="card-green"
+            subtitle="Available for rental"
+            colorVariant="teal"
             faIcon="fa-solid fa-car"
           />
         </div>
@@ -64,7 +68,8 @@ const SuperAdminDashboard = () => {
           <StatCard
             title="Total Drivers"
             value={totalDrivers}
-            colorClass="card-purple"
+            subtitle="Registered taxi drivers"
+            colorVariant="blue"
             faIcon="fa-solid fa-users"
           />
         </div>
@@ -72,7 +77,8 @@ const SuperAdminDashboard = () => {
           <StatCard
             title="Total Rides"
             value={totalRides.toLocaleString()}
-            colorClass="card-blue"
+            subtitle="Completed trips to date"
+            colorVariant="pink"
             faIcon="fa-solid fa-route"
           />
         </div>
@@ -80,7 +86,8 @@ const SuperAdminDashboard = () => {
           <StatCard
             title="Platform Revenue"
             value="₹9,04,250"
-            colorClass="card-pink"
+            subtitle="Total earnings collected"
+            colorVariant="green"
             faIcon="fa-solid fa-sack-dollar"
           />
         </div>
