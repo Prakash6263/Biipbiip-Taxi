@@ -82,16 +82,17 @@ const navConfig = {
   ],
 };
 
-const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
+const SidebarContent = ({ items, activePage, setActivePage, themeMode, closeMobile }) => {
   const { logout } = useApp();
   const [expanded, setExpanded] = useState({});
+  const isDark = themeMode === 'dark';
 
   const toggleGroup = (key) => {
     setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
-    <div className="flex h-full flex-col text-white" style={{ backgroundColor: '#002E5B' }}>
+    <div className="flex h-full flex-col text-white" style={{ backgroundColor: isDark ? '#111A2E' : '#002E5B' }}>
       
       {/* Sidebar Header Brand Title */}
       <div className="px-6 py-4 border-b border-white/10 shrink-0 flex items-center justify-start">
@@ -222,7 +223,7 @@ const Layout = ({ activePage, setActivePage, children }) => {
   };
 
   const items = useMemo(() => navConfig[role] || navConfig.public, [role]);
-  const showSidebar = !!currentUser;
+  const isDark = themeMode === 'dark';
 
   if (!currentUser) {
     return <div className="min-h-screen bg-slate-50">{children}</div>;
@@ -235,16 +236,16 @@ const Layout = ({ activePage, setActivePage, children }) => {
       {showSidebar && (
         <aside 
           className="hidden lg:block w-64 fixed inset-y-0 left-0 z-30 border-r-2"
-          style={{ borderColor: '#00D6CC' }}
+          style={{ borderColor: isDark ? '#1E293B' : '#00D6CC' }}
         >
-          <SidebarContent items={items} activePage={activePage} setActivePage={setActivePage} />
+          <SidebarContent items={items} activePage={activePage} setActivePage={setActivePage} themeMode={themeMode} />
         </aside>
       )}
 
       {/* ── Top Header bar (Pushed next to sidebar on desktop, matches layout exactly) ── */}
       <header 
         className="h-16 fixed top-0 right-0 left-0 lg:left-64 z-20 flex items-center justify-between px-4 lg:px-6 shadow-sm border-b-2"
-        style={{ backgroundColor: '#002E5B', borderBottomColor: '#00D6CC' }}
+        style={{ backgroundColor: isDark ? '#111A2E' : '#002E5B', borderBottomColor: isDark ? '#1E293B' : '#00D6CC' }}
       >
         <div className="flex items-center gap-4">
           {/* Mobile menu toggle button */}
@@ -326,9 +327,12 @@ const Layout = ({ activePage, setActivePage, children }) => {
               className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" 
               onClick={() => setOpen(false)} 
             />
-            <div className="relative h-full w-72 bg-[#002E5B] flex flex-col z-50 shadow-2xl animate-in slide-in-from-left">
+            <div 
+              className="relative h-full w-72 flex flex-col z-50 shadow-2xl animate-in slide-in-from-left"
+              style={{ backgroundColor: isDark ? '#111A2E' : '#002E5B' }}
+            >
               <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
-                <h1 className="text-2xl font-bold text-white tracking-wide">Admin</h1>
+                <img src="/logo.png" alt="BIIPBIIP Logo" className="h-8 object-contain" />
                 <button 
                   onClick={() => setOpen(false)} 
                   className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition"
@@ -341,6 +345,7 @@ const Layout = ({ activePage, setActivePage, children }) => {
                   items={items} 
                   activePage={activePage} 
                   setActivePage={setActivePage} 
+                  themeMode={themeMode}
                   closeMobile={() => setOpen(false)} 
                 />
               </div>
