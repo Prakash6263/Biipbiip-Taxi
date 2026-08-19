@@ -239,25 +239,25 @@ const Layout = ({ activePage, setActivePage, children }) => {
             <Menu size={20} />
           </button>
 
-          {/* Header Search input exactly matching reference image */}
-          <div className="relative hidden md:block w-60">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search here"
-              className="w-full rounded-xl border-0 bg-white py-1.5 pl-9 pr-4 text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-[#00D6CC] transition outline-none"
-            />
-          </div>
+          {/* Clean Portal Title in header */}
+          <span className="font-extrabold text-white text-sm sm:text-base tracking-wide uppercase">
+            Admin Portal
+          </span>
         </div>
 
         {/* Header Right Side Menu */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           {/* "Visit Site" Button matching reference image */}
           <button 
-            className="hidden sm:inline-flex items-center justify-center rounded-xl px-4 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
+            className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
             style={{ backgroundColor: '#00D6CC' }}
           >
             Visit Site
+          </button>
+
+          {/* Dark mode toggle icon - horizontally aligned next to avatar */}
+          <button className="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition hidden sm:inline-block">
+            <Moon size={16} />
           </button>
 
           {/* User profile section matching exact styling */}
@@ -274,11 +274,6 @@ const Layout = ({ activePage, setActivePage, children }) => {
                 <div className="text-[10px] text-white/70 font-semibold capitalize mt-1">{currentUser.role || 'Super Admin'}</div>
               </div>
               <ChevronDown size={14} className="text-white/70 hidden md:block" />
-            </button>
-
-            {/* Dark mode toggle representation icon */}
-            <button className="text-white/80 hover:text-white p-1 rounded-lg transition ml-1 hidden sm:inline-block">
-              <Moon size={16} />
             </button>
 
             {userDropdownOpen && (
