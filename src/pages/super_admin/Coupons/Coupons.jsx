@@ -140,7 +140,7 @@ const Coupons = ({ setActivePage }) => {
             <button
               key={statusOption}
               onClick={() => setStatusFilter(statusOption)}
-              className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
+              className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
                 statusFilter === statusOption
                   ? 'text-white'
                   : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'

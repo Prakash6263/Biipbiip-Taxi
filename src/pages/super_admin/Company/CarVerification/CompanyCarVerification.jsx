@@ -65,7 +65,7 @@ const CompanyCarVerification = ({ onShowDetail }) => {
             <button
               key={item}
               onClick={() => setFilter(item)}
-              className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
+              className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
                 filter === item
                   ? 'text-white'
                   : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
