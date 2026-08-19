@@ -117,7 +117,10 @@ const SidebarContent = ({ items, activePage, setActivePage, themeMode, closeMobi
               <div key={item.key} className="px-3 space-y-1">
                 <button
                   onClick={() => toggleGroup(item.key)}
-                  className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition hover:bg-white/10 text-white"
+                  className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition text-white ${
+                    isOpen && hasActiveSub ? '' : 'hover:bg-white/10'
+                  }`}
+                  style={isOpen && hasActiveSub ? { backgroundColor: '#00D6CC' } : {}}
                 >
                   <div className="flex items-center gap-3">
                     <Icon size={18} className="text-white" />
@@ -127,7 +130,7 @@ const SidebarContent = ({ items, activePage, setActivePage, themeMode, closeMobi
                 </button>
 
                 {isOpen && (
-                  <div className="pl-4 space-y-1 ml-6 border-l border-white/15">
+                  <div className="space-y-1">
                     {item.submenu.map((sub) => {
                       const subActive =
                         activePage === sub.key ||
@@ -141,8 +144,8 @@ const SidebarContent = ({ items, activePage, setActivePage, themeMode, closeMobi
                             setActivePage(sub.key);
                             closeMobile?.();
                           }}
-                          className={`flex w-full items-center gap-3 rounded-xl px-4 py-2 text-left text-xs font-semibold transition ${
-                            subActive ? 'text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'
+                          className={`flex w-full items-center gap-3 rounded-xl px-6 py-2.5 text-left text-sm font-semibold transition ${
+                            subActive ? 'text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'
                           }`}
                           style={subActive ? { backgroundColor: '#00D6CC' } : {}}
                         >
