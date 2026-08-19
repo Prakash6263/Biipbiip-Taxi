@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { 
   Building2, Car, ClipboardList, Home, LogOut, Menu, ShieldCheck, 
-  UserPlus, X, ChevronDown, ChevronUp, Users, User, Bell, Ticket, 
+  X, ChevronDown, ChevronUp, Users, User, Bell, Ticket, 
   TrendingUp, Wrench, Search, Sun, Moon 
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -83,6 +83,7 @@ const navConfig = {
 };
 
 const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
+  const { logout } = useApp();
   const [expanded, setExpanded] = useState({});
 
   const toggleGroup = (key) => {
@@ -90,8 +91,15 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
   };
 
   return (
-    <div className="flex h-full flex-col text-slate-300" style={{ backgroundColor: '#0B1220' }}>
-      <nav className="flex-1 space-y-1.5 p-4 overflow-y-auto">
+    <div className="flex h-full flex-col text-white" style={{ backgroundColor: '#002E5B' }}>
+      
+      {/* Sidebar Header Brand Title */}
+      <div className="px-6 py-5 border-b border-white/10 shrink-0">
+        <h1 className="text-2xl font-bold text-white tracking-wide">Admin</h1>
+      </div>
+
+      {/* Navigation Items */}
+      <nav className="flex-1 space-y-1.5 py-4 overflow-y-auto">
         {items.map((item) => {
           if (item.submenu) {
             const Icon = item.icon;
@@ -108,17 +116,17 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
               <div key={item.key} className="space-y-1">
                 <button
                   onClick={() => toggleGroup(item.key)}
-                  className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition hover:bg-slate-800 hover:text-white"
+                  className="flex w-full items-center justify-between px-6 py-3 text-left text-sm font-semibold transition hover:bg-white/10 text-white"
                 >
                   <div className="flex items-center gap-3">
-                    <Icon size={18} className="text-slate-400" />
-                    <span className="text-slate-200">{item.label}</span>
+                    <Icon size={18} className="text-white" />
+                    <span>{item.label}</span>
                   </div>
-                  {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  {isOpen ? <ChevronUp size={16} className="text-white" /> : <ChevronDown size={16} className="text-white" />}
                 </button>
 
                 {isOpen && (
-                  <div className="pl-4 space-y-1 border-l border-slate-800 ml-6">
+                  <div className="pl-4 space-y-1 ml-6 border-l border-white/15">
                     {item.submenu.map((sub) => {
                       const subActive =
                         activePage === sub.key ||
@@ -132,8 +140,8 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
                             setActivePage(sub.key);
                             closeMobile?.();
                           }}
-                          className={`flex w-full items-center gap-3 rounded-lg px-4 py-2 text-left text-xs font-semibold transition ${
-                            subActive ? 'text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          className={`flex w-full items-center gap-3 rounded-xl px-4 py-2 text-left text-xs font-semibold transition ${
+                            subActive ? 'text-white border-l-4 border-white' : 'text-white/80 hover:bg-white/10 hover:text-white'
                           }`}
                           style={subActive ? { backgroundColor: '#00D6CC' } : {}}
                         >
@@ -152,22 +160,40 @@ const SidebarContent = ({ items, activePage, setActivePage, closeMobile }) => {
             (item.key === 'verification-requests' && activePage === 'verification-detail') ||
             (item.key === 'cars' && activePage === 'car-detail');
           return (
-            <button
-              key={item.key}
-              onClick={() => {
-                setActivePage(item.key);
-                closeMobile?.();
-              }}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
-                active ? 'text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-              style={active ? { backgroundColor: '#00D6CC' } : {}}
-            >
-              <Icon size={18} className={active ? 'text-white' : 'text-slate-400'} />
-              <span>{item.label}</span>
-            </button>
+            <div key={item.key} className="px-3">
+              <button
+                onClick={() => {
+                  setActivePage(item.key);
+                  closeMobile?.();
+                }}
+                className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
+                  active ? 'text-white border-l-4 border-white shadow-md' : 'text-white hover:bg-white/10'
+                }`}
+                style={active ? { backgroundColor: '#00D6CC' } : {}}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={18} className="text-white" />
+                  <span>{item.label}</span>
+                </div>
+              </button>
+            </div>
           );
         })}
+
+        {/* Manual Logout menu item at the bottom of sidebar list */}
+        <div className="px-3 pt-4 border-t border-white/10 mt-4">
+          <button
+            onClick={() => {
+              logout();
+              setActivePage('login');
+              closeMobile?.();
+            }}
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition text-white hover:bg-white/10"
+          >
+            <LogOut size={18} className="text-white" />
+            <span>Logout</span>
+          </button>
+        </div>
       </nav>
     </div>
   );
@@ -189,8 +215,21 @@ const Layout = ({ activePage, setActivePage, children }) => {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
       
-      {/* ── Top Header ──────────────────────────────────────── */}
-      <header className="h-16 bg-white border-b border-slate-200 fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 lg:px-6 shadow-sm">
+      {/* ── Desktop Sidebar (Goes all the way to the top of screen) ── */}
+      {showSidebar && (
+        <aside 
+          className="hidden lg:block w-64 fixed inset-y-0 left-0 z-30 border-r-2"
+          style={{ borderColor: '#00D6CC' }}
+        >
+          <SidebarContent items={items} activePage={activePage} setActivePage={setActivePage} />
+        </aside>
+      )}
+
+      {/* ── Top Header bar (Pushed next to the sidebar on desktop) ── */}
+      <header 
+        className="h-16 bg-white border-b-2 fixed top-0 right-0 left-0 lg:left-64 z-20 flex items-center justify-between px-4 lg:px-6 shadow-sm"
+        style={{ borderBottomColor: '#00D6CC' }}
+      >
         <div className="flex items-center gap-4">
           {/* Mobile menu button */}
           <button 
@@ -258,13 +297,6 @@ const Layout = ({ activePage, setActivePage, children }) => {
       {/* Main container wrapper */}
       <div className="flex flex-1 pt-16">
         
-        {/* ── Desktop Sidebar ─────────────────────────────────── */}
-        {showSidebar && (
-          <aside className="hidden lg:block w-64 border-r border-slate-200 fixed bottom-0 top-16 left-0 z-30">
-            <SidebarContent items={items} activePage={activePage} setActivePage={setActivePage} />
-          </aside>
-        )}
-
         {/* ── Mobile Sidebar Drawer ───────────────────────────── */}
         {showSidebar && open && (
           <div className="fixed inset-0 z-50 lg:hidden">
@@ -272,12 +304,12 @@ const Layout = ({ activePage, setActivePage, children }) => {
               className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" 
               onClick={() => setOpen(false)} 
             />
-            <div className="relative h-full w-72 bg-[#0B1220] flex flex-col z-50 shadow-2xl animate-in slide-in-from-left">
-              <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
-                <img src="/logo.png" alt="BIIPBIIP Logo" className="h-8 object-contain" />
+            <div className="relative h-full w-72 bg-[#002E5B] flex flex-col z-50 shadow-2xl animate-in slide-in-from-left">
+              <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
+                <h1 className="text-2xl font-bold text-white tracking-wide">Admin</h1>
                 <button 
                   onClick={() => setOpen(false)} 
-                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                  className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition"
                 >
                   <X size={20} />
                 </button>
@@ -290,23 +322,11 @@ const Layout = ({ activePage, setActivePage, children }) => {
                   closeMobile={() => setOpen(false)} 
                 />
               </div>
-              <div className="p-4 border-t border-slate-800 bg-slate-950/40">
-                <button
-                  onClick={() => {
-                    logout();
-                    setActivePage('login');
-                    setOpen(false);
-                  }}
-                  className="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-sm transition flex items-center justify-center gap-2"
-                >
-                  <LogOut size={16} /> Logout
-                </button>
-              </div>
             </div>
           </div>
         )}
 
-        {/* ── Main Content Area ──────────────────────────────── */}
+        {/* ── Main Content Area (Shifted right on desktop) ── */}
         <main className="flex-1 min-w-0 lg:pl-64 min-h-[calc(100vh-64px)]">
           <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
             {children}
