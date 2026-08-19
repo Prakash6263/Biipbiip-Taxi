@@ -391,6 +391,12 @@ h1, h2, h3, h4, h5, h6 {
   color: #cbd5e1 !important;
 }
 
+[data-layout-mode="dark"] .table-bordered,
+[data-layout-mode="dark"] .table-bordered th,
+[data-layout-mode="dark"] .table-bordered td {
+  border-color: #1E293B !important;
+}
+
 /* Inputs, Textareas, Selects & Searches */
 [data-layout-mode="dark"] input,
 [data-layout-mode="dark"] select,

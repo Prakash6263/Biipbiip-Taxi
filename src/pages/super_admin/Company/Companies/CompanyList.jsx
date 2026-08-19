@@ -78,19 +78,19 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
       </div>
 
       {filteredCompanies.length ? (
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] border-collapse text-left text-sm text-slate-500">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-700 border-b border-slate-200">
+        <div className="card card-table p-2">
+          <div className="card-body table-responsive">
+            <table className="table table-bordered table-striped mb-0">
+              <thead>
                 <tr>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Company</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">Contact Details</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400">GST & Address</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-center">Status</th>
-                  <th scope="col" className="px-6 py-4 font-bold text-slate-400 text-right">Actions</th>
+                  <th className="font-bold text-slate-400">Company</th>
+                  <th className="font-bold text-slate-400">Contact Details</th>
+                  <th className="font-bold text-slate-400">GST & Address</th>
+                  <th className="font-bold text-slate-400 text-center">Status</th>
+                  <th className="font-bold text-slate-400 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {paginatedCompanies.map((company) => {
                   const carCount = state.allCompanyCars.filter((car) => car.companyId === company.id).length;
                   return (
