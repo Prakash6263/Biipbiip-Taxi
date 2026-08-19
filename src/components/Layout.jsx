@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { 
   Building2, Car, ClipboardList, Home, LogOut, Menu, ShieldCheck, 
   X, ChevronDown, ChevronUp, Users, User, Bell, Ticket, 
-  TrendingUp, Wrench, Search, Sun, Moon 
+  TrendingUp, Wrench, Search, Sun, Moon, Star
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -68,6 +68,14 @@ const navConfig = {
         { key: 'add-new-maker', label: 'Add New Maker'  },
         { key: 'model-list',    label: 'Model List'     },
         { key: 'add-new-model', label: 'Add New Model'  },
+      ],
+    },
+    {
+      key: 'review-group',
+      label: 'Review',
+      icon: Star,
+      submenu: [
+        { key: 'driver-rating', label: 'Driver Rating' },
       ],
     },
   ],

@@ -38,6 +38,7 @@ import MakersList from './pages/super_admin/MakeAndModels/MakersList';
 import AddNewMaker from './pages/super_admin/MakeAndModels/AddNewMaker';
 import ModelList from './pages/super_admin/MakeAndModels/ModelList';
 import AddNewModel from './pages/super_admin/MakeAndModels/AddNewModel';
+import DriverRating from './pages/super_admin/Review/DriverRating';
 
 const ROLE_CONFIG = {
   public: {
@@ -90,6 +91,7 @@ const ROLE_CONFIG = {
       'add-new-maker',
       'model-list',
       'add-new-model',
+      'driver-rating',
     ],
   },
 };
@@ -353,6 +355,7 @@ const App = () => {
       'add-new-maker':  <AddNewMaker  setActivePage={setActivePage} />,
       'model-list':     <ModelList    setActivePage={setActivePage} />,
       'add-new-model':  <AddNewModel  setActivePage={setActivePage} />,
+      'driver-rating':  <DriverRating />,
     };
 
     return pages[activePage] ?? pages[roleConfig.defaultPage];

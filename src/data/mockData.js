@@ -542,5 +542,21 @@ export const seedState = {
       registrationCardImage: '',
       createdAt: new Date(Date.now() - 86400000 * 0.5).toISOString(),
     },
-  ]
+  ],
+  driverRatings: [
+    { id: 'dr_1',  riderName: 'Ritik Vani User',   driverName: 'Rakesh Dongre',         rating: 3, comment: '',          createdAt: '2026-06-27T02:13:35.000Z' },
+    { id: 'dr_2',  riderName: 'Ritik Vani User',   driverName: 'Rakesh Dongre',         rating: 3, comment: '',          createdAt: '2026-06-27T02:13:35.000Z' },
+    { id: 'dr_3',  riderName: 'Ritik Vani User',   driverName: 'Test Logitect Driver',  rating: 3, comment: '',          createdAt: '2026-06-16T06:44:48.000Z' },
+    { id: 'dr_4',  riderName: 'Ritik Vani User',   driverName: 'Test Logitect Driver',  rating: 4, comment: '',          createdAt: '2026-06-16T06:44:48.000Z' },
+    { id: 'dr_5',  riderName: 'Ritik Vani User',   driverName: 'Test Logitect Driver',  rating: 3, comment: '',          createdAt: '2026-06-13T06:58:44.000Z' },
+    { id: 'dr_6',  riderName: 'Ritik Vani User',   driverName: 'Test Logitect Driver',  rating: 3, comment: '',          createdAt: '2026-06-13T06:58:44.000Z' },
+    { id: 'dr_7',  riderName: 'Ritik Vani User',   driverName: 'Test Logitect Driver',  rating: 3, comment: 'Good work', createdAt: '2026-06-13T06:02:14.000Z' },
+    { id: 'dr_8',  riderName: 'Ritik Vani User',   driverName: 'Test Logitect Driver',  rating: 3, comment: 'Good work', createdAt: '2026-06-13T06:02:14.000Z' },
+    { id: 'dr_9',  riderName: 'Ritik Vani User',   driverName: 'Test Logitect Driver',  rating: 3, comment: '',          createdAt: '2026-06-10T01:41:22.000Z' },
+    { id: 'dr_10', riderName: 'Ritik Vani User',   driverName: 'Test Logitect Driver',  rating: 3, comment: '',          createdAt: '2026-06-10T01:41:22.000Z' },
+    { id: 'dr_11', riderName: 'Priya Sharma',       driverName: 'Amir Khan Driver',      rating: 5, comment: 'Excellent driving, very polite!', createdAt: '2026-06-08T09:12:00.000Z' },
+    { id: 'dr_12', riderName: 'Amit Verma',         driverName: 'Sanjay Patel Driver',   rating: 4, comment: 'Good service',                   createdAt: '2026-06-07T14:30:00.000Z' },
+    { id: 'dr_13', riderName: 'Sneha Rao',          driverName: 'Rakesh Dongre',         rating: 2, comment: 'Arrived late',                    createdAt: '2026-06-05T11:00:00.000Z' },
+    { id: 'dr_14', riderName: 'Karan Mehta',        driverName: 'Test Logitect Driver',  rating: 4, comment: '',          createdAt: '2026-06-03T08:45:00.000Z' },
+  ],
 };

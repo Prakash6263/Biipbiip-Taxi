@@ -15,6 +15,7 @@ const initialState = () => {
       companyNotifications: [],
       coupons: seedState.coupons || [],
       allCompanyCars: seedState.allCompanyCars || [],
+      driverRatings: seedState.driverRatings || [],
     };
   }
   return {
@@ -26,6 +27,7 @@ const initialState = () => {
     companyNotifications: loaded.companyNotifications || [],
     coupons: loaded.coupons || seedState.coupons || [],
     allCompanyCars: loaded.allCompanyCars || seedState.allCompanyCars || [],
+    driverRatings: loaded.driverRatings ?? seedState.driverRatings ?? [],
   };
 };
 
@@ -1036,6 +1038,13 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const deleteDriverRating = (id) => {
+    setState((prev) => ({
+      ...prev,
+      driverRatings: prev.driverRatings.filter((r) => r.id !== id),
+    }));
+  };
+
   const resetDemoData = () => {
     setState({
       ...seedState,
@@ -1043,6 +1052,7 @@ export const AppProvider = ({ children }) => {
       userNotifications: [],
       companyNotifications: [],
       coupons: seedState.coupons || [],
+      driverRatings: seedState.driverRatings || [],
     });
     setCurrentUser(null);
     localStorage.removeItem('car_rental_current_user');
@@ -1086,6 +1096,7 @@ export const AppProvider = ({ children }) => {
       resetDemoData,
       verifyCompanyCar,
       rejectCompanyCar,
+      deleteDriverRating,
     }),
     [state, currentUser],
   );
