@@ -103,7 +103,7 @@ const AddNewMaker = ({ setActivePage }) => {
           <div className="flex justify-center">
             <button
               type="submit"
-              className="rounded-2xl px-10 py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-90 active:scale-95"
+              className="rounded-full px-8 py-2.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90 active:scale-95"
               style={{ backgroundColor: '#002E5B', boxShadow: '0 4px 14px rgba(0, 46, 91, 0.2)' }}
             >
               ADD NEW BRAND

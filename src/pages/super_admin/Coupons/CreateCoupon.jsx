@@ -197,17 +197,17 @@ const CreateCoupon = ({ setActivePage }) => {
           </div>
 
           {/* Buttons */}
-          <div className="grid grid-cols-3 gap-4 pt-3">
+          <div className="flex justify-end gap-3 pt-3">
             <button
               type="button"
               onClick={() => setActivePage('coupons')}
-              className="col-span-1 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-3.5 font-bold transition text-sm text-center shadow-sm"
+              className="rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-2.5 px-6 font-bold transition text-sm text-center shadow-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="col-span-2 flex items-center justify-center gap-2 rounded-2xl bg-[#00D6CC] text-white py-3.5 px-4 font-bold shadow-md hover:bg-[#00c2b9] hover:shadow-lg transition-all text-sm"
+              className="flex items-center justify-center gap-2 rounded-full bg-[#00D6CC] text-white py-2.5 px-6 font-bold shadow-md hover:bg-[#00c2b9] hover:shadow-lg transition-all text-sm"
             >
               <Plus size={16} /> Create Promo Coupon
             </button>

@@ -435,19 +435,19 @@ const CreateCompanyNotification = ({ setActivePage, selectedNotificationId }) =>
           </div>
 
           {/* Submit */}
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-[#00D6CC] text-white py-3.5 px-6 font-bold shadow-md hover:bg-[#00c2b9] hover:shadow-lg transition-all"
-            >
-              <Send size={16} /> {selectedNotificationId ? 'Update Notice' : 'Broadcast to Portals'}
-            </button>
+          <div className="flex justify-end gap-3 pt-3">
             <button
               type="button"
               onClick={() => setActivePage('company-notifications')}
-              className="rounded-2xl bg-slate-100 text-slate-600 py-3.5 px-6 font-bold hover:bg-slate-200 transition-all border border-slate-200"
+              className="rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-2.5 px-6 font-bold transition text-sm text-center shadow-sm"
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex items-center justify-center gap-2 rounded-full bg-[#00D6CC] text-white py-2.5 px-6 font-bold shadow-md hover:bg-[#00c2b9] hover:shadow-lg transition-all text-sm"
+            >
+              <Send size={16} /> {selectedNotificationId ? 'Update Notice' : 'Broadcast to Portals'}
             </button>
           </div>
         </form>
