@@ -94,8 +94,8 @@ const SuperAdminDashboard = () => {
       </div>
 
       {/* ── Recent Company Registrations Table ─────────────── */}
-      <div className="card card-purple">
-        <div className="card-header card-header-dashboard">
+      <div className="card border border-slate-200 bg-white overflow-hidden rounded-3xl shadow-sm">
+        <div className="px-6 py-4 flex items-center justify-between" style={{ backgroundColor: '#00D6CC' }}>
           <div className="d-flex justify-content-between align-items-center w-100">
             <h5 className="card-title text-white mb-0" style={{ fontSize: '1rem', fontWeight: 600 }}>
               Recent Company Registrations
