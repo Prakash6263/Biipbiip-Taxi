@@ -84,8 +84,11 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
               <thead>
                 <tr>
                   <th className="font-bold text-slate-400">Company</th>
-                  <th className="font-bold text-slate-400">Contact Details</th>
-                  <th className="font-bold text-slate-400">GST & Address</th>
+                  <th className="font-bold text-slate-400">Owner</th>
+                  <th className="font-bold text-slate-400">Phone</th>
+                  <th className="font-bold text-slate-400">Email</th>
+                  <th className="font-bold text-slate-400">GST</th>
+                  <th className="font-bold text-slate-400">Address</th>
                   <th className="font-bold text-slate-400 text-center">Status</th>
                   <th className="font-bold text-slate-400 text-right">Actions</th>
                 </tr>
@@ -95,48 +98,42 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
                   const carCount = state.allCompanyCars.filter((car) => car.companyId === company.id).length;
                   return (
                     <tr key={company.id} className="hover:bg-slate-50/40 transition-colors">
-                      {/* COMPANY column */}
-                      <td className="px-6 py-5">
-                        <div>
-                          <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                            {company.companyName}
-                            <button
-                              onClick={() => onShowCars?.(company.id)}
-                              className="inline-flex items-center gap-1 rounded-full bg-slate-100 hover:bg-[#00D6CC]/10 hover:text-[#00D6CC] px-2 py-0.5 text-[10px] font-bold text-slate-600 transition"
-                              title="View fleet cars"
-                            >
-                              🚗 {carCount}
-                            </button>
-                          </div>
-                          <div className="text-xs text-slate-400 mt-1">
-                            Reg: {formatDate(company.createdAt)}
-                          </div>
+                      {/* Company Name */}
+                      <td className="font-bold text-slate-900 text-sm">
+                        <div className="flex items-center gap-2">
+                          {company.companyName}
+                          <button
+                            onClick={() => onShowCars?.(company.id)}
+                            className="inline-flex items-center gap-1 rounded-full bg-slate-100 hover:bg-[#00D6CC]/10 hover:text-[#00D6CC] px-2 py-0.5 text-[10px] font-bold text-slate-600 transition"
+                            title="View fleet cars"
+                          >
+                            🚗 {carCount}
+                          </button>
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-semibold mt-1">
+                          Reg: {formatDate(company.createdAt)}
                         </div>
                       </td>
 
-                      {/* CONTACT DETAILS column */}
-                      <td className="px-6 py-5">
-                        <div>
-                          <div className="font-bold text-slate-800 text-sm">{company.ownerName}</div>
-                          <div className="text-xs text-slate-500 mt-0.5">{company.phone}</div>
-                          <div className="text-xs text-slate-400">{company.email}</div>
-                        </div>
+                      {/* Owner Name */}
+                      <td className="text-slate-800 font-semibold text-sm">{company.ownerName}</td>
+
+                      {/* Phone */}
+                      <td className="text-slate-600 text-xs">{company.phone}</td>
+
+                      {/* Email */}
+                      <td className="text-slate-600 text-xs">{company.email}</td>
+
+                      {/* GST */}
+                      <td className="text-slate-600 text-xs">{company.gstNumber || '—'}</td>
+
+                      {/* Address */}
+                      <td className="text-slate-600 text-xs max-w-[200px] truncate" title={company.address}>
+                        {company.address}
                       </td>
 
-                      {/* GST & ADDRESS column */}
-                      <td className="px-6 py-5">
-                        <div className="max-w-[300px]">
-                          <span className="inline-block bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded text-[10px] tracking-wide mb-1 border border-slate-200">
-                            GST: {company.gstNumber || '—'}
-                          </span>
-                          <div className="text-xs text-slate-500 truncate" title={company.address}>
-                            {company.address}
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* STATUS column */}
-                      <td className="px-6 py-5 text-center">
+                      {/* Status */}
+                      <td className="text-center">
                         <span
                           className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
                           style={
@@ -151,8 +148,8 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
                         </span>
                       </td>
 
-                      {/* ACTIONS column */}
-                      <td className="px-6 py-5 text-right">
+                      {/* Actions */}
+                      <td className="text-right">
                         <button
                           onClick={() => onShowDetail?.(company.id)}
                           className="inline-flex items-center justify-center rounded-full px-5 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
