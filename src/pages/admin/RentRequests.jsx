@@ -31,11 +31,10 @@ const RentRequests = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Admin</p>
-          <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Rent Requests</h2>
-        </div>
+      <div className="page-header">
+        <p className="breadcrumb-label">ADMIN</p>
+        <h2>Rent Requests</h2>
+        <p>Review and manage customer car rental requests and document submissions.</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -56,21 +55,20 @@ const RentRequests = () => {
       </div>
 
       {filteredRequests.length ? (
-        /* TABLE VIEW ONLY */
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left text-sm">
+        <div className="card card-table p-2">
+          <div className="card-body table-responsive">
+            <table className="table table-bordered table-striped mb-0">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50 text-slate-600 font-semibold">
-                  <th className="px-6 py-4">Customer</th>
-                  <th className="px-6 py-4">Car</th>
-                  <th className="px-6 py-4">Rental Duration</th>
-                  <th className="px-6 py-4">Amount</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
+                <tr>
+                  <th className="font-bold text-slate-400">Customer</th>
+                  <th className="font-bold text-slate-400">Car</th>
+                  <th className="font-bold text-slate-400">Rental Duration</th>
+                  <th className="font-bold text-slate-400">Amount</th>
+                  <th className="font-bold text-slate-400">Status</th>
+                  <th className="font-bold text-slate-400 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {filteredRequests.map((request) => {
                   const car = state.cars.find((item) => item.id === request.carId);
                   const days = Math.max(1, Math.ceil((new Date(request.returnDate) - new Date(request.pickupDate)) / 86400000));
@@ -80,40 +78,42 @@ const RentRequests = () => {
                   return (
                     <Fragment key={request.id}>
                       <tr className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-6 py-4">
+                        <td>
                           <div className="font-bold text-slate-950">{request.customerName}</div>
                           <div className="text-xs text-slate-500">{request.customerEmail}</div>
                           <div className="text-xs text-slate-400">{request.customerPhone}</div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td>
                           <span className="font-semibold text-slate-800">{car?.name || 'Deleted car'}</span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td>
                           <div className="font-semibold text-slate-800">{days} {days === 1 ? 'day' : 'days'}</div>
                           <div className="text-xs text-slate-500">{request.pickupDate} to {request.returnDate}</div>
                         </td>
-                        <td className="px-6 py-4 font-bold text-slate-950">
+                        <td className="font-bold text-slate-950">
                           {currency(amount)}
                         </td>
-                        <td className="px-6 py-4">
+                        <td>
                           <Badge status={request.status} />
                         </td>
-                        <td className="px-6 py-4">
+                        <td>
                           <div className="flex items-center justify-end gap-2">
                             {request.status === 'active' && (
                               <button
                                 onClick={() => markReturned(request.id)}
-                                className="rounded-xl bg-[#00D6CC] px-3 py-1.5 text-xs font-bold text-white hover:opacity-90 transition"
+                                className="inline-flex items-center justify-center rounded-full px-4 py-1.5 text-xs font-bold text-white transition hover:opacity-90"
+                                style={{ backgroundColor: '#00D6CC' }}
                               >
                                 Mark Returned
                               </button>
                             )}
                             <button
                               onClick={() => toggleExpand(request.id)}
-                              className={`flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold transition ${isExpanded
+                              className={`inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-xs font-bold transition ${
+                                isExpanded
                                   ? 'bg-slate-100 text-slate-800'
                                   : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:ring-slate-300'
-                                }`}
+                              }`}
                             >
                               <span>{isExpanded ? 'Hide Details' : 'Manage Docs'}</span>
                               {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -151,7 +151,7 @@ const RentRequests = () => {
                                   />
                                   <button
                                     onClick={() => uploadDocs(request.id)}
-                                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#00D6CC] px-4 py-2 text-xs font-bold text-white hover:opacity-90 transition"
+                                    className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#00D6CC] px-4 py-2 text-xs font-bold text-white hover:opacity-90 transition"
                                   >
                                     <UploadCloud size={14} /> Upload
                                   </button>
@@ -168,21 +168,21 @@ const RentRequests = () => {
                                 <button
                                   onClick={() => approveRentalRequest(request.id)}
                                   disabled={request.status !== 'pending' || !request.userDocuments?.length}
-                                  className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 transition"
+                                  className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 transition"
                                 >
-                                  Approve & Rent Car
+                                  Approve &amp; Rent Car
                                 </button>
                                 <button
                                   onClick={() => rejectRentalRequest(request.id, notes[request.id])}
                                   disabled={request.status !== 'pending'}
-                                  className="rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-slate-300 transition"
+                                  className="rounded-full bg-rose-600 px-4 py-2 text-xs font-bold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-slate-300 transition"
                                 >
                                   Reject
                                 </button>
                                 <button
                                   onClick={() => markReturned(request.id)}
                                   disabled={request.status !== 'active'}
-                                  className="rounded-xl bg-[#00D6CC] px-4 py-2 text-xs font-bold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 transition"
+                                  className="rounded-full bg-[#00D6CC] px-4 py-2 text-xs font-bold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 transition"
                                 >
                                   Mark Returned
                                 </button>

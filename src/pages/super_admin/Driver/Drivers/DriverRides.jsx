@@ -121,12 +121,13 @@ const DriverRides = ({ selectedDriverId, setSelectedDriverId }) => {
   if (!activeDriver) {
     return (
       <div className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between page-header mb-0">
           <div>
-            <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Driver Rides</h2>
+            <p className="breadcrumb-label">MANAGEMENT</p>
+            <h2>Driver Rides</h2>
+            <p>View all rides completed by verified drivers on the platform.</p>
           </div>
-
-          <div className="relative w-full max-w-xs sm:mt-8">
+          <div className="relative w-full max-w-xs sm:self-center">
             <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               type="text"

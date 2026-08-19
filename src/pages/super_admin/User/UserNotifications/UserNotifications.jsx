@@ -50,9 +50,11 @@ const UserNotifications = ({ setActivePage, setSelectedNotificationId }) => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center page-header mb-0">
         <div>
-          <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">User Notification</h2>
+          <p className="breadcrumb-label">USER MANAGEMENT</p>
+          <h2>User Notifications</h2>
+          <p>Send and manage broadcast notifications to platform users.</p>
         </div>
         <button
           onClick={() => {

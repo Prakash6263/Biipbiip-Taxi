@@ -46,15 +46,16 @@ const ModelList = ({ setActivePage }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between page-header mb-0">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-500">Make And Models</p>
-          <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">Model List</h2>
+          <p className="breadcrumb-label">MAKE AND MODELS</p>
+          <h2>Model List</h2>
+          <p>Manage all vehicle models linked to registered makers.</p>
         </div>
         <button
           onClick={() => setActivePage('add-new-model')}
-          className="inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90"
-          style={{ backgroundColor: '#00D6CC', boxShadow: '0 4px 14px rgba(0,214,204,0.3)' }}
+          className="flex items-center justify-center gap-2 rounded-2xl bg-[#00D6CC] text-white py-3 px-5 font-bold shadow-md hover:bg-[#00c2b9] hover:shadow-lg transition-all text-sm self-start sm:self-center"
+          type="button"
         >
           <Plus size={16} /> Add New Model
         </button>

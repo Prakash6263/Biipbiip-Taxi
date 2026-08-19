@@ -50,9 +50,10 @@ const CompanyCars = ({ companyId, setActivePage, onShowDetail }) => {
         <span className="font-semibold">Back to Companies</span>
       </button>
 
-      <div>
-        <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">{company.companyName} - Cars</h2>
-        <p className="mt-2 text-slate-500">View all cars registered by this company</p>
+      <div className="page-header">
+        <p className="breadcrumb-label">COMPANY MANAGEMENT</p>
+        <h2>{company.companyName} — Cars</h2>
+        <p>View all cars registered by this company.</p>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
