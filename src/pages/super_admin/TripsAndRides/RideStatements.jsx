@@ -31,6 +31,7 @@ const RideStatements = ({ mode = 'overall' }) => {
   
   // Custom navigation state for detail view when clicking cards
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'detail-list'
+  const [cardStatusFilter, setCardStatusFilter] = useState('all');
 
   // Retrieve all verified drivers
   const drivers = useMemo(() => {
@@ -55,19 +56,50 @@ const RideStatements = ({ mode = 'overall' }) => {
         });
       });
     });
-    // Sort by date descending
-    return ridesList.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return ridesList;
   }, [drivers]);
 
-  // Apply filters depending on the mode
-  const filteredRides = useMemo(() => {
+  // Timeframe filtered rides based on the mode (Overall, Daily, Monthly, Yearly)
+  // Let's use Aug 19, 2026 as the mock "today's reference" since local time is set to Aug 19, 2026.
+  const timeframeRides = useMemo(() => {
+    const todayRef = new Date('2026-08-19');
+    
     return allRides.filter(ride => {
+      const rideDate = new Date(ride.date);
+      
+      if (mode === 'daily') {
+        return (
+          rideDate.getDate() === todayRef.getDate() &&
+          rideDate.getMonth() === todayRef.getMonth() &&
+          rideDate.getFullYear() === todayRef.getFullYear()
+        );
+      }
+      
+      if (mode === 'monthly') {
+        return (
+          rideDate.getMonth() === todayRef.getMonth() &&
+          rideDate.getFullYear() === todayRef.getFullYear()
+        );
+      }
+      
+      if (mode === 'yearly') {
+        return rideDate.getFullYear() === todayRef.getFullYear();
+      }
+      
+      return true; // overall shows all
+    });
+  }, [allRides, mode]);
+
+  // Apply filters (Driver, Status, Search) to the timeframe rides
+  const filteredRides = useMemo(() => {
+    return timeframeRides.filter(ride => {
       // Driver filter
       if (selectedDriver !== 'all' && ride.driverName !== selectedDriver) {
         return false;
       }
-      // Status filter
-      if (selectedStatus !== 'all' && ride.status.toLowerCase() !== selectedStatus.toLowerCase()) {
+      // Status filter (from dropdown or card click)
+      const currentStatusFilter = viewMode === 'detail-list' ? cardStatusFilter : selectedStatus;
+      if (currentStatusFilter !== 'all' && ride.status.toLowerCase() !== currentStatusFilter.toLowerCase()) {
         return false;
       }
       // Search term filter
@@ -84,71 +116,29 @@ const RideStatements = ({ mode = 'overall' }) => {
       }
       return true;
     });
-  }, [allRides, selectedDriver, selectedStatus, searchTerm]);
+  }, [timeframeRides, selectedDriver, selectedStatus, cardStatusFilter, viewMode, searchTerm]);
 
-  // Grouped statement calculation for Daily, Monthly, and Yearly views
-  const groupedData = useMemo(() => {
-    const groups = {};
-
-    filteredRides.forEach(ride => {
-      const rideDate = new Date(ride.date);
-      let key = '';
-
-      if (mode === 'daily') {
-        key = rideDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-      } else if (mode === 'monthly') {
-        key = rideDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      } else if (mode === 'yearly') {
-        key = rideDate.getFullYear().toString();
-      }
-
-      if (!key) return;
-
-      if (!groups[key]) {
-        groups[key] = {
-          label: key,
-          rideCount: 0,
-          totalKm: 0,
-          totalFare: 0,
-          totalTips: 0,
-          totalCommission: 0,
-          rides: []
-        };
-      }
-
-      groups[key].rideCount += 1;
-      groups[key].totalKm += ride.km;
-      groups[key].totalFare += ride.price;
-      groups[key].totalTips += ride.tip;
-      groups[key].totalCommission += ride.commission;
-      groups[key].rides.push(ride);
-    });
-
-    return Object.values(groups);
-  }, [filteredRides, mode]);
-
-  // Overall KPI Stats based on all rides
+  // Overall KPI Stats based on the timeframe rides
   const stats = useMemo(() => {
-    const totalRides = filteredRides.length;
-    const cancelledRides = filteredRides.filter(r => r.status === 'Cancelled').length;
-    const completedRides = filteredRides.filter(r => r.status === 'Completed').length;
+    const totalRides = timeframeRides.length;
+    const cancelledRides = timeframeRides.filter(r => r.status === 'Cancelled').length;
+    const completedRides = timeframeRides.filter(r => r.status === 'Completed').length;
     
     // Sum price of completed rides
-    const totalFare = filteredRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.price, 0);
-    const totalTips = filteredRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.tip, 0);
+    const totalFare = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.price, 0);
+    const totalTips = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.tip, 0);
     const totalRevenue = totalFare + totalTips;
-    const totalCommission = filteredRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.commission, 0);
+    const totalCommission = timeframeRides.filter(r => r.status === 'Completed').reduce((sum, r) => sum + r.commission, 0);
 
     return { totalRides, cancelledRides, completedRides, totalRevenue, totalCommission };
-  }, [filteredRides]);
+  }, [timeframeRides]);
 
-  // Pagination for lists
-  const dataList = (mode === 'overall' || viewMode === 'detail-list') ? filteredRides : groupedData;
-  const totalPages = Math.ceil(dataList.length / entriesPerPage) || 1;
+  // Pagination for lists (All pages now use timeframeRides list layout)
+  const totalPages = Math.ceil(filteredRides.length / entriesPerPage) || 1;
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * entriesPerPage;
-    return dataList.slice(startIndex, startIndex + entriesPerPage);
-  }, [dataList, currentPage, entriesPerPage]);
+    return filteredRides.slice(startIndex, startIndex + entriesPerPage);
+  }, [filteredRides, currentPage, entriesPerPage]);
 
   const formatRideDate = (dateString) => {
     const d = new Date(dateString);
@@ -172,7 +162,7 @@ const RideStatements = ({ mode = 'overall' }) => {
 
   // Handles card "MORE INFO" action
   const handleCardClick = (statusFilter) => {
-    setSelectedStatus(statusFilter);
+    setCardStatusFilter(statusFilter);
     setViewMode('detail-list');
     setCurrentPage(1);
   };
@@ -328,7 +318,7 @@ const RideStatements = ({ mode = 'overall' }) => {
         
         {viewMode === 'detail-list' && (
           <button
-            onClick={() => { setViewMode('list'); setSelectedStatus('all'); }}
+            onClick={() => { setViewMode('list'); setCardStatusFilter('all'); }}
             className="flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
             style={{ backgroundColor: '#002E5B', borderColor: '#00D6CC' }}
           >
@@ -376,7 +366,7 @@ const RideStatements = ({ mode = 'overall' }) => {
               className="border border-slate-300 bg-white px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 focus:outline-none"
             >
               <option value="all">All Drivers</option>
-              {[...new Set(allRides.map(r => r.driverName))].map(name => (
+              {[...new Set(timeframeRides.map(r => r.driverName))].map(name => (
                 <option key={name} value={name}>{name}</option>
               ))}
             </select>
@@ -401,31 +391,17 @@ const RideStatements = ({ mode = 'overall' }) => {
       >
         <div className="table-responsive">
           <table className="table table-striped mb-0 align-middle" style={{ backgroundColor: 'transparent' }}>
-            {(mode === 'overall' || viewMode === 'detail-list') ? (
-              // ── Overall / Detail Statement Table Headers ──
-              <thead>
-                <tr className="border-b border-[#49e3dd]/30 bg-[#002E5B]/5">
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-20">Ride ID</th>
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider">Picked Up</th>
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider">Dropped</th>
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-40">Date On</th>
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-28">Total Amount</th>
-                  <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider text-center w-28">Status</th>
-                </tr>
-              </thead>
-            ) : (
-              // ── Grouped Statement Table Headers (Daily, Monthly, Yearly) ──
-              <thead>
-                <tr className="border-b border-[#49e3dd]/30 bg-[#002E5B]/5">
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider">Period / Date</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider text-center">Total Trips</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider text-center">Total Distance</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider">Total Fare</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider">Total Tips</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#031E3C] tracking-wider text-right">Commission Earned</th>
-                </tr>
-              </thead>
-            )}
+            {/* All modes now show the exact individual bookings list in the reference format */}
+            <thead>
+              <tr className="border-b border-[#49e3dd]/30 bg-[#002E5B]/5">
+                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-20">Ride ID</th>
+                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider">Picked Up</th>
+                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider">Dropped</th>
+                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-40">Date On</th>
+                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider w-28">Total Amount</th>
+                <th className="px-4 py-3 text-xs font-bold text-[#031E3C] tracking-wider text-center w-28">Status</th>
+              </tr>
+            </thead>
 
             <tbody>
               {paginatedData.length === 0 ? (
@@ -434,8 +410,7 @@ const RideStatements = ({ mode = 'overall' }) => {
                     No matching trip statements found. Try adjusting your filters.
                   </td>
                 </tr>
-              ) : (mode === 'overall' || viewMode === 'detail-list') ? (
-                // ── Overall / Detail Statement Table Body ──
+              ) : (
                 paginatedData.map((ride) => {
                   const { dateStr, timeStr } = formatRideDate(ride.date);
                   return (
@@ -474,33 +449,6 @@ const RideStatements = ({ mode = 'overall' }) => {
                     </tr>
                   );
                 })
-              ) : (
-                // ── Grouped Statement Table Body (Daily, Monthly, Yearly) ──
-                paginatedData.map((group, idx) => (
-                  <tr key={idx} className="border-b border-[#49e3dd]/20 hover:bg-[#00D6CC]/5 transition">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <Calendar size={16} className="text-[#031E3C]" />
-                        <span className="font-extrabold text-[#031E3C] text-sm">{group.label}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="font-bold text-[#031E3C] text-sm">{group.rideCount} rides</span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="font-bold text-slate-600 text-sm">{group.totalKm} km</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="font-extrabold text-[#031E3C] text-sm">{currency(group.totalFare)}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="font-semibold text-slate-600 text-sm">{currency(group.totalTips)}</span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="font-extrabold text-[#00D6CC] text-sm">{currency(group.totalCommission)}</span>
-                    </td>
-                  </tr>
-                ))
               )}
             </tbody>
           </table>
