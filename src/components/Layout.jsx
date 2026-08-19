@@ -314,9 +314,11 @@ const Layout = ({ activePage, setActivePage, children }) => {
               onClick={() => setUserDropdownOpen(!userDropdownOpen)}
               className="flex items-center gap-2 hover:bg-white/10 p-1.5 rounded-xl transition text-left"
             >
-              <div className="h-9 w-9 rounded-full bg-white text-[#002E5B] flex items-center justify-center font-bold text-sm uppercase shadow-sm">
-                {currentUser.name ? currentUser.name.slice(0, 2) : 'AD'}
-              </div>
+              <img
+                src="/assets/img/profiles/avatar-07.jpg"
+                alt="Profile Avatar"
+                className="h-9 w-9 rounded-full object-cover shadow-sm border border-white/20"
+              />
               <div className="hidden md:block">
                 <div className="text-xs font-bold text-white leading-none">{currentUser.name || 'Administrator'}</div>
                 <div className="text-[10px] text-white/70 font-semibold capitalize mt-1">{currentUser.role || 'Super Admin'}</div>
