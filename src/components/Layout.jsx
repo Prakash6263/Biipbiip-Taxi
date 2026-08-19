@@ -203,7 +203,23 @@ const Layout = ({ activePage, setActivePage, children }) => {
   const { currentUser, logout } = useApp();
   const [open, setOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [themeMode, setThemeMode] = useState(() => {
+    return sessionStorage.getItem('data-layout-mode') || 'light';
+  });
   const role = currentUser?.role || 'public';
+
+  // Synchronize layout mode attribute on the root HTML tag
+  useState(() => {
+    const saved = sessionStorage.getItem('data-layout-mode') || 'light';
+    document.documentElement.setAttribute('data-layout-mode', saved);
+  });
+
+  const toggleTheme = () => {
+    const nextMode = themeMode === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-layout-mode', nextMode);
+    sessionStorage.setItem('data-layout-mode', nextMode);
+    setThemeMode(nextMode);
+  };
 
   const items = useMemo(() => navConfig[role] || navConfig.public, [role]);
   const showSidebar = !!currentUser;
@@ -256,8 +272,12 @@ const Layout = ({ activePage, setActivePage, children }) => {
           </button>
 
           {/* Dark mode toggle icon - horizontally aligned next to avatar */}
-          <button className="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition hidden sm:inline-block">
-            <Moon size={16} />
+          <button 
+            onClick={toggleTheme}
+            className="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition hidden sm:inline-flex items-center justify-center"
+            aria-label="Toggle theme"
+          >
+            {themeMode === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
 
           {/* User profile section matching exact styling */}
