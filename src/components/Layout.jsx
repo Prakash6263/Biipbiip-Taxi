@@ -279,7 +279,7 @@ const Layout = ({ activePage, setActivePage, children }) => {
       {/* ── Desktop Sidebar (Goes all the way to the top of screen) ── */}
       {showSidebar && (
         <aside 
-          className="hidden lg:block w-64 fixed inset-y-0 left-0 z-30 border-r-2"
+          className="hidden lg:block w-64 fixed inset-y-0 left-0 z-40 border-r-2"
           style={{ borderColor: isDark ? '#1E293B' : '#00D6CC' }}
         >
           <SidebarContent items={items} activePage={activePage} setActivePage={setActivePage} themeMode={themeMode} />
@@ -400,7 +400,7 @@ const Layout = ({ activePage, setActivePage, children }) => {
         )}
 
         {/* ── Main Content Area (Shifted right next to sidebar) ── */}
-        <main className="flex-1 min-w-0 lg:pl-64 min-h-[calc(100vh-64px)]">
+        <main className="flex-1 min-w-0 lg:pl-64 min-h-[calc(100vh-64px)] overflow-hidden">
           <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
             {children}
           </div>
