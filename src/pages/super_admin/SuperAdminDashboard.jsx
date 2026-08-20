@@ -1,9 +1,18 @@
+import { useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/storage';
 import StatCard from '../../components/StatCard';
 
 const SuperAdminDashboard = () => {
-  const { state } = useApp();
+  const { state, currentUser, syncAllCompanies, syncAllCompanyCars } = useApp();
+
+  useEffect(() => {
+    if (currentUser && currentUser.token) {
+      syncAllCompanies(currentUser.token);
+      syncAllCompanyCars(currentUser.token);
+    }
+  }, [currentUser, syncAllCompanies, syncAllCompanyCars]);
+
   const pending  = state.companies.filter(c => c.status === 'pending');
   const verified = state.companies.filter(c => c.status === 'verified');
 
