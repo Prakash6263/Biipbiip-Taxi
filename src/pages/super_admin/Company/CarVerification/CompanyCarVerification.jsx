@@ -3,7 +3,7 @@ import Badge from '../../../../components/Badge';
 import EmptyState from '../../../../components/EmptyState';
 import { useApp } from '../../../../context/AppContext';
 import { formatDate } from '../../../../utils/storage';
-import { Search, Car as CarIcon, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Car as CarIcon, Eye, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 const CompanyCarVerification = ({ onShowDetail }) => {
   const { state, verifyCompanyCar, rejectCompanyCar, currentUser, syncAllCompanyCars } = useApp();
@@ -13,7 +13,7 @@ const CompanyCarVerification = ({ onShowDetail }) => {
   const itemsPerPage = 5;
   const [rejectModal, setRejectModal] = useState({ open: false, carId: null, reason: '' });
 
-  // Run only once when company car verification mounts to prevent infinite loops
+  // Run only once when company car verification mounts to prevent loops
   useEffect(() => {
     if (currentUser && currentUser.token) {
       syncAllCompanyCars(currentUser.token);
@@ -65,12 +65,14 @@ const CompanyCarVerification = ({ onShowDetail }) => {
 
   return (
     <div className="space-y-6">
+      {/* Page Header */}
       <div className="page-header">
         <p className="breadcrumb-label">VERIFICATIONS</p>
         <h2>Company Car Verification</h2>
         <p>Review and verify vehicle documents submitted by companies.</p>
       </div>
 
+      {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
           {['all', 'pending', 'verified', 'rejected'].map((item) => (
@@ -88,19 +90,9 @@ const CompanyCarVerification = ({ onShowDetail }) => {
             </button>
           ))}
         </div>
-
-        <div className="relative w-full sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search cars, brands, registration..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white py-2 pl-10 pr-4 text-xs outline-none transition focus:border-[#00D6CC]"
-          />
-        </div>
       </div>
 
+      {/* Main Table Card (Standard format) */}
       {paginatedCars.length === 0 ? (
         <EmptyState
           icon={CarIcon}
@@ -108,23 +100,40 @@ const CompanyCarVerification = ({ onShowDetail }) => {
           description="There are no company vehicles waiting for verification under this status."
         />
       ) : (
-        <div className="rounded-3xl border border-slate-100 bg-white shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left">
+        <div className="card card-table p-2">
+          {/* Toolbar */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 px-6 py-4">
+            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Display Company Car List</h3>
+            
+            <div className="relative w-full max-w-xs">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search cars, brands, registration..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 bg-white py-2 pl-10 pr-4 text-xs outline-none transition focus:border-[#00D6CC]"
+              />
+            </div>
+          </div>
+
+          {/* Table Container */}
+          <div className="card-body table-responsive">
+            <table className="table table-bordered table-striped mb-0 text-left">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/50 text-xs font-bold uppercase tracking-wider text-slate-400">
-                  <th className="px-6 py-4">Vehicle Details</th>
-                  <th className="px-6 py-4">Company Name</th>
-                  <th className="px-6 py-4">Registration No.</th>
-                  <th className="px-6 py-4">Submitted On</th>
-                  <th className="px-6 py-4 text-center">Status</th>
-                  <th className="px-6 py-4 text-center">Actions</th>
+                <tr>
+                  <th className="font-bold text-slate-400">Vehicle Details</th>
+                  <th className="font-bold text-slate-400">Company Name</th>
+                  <th className="font-bold text-slate-400">Registration No.</th>
+                  <th className="font-bold text-slate-400">Submitted On</th>
+                  <th className="font-bold text-slate-400 text-center">Status</th>
+                  <th className="font-bold text-slate-400 text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
+              <tbody>
                 {paginatedCars.map((car) => (
-                  <tr key={car.id} className="hover:bg-slate-50/30 transition-colors">
-                    <td className="px-6 py-4">
+                  <tr key={car.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="align-middle">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0">
                           {car.image ? (
@@ -141,13 +150,13 @@ const CompanyCarVerification = ({ onShowDetail }) => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-semibold text-slate-700">{car.companyName}</td>
-                    <td className="px-6 py-4 font-mono font-bold text-slate-600 text-xs uppercase">{car.registrationNo}</td>
-                    <td className="px-6 py-4 text-slate-500 font-medium">{formatDate(car.createdAt)}</td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="align-middle font-semibold text-slate-700">{car.companyName}</td>
+                    <td className="align-middle font-mono font-bold text-slate-600 text-xs uppercase">{car.registrationNo}</td>
+                    <td className="align-middle text-slate-500 font-medium">{formatDate(car.createdAt)}</td>
+                    <td className="align-middle text-center">
                       <Badge status={car.status} />
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="align-middle text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => onShowDetail(car.id)}
@@ -180,6 +189,7 @@ const CompanyCarVerification = ({ onShowDetail }) => {
             </table>
           </div>
 
+          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 bg-slate-50/30">
               <span className="text-xs text-slate-400 font-semibold">
