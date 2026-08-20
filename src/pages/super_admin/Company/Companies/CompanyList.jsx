@@ -17,7 +17,7 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
       syncAllCompanies(currentUser.token);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentUser?.token]);
 
   // Reset page to 1 when search or filter changes
   useEffect(() => {

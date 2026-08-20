@@ -12,7 +12,7 @@ const SuperAdminDashboard = () => {
       syncAllCompanyCars(currentUser.token);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentUser?.token]);
 
   const pending  = state.companies.filter(c => c.status === 'pending');
   const verified = state.companies.filter(c => c.status === 'verified');

@@ -18,7 +18,7 @@ const VerificationRequests = ({ onShowDetail }) => {
       syncAllDrivers(currentUser.token);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentUser?.token]);
 
   // Reset page to 1 when search or filter changes
   useEffect(() => {
