@@ -11,7 +11,8 @@ const SuperAdminDashboard = () => {
       syncAllCompanies(currentUser.token);
       syncAllCompanyCars(currentUser.token);
     }
-  }, [currentUser, syncAllCompanies, syncAllCompanyCars]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const pending  = state.companies.filter(c => c.status === 'pending');
   const verified = state.companies.filter(c => c.status === 'verified');
