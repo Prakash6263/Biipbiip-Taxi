@@ -120,9 +120,13 @@ const App = () => {
   const role = getUserRole(currentUser);
   const roleConfig = ROLE_CONFIG[role];
 
-  const [activePage, setActivePage] = useState(
-    roleConfig.defaultPage
-  );
+  const [activePage, setActivePage] = useState(() => {
+    const saved = localStorage.getItem('car_rental_active_page');
+    if (saved && roleConfig.allowedPages.includes(saved)) {
+      return saved;
+    }
+    return roleConfig.defaultPage;
+  });
 
   const [selectedVerificationId, setSelectedVerificationId] =
     useState(null);
@@ -143,6 +147,8 @@ const App = () => {
 
     if (!hasAccess) {
       setActivePage(roleConfig.defaultPage);
+    } else {
+      localStorage.setItem('car_rental_active_page', activePage);
     }
   }, [activePage, roleConfig]);
 
