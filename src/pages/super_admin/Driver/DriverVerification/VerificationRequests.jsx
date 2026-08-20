@@ -13,11 +13,13 @@ const VerificationRequests = ({ onShowDetail }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  // Run only once when verification requests mounts to prevent infinite loops
   useEffect(() => {
     if (currentUser && currentUser.token) {
       syncAllDrivers(currentUser.token);
     }
-  }, [currentUser, syncAllDrivers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Reset page to 1 when search or filter changes
   useEffect(() => {
@@ -45,37 +47,17 @@ const VerificationRequests = ({ onShowDetail }) => {
     return filteredRequests.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredRequests, currentPage, itemsPerPage]);
 
-  // Helper to format submission date and time separately
-  const formatDateTimeSplit = (isoString) => {
-    if (!isoString) return { date: '—', time: '' };
-    const dateObj = new Date(isoString);
-    const dateStr = new Intl.DateTimeFormat('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    }).format(dateObj);
-    const timeStr = new Intl.DateTimeFormat('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    }).format(dateObj);
-    return { date: dateStr, time: timeStr };
-  };
-
-
   return (
     <div className="space-y-6">
-      {/* Top Header Section */}
       <div className="page-header">
-        <p className="breadcrumb-label">VERIFICATION</p>
-        <h2>Driver Verification</h2>
-        <p>Review and verify documentation submitted by drivers.</p>
+        <p className="breadcrumb-label">VERIFICATIONS</p>
+        <h2>Driver Verification Requests</h2>
+        <p>Review and verify identity and vehicle documents submitted by drivers.</p>
       </div>
 
-      {/* Filter and Search Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
-          {['all', 'verified', 'pending', 'rejected'].map((item) => (
+          {['all', 'pending', 'verified', 'rejected'].map((item) => (
             <button
               key={item}
               onClick={() => setFilter(item)}
@@ -86,165 +68,110 @@ const VerificationRequests = ({ onShowDetail }) => {
               }`}
               style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
             >
-              {item.toUpperCase()}
+              {item}
             </button>
           ))}
         </div>
 
-        <div className="relative w-full max-w-xs">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search requests..."
+            placeholder="Search drivers, cars, registration..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] transition"
-            onFocus={(e) => e.target.style.borderColor = '#00D6CC'}
-            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+            className="w-full rounded-2xl border border-slate-200 bg-white py-2 pl-10 pr-4 text-xs outline-none transition focus:border-[#00D6CC]"
           />
         </div>
       </div>
 
-      {/* Table Container */}
-      {filteredRequests.length ? (
-        <div className="card card-table p-2">
-          <div className="card-body table-responsive">
-            <table className="table table-bordered table-striped mb-0">
+      {paginatedRequests.length === 0 ? (
+        <EmptyState
+          icon={User}
+          title="No Requests Found"
+          description="There are no driver verification requests matching your current status filter."
+        />
+      ) : (
+        <div className="rounded-3xl border border-slate-100 bg-white shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left">
               <thead>
-                <tr>
-                  <th className="font-bold text-slate-400">Driver</th>
-                  <th className="font-bold text-slate-400">Phone</th>
-                  <th className="font-bold text-slate-400">Email</th>
-                  <th className="font-bold text-slate-400">Car Name</th>
-                  <th className="font-bold text-slate-400">Reg No</th>
-                  <th className="font-bold text-slate-400 text-center">Status</th>
-                  <th className="font-bold text-slate-400">Submitted On</th>
-                  <th className="font-bold text-slate-400 text-right">Actions</th>
+                <tr className="border-b border-slate-100 bg-slate-50/50 text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <th className="px-6 py-4">Driver</th>
+                  <th className="px-6 py-4">Contact Info</th>
+                  <th className="px-6 py-4">Car Details</th>
+                  <th className="px-6 py-4">Submitted On</th>
+                  <th className="px-6 py-4 text-center">Status</th>
+                  <th className="px-6 py-4 text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {paginatedRequests.map((reqItem) => {
-                  const { date, time } = formatDateTimeSplit(reqItem.createdAt);
-                  return (
-                    <tr
-                      key={reqItem.id}
-                      className="hover:bg-slate-50/40 transition-colors"
-                    >
-                      {/* Driver Column */}
-                      <td>
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm uppercase text-white"
-                            style={{ backgroundColor: '#031E3C' }}
-                          >
-                            {reqItem.userName.slice(0, 2)}
-                          </div>
-                          <div>
-                            <div className="font-bold text-slate-900 text-sm">{reqItem.userName}</div>
-                            <div className="text-xs text-slate-400 mt-0.5">ID: {reqItem.id}</div>
-                          </div>
+              <tbody className="divide-y divide-slate-100 text-sm">
+                {paginatedRequests.map((req) => (
+                  <tr key={req.id} className="hover:bg-slate-50/30 transition-colors">
+                    <td className="px-6 py-4 font-bold text-slate-900">{req.userName}</td>
+                    <td className="px-6 py-4 font-semibold text-slate-700">
+                      <div className="space-y-1 text-xs">
+                        <div className="flex items-center gap-1.5 text-slate-600 font-medium">
+                          <Phone size={12} className="text-slate-400" />
+                          <span>{req.userPhone}</span>
                         </div>
-                      </td>
-
-                      {/* Phone */}
-                      <td className="text-slate-600 font-semibold text-xs">{reqItem.userPhone}</td>
-
-                      {/* Email */}
-                      <td className="text-slate-600 text-xs">{reqItem.userEmail}</td>
-
-                      {/* Car Name */}
-                      <td className="text-slate-800 text-xs">
-                        <div className="flex items-center gap-1.5">
-                          <Car size={12} className="text-slate-400" />
-                          {reqItem.carName}
+                        <div className="flex items-center gap-1.5 text-slate-600 font-medium">
+                          <Mail size={12} className="text-slate-400" />
+                          <span>{req.userEmail}</span>
                         </div>
-                      </td>
-
-                      {/* Reg No */}
-                      <td>
-                        <span className="inline-block bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded text-[10px] tracking-wide border border-slate-200">
-                          {reqItem.registrationNo}
-                        </span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="text-center">
-                        <span
-                          className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
-                          style={
-                            reqItem.status === 'verified'
-                              ? { color: '#10b981', borderColor: '#d1fae5', backgroundColor: '#f0fdf4' }
-                              : reqItem.status === 'pending'
-                              ? { color: '#f59e0b', borderColor: '#fef3c7', backgroundColor: '#fffbeb' }
-                              : { color: '#ef4444', borderColor: '#fee2e2', backgroundColor: '#fef2f2' }
-                          }
-                        >
-                          {reqItem.status}
-                        </span>
-                      </td>
-
-                      {/* Submitted On */}
-                      <td className="text-slate-500 text-xs">
-                        <div>
-                          <p className="font-bold text-slate-700">{date}</p>
-                          <p className="text-[10px] text-slate-400 mt-0.5 font-medium">{time}</p>
-                        </div>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="text-right">
-                        <button
-                          onClick={() => onShowDetail(reqItem.id)}
-                          className="inline-flex items-center justify-center rounded-full px-5 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
-                          style={{ backgroundColor: '#00D6CC', boxShadow: '0 2px 6px rgba(0, 214, 204, 0.2)' }}
-                        >
-                          Show Details
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-slate-700">
+                      <div>
+                        <p className="font-bold text-slate-900">{req.carName}</p>
+                        <p className="font-mono font-bold text-slate-500 uppercase mt-0.5 text-[10px] tracking-wider">{req.registrationNo}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-slate-500 font-medium">{formatDate(req.createdAt)}</td>
+                    <td className="px-6 py-4 text-center">
+                      <Badge
+                        variant={
+                          req.status === 'verified'
+                            ? 'green'
+                            : req.status === 'rejected'
+                            ? 'red'
+                            : 'amber'
+                        }
+                      >
+                        {req.status}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => onShowDetail(req.id)}
+                        className="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 flex items-center gap-1.5 mx-auto"
+                      >
+                        <Eye size={12} /> Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
 
-          {/* Table Pagination Footer */}
-          {filteredRequests.length > 0 && (
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500">
-              <span>
-                Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredRequests.length)} to{' '}
-                {Math.min(currentPage * itemsPerPage, filteredRequests.length)} of {filteredRequests.length} entries
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 bg-slate-50/30">
+              <span className="text-xs text-slate-400 font-semibold">
+                Showing page <span className="text-slate-800 font-bold">{currentPage}</span> of <span className="text-slate-800 font-bold">{totalPages}</span>
               </span>
-              <div className="flex items-center gap-1.5 self-end">
+              <div className="flex items-center gap-1.5">
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                   disabled={currentPage === 1}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
                 >
                   <ChevronLeft size={14} />
                 </button>
-                {Array.from({ length: totalPages || 1 }).map((_, index) => {
-                  const pageNum = index + 1;
-                  const isActive = currentPage === pageNum;
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
-                        isActive
-                          ? 'text-white shadow-sm'
-                          : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
-                      }`}
-                      style={isActive ? { backgroundColor: '#00D6CC', borderColor: '#00D6CC' } : {}}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
-                  disabled={currentPage === (totalPages || 1)}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                  onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -252,8 +179,6 @@ const VerificationRequests = ({ onShowDetail }) => {
             </div>
           )}
         </div>
-      ) : (
-        <EmptyState title="No verification requests found" message="No requests found matching this filter." />
       )}
     </div>
   );

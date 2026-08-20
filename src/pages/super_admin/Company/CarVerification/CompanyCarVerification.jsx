@@ -13,11 +13,13 @@ const CompanyCarVerification = ({ onShowDetail }) => {
   const itemsPerPage = 5;
   const [rejectModal, setRejectModal] = useState({ open: false, carId: null, reason: '' });
 
+  // Run only once when company car verification mounts to prevent infinite loops
   useEffect(() => {
     if (currentUser && currentUser.token) {
       syncAllCompanyCars(currentUser.token);
     }
-  }, [currentUser, syncAllCompanyCars]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Reset page to 1 when search or filter changes
   useEffect(() => {
@@ -26,14 +28,14 @@ const CompanyCarVerification = ({ onShowDetail }) => {
 
   const cars = useMemo(() => {
     return state.allCompanyCars.filter((car) => {
-    const matchesSearch =
-      car.name.toLowerCase().includes(search.toLowerCase()) ||
-      car.brand.toLowerCase().includes(search.toLowerCase()) ||
-      car.model.toLowerCase().includes(search.toLowerCase()) ||
-      car.registrationNo.toLowerCase().includes(search.toLowerCase()) ||
-      car.companyName.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch =
+        car.name.toLowerCase().includes(search.toLowerCase()) ||
+        car.brand.toLowerCase().includes(search.toLowerCase()) ||
+        car.model.toLowerCase().includes(search.toLowerCase()) ||
+        car.registrationNo.toLowerCase().includes(search.toLowerCase()) ||
+        car.companyName.toLowerCase().includes(search.toLowerCase());
 
-    const matchesFilter = filter === 'all' ? true : car.status === filter;
+      const matchesFilter = filter === 'all' ? true : car.status === filter;
 
       return matchesSearch && matchesFilter;
     });
@@ -46,23 +48,27 @@ const CompanyCarVerification = ({ onShowDetail }) => {
     return cars.slice(startIndex, startIndex + itemsPerPage);
   }, [cars, currentPage, itemsPerPage]);
 
-  const handleVerify = async (carId) => {
-    await verifyCompanyCar(carId);
+  const handleVerify = (id) => {
+    verifyCompanyCar(id);
   };
 
-  const handleReject = async () => {
-    if (rejectModal.carId && rejectModal.reason.trim()) {
-      await rejectCompanyCar(rejectModal.carId, rejectModal.reason);
-      setRejectModal({ open: false, carId: null, reason: '' });
-    }
+  const handleOpenReject = (id) => {
+    setRejectModal({ open: true, carId: id, reason: '' });
+  };
+
+  const handleRejectSubmit = (e) => {
+    e.preventDefault();
+    if (!rejectModal.reason.trim()) return;
+    rejectCompanyCar(rejectModal.carId, rejectModal.reason.trim());
+    setRejectModal({ open: false, carId: null, reason: '' });
   };
 
   return (
     <div className="space-y-6">
       <div className="page-header">
-        <p className="breadcrumb-label">VERIFICATION</p>
+        <p className="breadcrumb-label">VERIFICATIONS</p>
         <h2>Company Car Verification</h2>
-        <p>Verify and manage company car submissions for the rental catalog.</p>
+        <p>Review and verify vehicle documents submitted by companies.</p>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -78,135 +84,99 @@ const CompanyCarVerification = ({ onShowDetail }) => {
               }`}
               style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
             >
-              {item.toUpperCase()}
+              {item}
             </button>
           ))}
         </div>
 
-        <div className="relative w-full max-w-xs">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search cars..."
+            placeholder="Search cars, brands, registration..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] transition"
-            onFocus={(e) => e.target.style.borderColor = '#00D6CC'}
-            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+            className="w-full rounded-2xl border border-slate-200 bg-white py-2 pl-10 pr-4 text-xs outline-none transition focus:border-[#00D6CC]"
           />
         </div>
       </div>
 
-      {cars.length ? (
-        <div className="card card-table p-2">
-          <div className="card-body table-responsive">
-            <table className="table table-bordered table-striped mb-0">
+      {paginatedCars.length === 0 ? (
+        <EmptyState
+          icon={CarIcon}
+          title="No Vehicles Found"
+          description="There are no company vehicles waiting for verification under this status."
+        />
+      ) : (
+        <div className="rounded-3xl border border-slate-100 bg-white shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left">
               <thead>
-                <tr>
-                  <th className="font-bold text-slate-400 min-w-[240px]">Car Name</th>
-                  <th className="font-bold text-slate-400 min-w-[120px]">Reg No</th>
-                  <th className="font-bold text-slate-400 min-w-[180px]">Company</th>
-                  <th className="font-bold text-slate-400 min-w-[120px]">Date Added</th>
-                  <th className="font-bold text-slate-400 min-w-[160px]">Specifications</th>
-                  <th className="font-bold text-slate-400 min-w-[120px]">Price / Day</th>
-                  <th className="font-bold text-slate-400 text-center min-w-[120px]">Status</th>
-                  <th className="font-bold text-slate-400 text-right min-w-[200px]">Actions</th>
+                <tr className="border-b border-slate-100 bg-slate-50/50 text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <th className="px-6 py-4">Vehicle Details</th>
+                  <th className="px-6 py-4">Company Name</th>
+                  <th className="px-6 py-4">Registration No.</th>
+                  <th className="px-6 py-4">Submitted On</th>
+                  <th className="px-6 py-4 text-center">Status</th>
+                  <th className="px-6 py-4 text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100 text-sm">
                 {paginatedCars.map((car) => (
-                  <tr key={car.id} className="hover:bg-slate-50/40 transition-colors">
-                    {/* Car Name Column */}
-                    <td className="min-w-[240px] whitespace-normal">
+                  <tr key={car.id} className="hover:bg-slate-50/30 transition-colors">
+                    <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        {car.image ? (
-                          <img
-                            src={car.image}
-                            alt={car.name}
-                            className="h-12 w-12 rounded-xl object-cover border border-slate-100 shadow-sm"
-                          />
-                        ) : (
-                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 border border-slate-200">
-                            <CarIcon size={20} className="text-slate-400" />
-                          </div>
-                        )}
+                        <div className="h-10 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0">
+                          {car.image ? (
+                            <img src={car.image} alt={car.name} className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center text-slate-300">
+                              <CarIcon size={20} />
+                            </div>
+                          )}
+                        </div>
                         <div>
-                          <div className="font-bold text-slate-900 text-sm">{car.name}</div>
-                          <div className="text-xs text-slate-400 mt-0.5">{car.brand} {car.model}</div>
+                          <p className="font-bold text-slate-900">{car.brand} {car.model}</p>
+                          <p className="text-[11px] font-semibold text-slate-400 mt-0.5">{car.year} • {car.fuelType}</p>
                         </div>
                       </div>
                     </td>
-
-                    {/* Reg No */}
-                    <td className="min-w-[120px]">
-                      <span className="font-mono text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 inline-block">
-                        {car.registrationNo}
-                      </span>
+                    <td className="px-6 py-4 font-semibold text-slate-700">{car.companyName}</td>
+                    <td className="px-6 py-4 font-mono font-bold text-slate-600 text-xs uppercase">{car.registrationNo}</td>
+                    <td className="px-6 py-4 text-slate-500 font-medium">{formatDate(car.createdAt)}</td>
+                    <td className="px-6 py-4 text-center">
+                      <Badge
+                        variant={
+                          car.status === 'verified'
+                            ? 'green'
+                            : car.status === 'rejected'
+                            ? 'red'
+                            : 'amber'
+                        }
+                      >
+                        {car.status}
+                      </Badge>
                     </td>
-
-                    {/* Company */}
-                    <td className="font-bold text-slate-800 text-sm min-w-[180px] whitespace-normal">{car.companyName}</td>
-
-                    {/* Date Added */}
-                    <td className="text-xs text-slate-500 min-w-[120px]">{formatDate(car.createdAt)}</td>
-
-                    <td className="min-w-[160px]">
-                      <div className="text-xs text-slate-600 space-y-1">
-                        <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Year:</span> {car.year}</div>
-                        <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Fuel:</span> {car.fuelType}</div>
-                        <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Gear:</span> {car.transmission}</div>
-                        <div><span className="font-semibold text-slate-400 uppercase text-[9px] tracking-wider mr-1">Seats:</span> {car.seats}</div>
-                      </div>
-                    </td>
-
-                    <td className="min-w-[120px]">
-                      <div className="font-extrabold text-slate-900 text-base">₹{car.pricePerDay}</div>
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Per Day</div>
-                    </td>
-
-                    <td className="text-center min-w-[120px]">
-                      <div className="inline-flex flex-col gap-1 items-center justify-center">
-                        <span
-                          className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
-                          style={
-                            car.status === 'verified'
-                              ? { color: '#10b981', borderColor: '#d1fae5', backgroundColor: '#f0fdf4' }
-                              : car.status === 'pending'
-                              ? { color: '#f59e0b', borderColor: '#fef3c7', backgroundColor: '#fffbeb' }
-                              : { color: '#ef4444', borderColor: '#fee2e2', backgroundColor: '#fef2f2' }
-                          }
-                        >
-                          {car.status}
-                        </span>
-                        {car.status === 'rejected' && car.rejectionReason && (
-                          <div className="mt-1 text-[10px] font-semibold text-rose-600 max-w-[150px] truncate" title={car.rejectionReason}>
-                            Reason: {car.rejectionReason}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="text-right min-w-[200px]">
-                      <div className="flex justify-end items-center gap-2">
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex items-center justify-center gap-2">
                         <button
-                          onClick={() => onShowDetail?.(car.id)}
-                          className="inline-flex items-center justify-center rounded-full px-5 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm animate-pulse-subtle"
-                          style={{ backgroundColor: '#00D6CC', boxShadow: '0 2px 6px rgba(0, 214, 204, 0.2)' }}
+                          onClick={() => onShowDetail(car.id)}
+                          className="p-2 border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 rounded-xl transition"
+                          title="View Documents"
                         >
-                          Show Details
+                          <Eye size={14} />
                         </button>
                         {car.status === 'pending' && (
                           <>
                             <button
                               onClick={() => handleVerify(car.id)}
-                              className="inline-flex items-center justify-center rounded-full bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 text-xs font-bold transition shadow-sm"
+                              className="rounded-xl bg-[#00D6CC] text-white px-3 py-1.5 text-xs font-bold shadow-sm transition hover:opacity-90 active:scale-95 border-0"
                             >
                               Verify
                             </button>
                             <button
-                              onClick={() => setRejectModal({ open: true, carId: car.id, reason: '' })}
-                              className="inline-flex items-center justify-center rounded-full bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 text-xs font-bold transition shadow-sm"
+                              onClick={() => handleOpenReject(car.id)}
+                              className="rounded-xl border border-rose-200 bg-rose-50 text-rose-600 px-3 py-1.5 text-xs font-bold transition hover:bg-rose-100/60"
                             >
                               Reject
                             </button>
@@ -220,43 +190,23 @@ const CompanyCarVerification = ({ onShowDetail }) => {
             </table>
           </div>
 
-          {/* Table Pagination Footer */}
-          {cars.length > 0 && (
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500">
-              <span>
-                Showing {Math.min((currentPage - 1) * itemsPerPage + 1, cars.length)} to{' '}
-                {Math.min(currentPage * itemsPerPage, cars.length)} of {cars.length} entries
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 bg-slate-50/30">
+              <span className="text-xs text-slate-400 font-semibold">
+                Showing page <span className="text-slate-800 font-bold">{currentPage}</span> of <span className="text-slate-800 font-bold">{totalPages}</span>
               </span>
-              <div className="flex items-center gap-1.5 self-end">
+              <div className="flex items-center gap-1.5">
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                   disabled={currentPage === 1}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
                 >
                   <ChevronLeft size={14} />
                 </button>
-                {Array.from({ length: totalPages || 1 }).map((_, index) => {
-                  const pageNum = index + 1;
-                  const isActive = currentPage === pageNum;
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
-                        isActive
-                          ? 'text-white shadow-sm'
-                          : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
-                      }`}
-                      style={isActive ? { backgroundColor: '#00D6CC', borderColor: '#00D6CC' } : {}}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
-                  disabled={currentPage === (totalPages || 1)}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                  onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -264,38 +214,51 @@ const CompanyCarVerification = ({ onShowDetail }) => {
             </div>
           )}
         </div>
-      ) : (
-        <EmptyState title="No cars found" message="No company cars found for the selected filter." />
       )}
 
+      {/* Reject Modal */}
       {rejectModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-            <h3 className="text-xl font-bold text-slate-950 mb-4">Reject Car</h3>
-            <p className="text-sm text-slate-600 mb-4">Please provide a reason for rejecting this car.</p>
-            <textarea
-              value={rejectModal.reason}
-              onChange={(e) => setRejectModal({ ...rejectModal, reason: e.target.value })}
-              placeholder="Enter rejection reason..."
-              className="w-full rounded-2xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-[#00D6CC] transition min-h-[100px]"
-              onFocus={(e) => e.target.style.borderColor = '#00D6CC'}
-              onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
-            />
-            <div className="flex justify-end gap-3 mt-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white w-full max-w-md rounded-3xl shadow-xl overflow-hidden border border-slate-100 animate-in zoom-in-95">
+            <div className="bg-[#002E5B] text-white px-6 py-4 flex items-center justify-between">
+              <h3 className="font-bold text-sm tracking-wider uppercase">Reject Vehicle Request</h3>
               <button
                 onClick={() => setRejectModal({ open: false, carId: null, reason: '' })}
-                className="rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-2 text-sm font-bold transition"
+                className="text-white/80 hover:text-white p-1 hover:bg-white/10 rounded-lg transition"
               >
-                Cancel
-              </button>
-              <button
-                onClick={handleReject}
-                disabled={!rejectModal.reason.trim()}
-                className="rounded-xl bg-rose-500 text-white hover:bg-rose-600 disabled:bg-rose-300 disabled:cursor-not-allowed px-4 py-2 text-sm font-bold transition"
-              >
-                Reject
+                <X size={18} />
               </button>
             </div>
+            <form onSubmit={handleRejectSubmit} className="p-6 space-y-4">
+              <div className="space-y-2 text-left">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                  Rejection Reason <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Specify the reason why this vehicle's verification request is being rejected..."
+                  value={rejectModal.reason}
+                  onChange={(e) => setRejectModal(prev => ({ ...prev, reason: e.target.value }))}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none transition focus:border-[#00D6CC] focus:bg-white resize-none"
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setRejectModal({ open: false, carId: null, reason: '' })}
+                  className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                >
+                  Submit Rejection
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

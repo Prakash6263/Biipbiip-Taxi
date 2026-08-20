@@ -12,11 +12,13 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  // Run only once when the company list page mounts to prevent infinite loops
   useEffect(() => {
     if (currentUser && currentUser.token) {
       syncAllCompanies(currentUser.token);
     }
-  }, [currentUser, syncAllCompanies]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Reset page to 1 when search or filter changes
   useEffect(() => {
@@ -25,12 +27,12 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
 
   const filteredCompanies = useMemo(() => {
     return state.companies.filter((company) => {
-    const matchesSearch =
-      company.companyName.toLowerCase().includes(search.toLowerCase()) ||
-      company.ownerName.toLowerCase().includes(search.toLowerCase()) ||
-      company.email.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch =
+        company.companyName.toLowerCase().includes(search.toLowerCase()) ||
+        company.ownerName.toLowerCase().includes(search.toLowerCase()) ||
+        company.email.toLowerCase().includes(search.toLowerCase());
 
-    const matchesFilter = filter === 'all' ? true : company.status === filter;
+      const matchesFilter = filter === 'all' ? true : company.status === filter;
 
       return matchesSearch && matchesFilter;
     });
@@ -64,150 +66,118 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
               }`}
               style={filter === item ? { backgroundColor: '#00D6CC', boxShadow: '0 4px 12px rgba(0, 214, 204, 0.2)' } : {}}
             >
-              {item.toUpperCase()}
+              {item}
             </button>
           ))}
         </div>
 
-        <div className="relative w-full max-w-xs">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             placeholder="Search companies..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#00D6CC] transition"
-            onFocus={(e) => e.target.style.borderColor = '#00D6CC'}
-            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+            className="w-full rounded-2xl border border-slate-200 bg-white py-2 pl-10 pr-4 text-xs outline-none transition focus:border-[#00D6CC]"
           />
         </div>
       </div>
 
-      {filteredCompanies.length ? (
-        <div className="card card-table p-2">
-          <div className="card-body table-responsive">
-            <table className="table table-bordered table-striped mb-0">
+      {paginatedCompanies.length === 0 ? (
+        <EmptyState
+          icon={Building2}
+          title="No Companies Found"
+          description="There are no rental companies matching your current filter criteria."
+        />
+      ) : (
+        <div className="rounded-3xl border border-slate-100 bg-white shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left">
               <thead>
-                <tr>
-                  <th className="font-bold text-slate-400">Company</th>
-                  <th className="font-bold text-slate-400">Owner</th>
-                  <th className="font-bold text-slate-400">Phone</th>
-                  <th className="font-bold text-slate-400">Email</th>
-                  <th className="font-bold text-slate-400">GST</th>
-                  <th className="font-bold text-slate-400">Address</th>
-                  <th className="font-bold text-slate-400 text-center">Status</th>
-                  <th className="font-bold text-slate-400 text-right">Actions</th>
+                <tr className="border-b border-slate-100 bg-slate-50/50 text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <th className="px-6 py-4">Company</th>
+                  <th className="px-6 py-4">Owner</th>
+                  <th className="px-6 py-4">Phone</th>
+                  <th className="px-6 py-4">Email</th>
+                  <th className="px-6 py-4 text-center">Status</th>
+                  <th className="px-6 py-4 text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {paginatedCompanies.map((company) => {
-                  const carCount = state.allCompanyCars.filter((car) => car.companyId === company.id).length;
-                  return (
-                    <tr key={company.id} className="hover:bg-slate-50/40 transition-colors">
-                      {/* Company Name */}
-                      <td className="font-bold text-slate-900 text-sm">
-                        <div className="flex items-center gap-2">
-                          {company.companyName}
+              <tbody className="divide-y divide-slate-100 text-sm">
+                {paginatedCompanies.map((company) => (
+                  <tr key={company.id} className="hover:bg-slate-50/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="font-bold text-slate-900">{company.companyName}</p>
+                        <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-slate-400">
+                          <span>Reg: {formatDate(company.createdAt)}</span>
+                          <span>•</span>
                           <button
-                            onClick={() => onShowCars?.(company.id)}
-                            className="inline-flex items-center gap-1 rounded-full bg-slate-100 hover:bg-[#00D6CC]/10 hover:text-[#00D6CC] px-2 py-0.5 text-[10px] font-bold text-slate-600 transition"
-                            title="View fleet cars"
+                            onClick={() => onShowCars(company.id)}
+                            className="text-[#00D6CC] hover:underline bg-transparent border-0 p-0 font-bold"
                           >
-                            🚗 {carCount}
+                            🚙 {state.cars.filter((c) => c.companyId === company.id).length}
                           </button>
                         </div>
-                        <div className="text-[10px] text-slate-400 font-semibold mt-1">
-                          Reg: {formatDate(company.createdAt)}
-                        </div>
-                      </td>
-
-                      {/* Owner Name */}
-                      <td className="text-slate-800 font-semibold text-sm">{company.ownerName}</td>
-
-                      {/* Phone */}
-                      <td className="text-slate-600 text-xs">{company.phone}</td>
-
-                      {/* Email */}
-                      <td className="text-slate-600 text-xs">{company.email}</td>
-
-                      {/* GST */}
-                      <td className="text-slate-600 text-xs">{company.gstNumber || '—'}</td>
-
-                      {/* Address */}
-                      <td className="text-slate-600 text-xs max-w-[200px] truncate" title={company.address}>
-                        {company.address}
-                      </td>
-
-                      {/* Status */}
-                      <td className="text-center">
-                        <span
-                          className="inline-flex items-center justify-center rounded-full border px-4 py-1 text-xs font-bold capitalize"
-                          style={
-                            company.status === 'verified'
-                              ? { color: '#10b981', borderColor: '#d1fae5', backgroundColor: '#f0fdf4' }
-                              : company.status === 'pending'
-                              ? { color: '#f59e0b', borderColor: '#fef3c7', backgroundColor: '#fffbeb' }
-                              : { color: '#ef4444', borderColor: '#fee2e2', backgroundColor: '#fef2f2' }
-                          }
-                        >
-                          {company.status}
-                        </span>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="text-right">
-                        <button
-                          onClick={() => onShowDetail?.(company.id)}
-                          className="inline-flex items-center justify-center rounded-full px-5 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
-                          style={{ backgroundColor: '#00D6CC', boxShadow: '0 2px 6px rgba(0, 214, 204, 0.2)' }}
-                        >
-                          Show Details
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-slate-700">{company.ownerName}</td>
+                    <td className="px-6 py-4 text-slate-600 font-medium">
+                      <div className="flex items-center gap-1.5">
+                        <Phone size={14} className="text-slate-400" />
+                        <span>{company.phone}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-slate-600 font-medium">
+                      <div className="flex items-center gap-1.5">
+                        <Mail size={14} className="text-slate-400" />
+                        <span>{company.email}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <Badge
+                        variant={
+                          company.status === 'verified'
+                            ? 'green'
+                            : company.status === 'rejected'
+                            ? 'red'
+                            : 'amber'
+                        }
+                      >
+                        {company.status}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => onShowDetail(company.id)}
+                        className="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+                      >
+                        Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
 
-          {/* Table Pagination Footer */}
-          {filteredCompanies.length > 0 && (
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 py-4 px-6 bg-slate-50/20 text-xs font-medium text-slate-500">
-              <span>
-                Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredCompanies.length)} to{' '}
-                {Math.min(currentPage * itemsPerPage, filteredCompanies.length)} of {filteredCompanies.length} entries
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 bg-slate-50/30">
+              <span className="text-xs text-slate-400 font-semibold">
+                Showing page <span className="text-slate-800 font-bold">{currentPage}</span> of <span className="text-slate-800 font-bold">{totalPages}</span>
               </span>
-              <div className="flex items-center gap-1.5 self-end">
+              <div className="flex items-center gap-1.5">
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                   disabled={currentPage === 1}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
                 >
                   <ChevronLeft size={14} />
                 </button>
-                {Array.from({ length: totalPages || 1 }).map((_, index) => {
-                  const pageNum = index + 1;
-                  const isActive = currentPage === pageNum;
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs transition ${
-                        isActive
-                          ? 'text-white shadow-sm'
-                          : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
-                      }`}
-                      style={isActive ? { backgroundColor: '#00D6CC', borderColor: '#00D6CC' } : {}}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
-                  disabled={currentPage === (totalPages || 1)}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 disabled:hover:bg-white transition"
+                  onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:text-slate-300 transition"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -215,8 +185,6 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
             </div>
           )}
         </div>
-      ) : (
-        <EmptyState title="No companies found" message="No companies match the selected filters and search details." />
       )}
     </div>
   );
