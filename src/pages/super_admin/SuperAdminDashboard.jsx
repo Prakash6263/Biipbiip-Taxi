@@ -122,7 +122,7 @@ const SuperAdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {state.companies.slice(0, 6).map((company, idx) => (
+                {state.companies.slice(0, 10).map((company, idx) => (
                   <tr key={company.id} className="align-middle">
                     <td className="px-4 py-3 text-slate-400 font-semibold text-xs">{idx + 1}</td>
                     <td className="px-4 py-3">
