@@ -145,17 +145,7 @@ const CompanyCarVerification = ({ onShowDetail }) => {
                     <td className="px-6 py-4 font-mono font-bold text-slate-600 text-xs uppercase">{car.registrationNo}</td>
                     <td className="px-6 py-4 text-slate-500 font-medium">{formatDate(car.createdAt)}</td>
                     <td className="px-6 py-4 text-center">
-                      <Badge
-                        variant={
-                          car.status === 'verified'
-                            ? 'green'
-                            : car.status === 'rejected'
-                            ? 'red'
-                            : 'amber'
-                        }
-                      >
-                        {car.status}
-                      </Badge>
+                      <Badge status={car.status} />
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">

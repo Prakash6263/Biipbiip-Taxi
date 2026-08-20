@@ -129,17 +129,7 @@ const VerificationRequests = ({ onShowDetail }) => {
                     </td>
                     <td className="px-6 py-4 text-slate-500 font-medium">{formatDate(req.createdAt)}</td>
                     <td className="px-6 py-4 text-center">
-                      <Badge
-                        variant={
-                          req.status === 'verified'
-                            ? 'green'
-                            : req.status === 'rejected'
-                            ? 'red'
-                            : 'amber'
-                        }
-                      >
-                        {req.status}
-                      </Badge>
+                      <Badge status={req.status} />
                     </td>
                     <td className="px-6 py-4 text-center">
                       <button

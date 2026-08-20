@@ -135,17 +135,7 @@ const CompanyList = ({ onShowDetail, onShowCars }) => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <Badge
-                        variant={
-                          company.status === 'verified'
-                            ? 'green'
-                            : company.status === 'rejected'
-                            ? 'red'
-                            : 'amber'
-                        }
-                      >
-                        {company.status}
-                      </Badge>
+                      <Badge status={company.status} />
                     </td>
                     <td className="px-6 py-4 text-center">
                       <button
