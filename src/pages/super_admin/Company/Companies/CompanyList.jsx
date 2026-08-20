@@ -6,11 +6,17 @@ import { formatDate } from '../../../../utils/storage';
 import { Search, Building2, MapPin, Phone, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const CompanyList = ({ onShowDetail, onShowCars }) => {
-  const { state } = useApp();
+  const { state, currentUser, syncAllCompanies } = useApp();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  useEffect(() => {
+    if (currentUser && currentUser.token) {
+      syncAllCompanies(currentUser.token);
+    }
+  }, [currentUser, syncAllCompanies]);
 
   // Reset page to 1 when search or filter changes
   useEffect(() => {

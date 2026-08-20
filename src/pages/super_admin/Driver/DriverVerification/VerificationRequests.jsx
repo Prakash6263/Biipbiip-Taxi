@@ -7,11 +7,17 @@ import { User, Car, Search, Eye, ChevronLeft, ChevronRight, FileText, Phone, Mai
 import VerificationRequestDetail from './VerificationRequestDetail';
 
 const VerificationRequests = ({ onShowDetail }) => {
-  const { state } = useApp();
+  const { state, currentUser, syncAllDrivers } = useApp();
   const [filter, setFilter] = useState('pending');
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  useEffect(() => {
+    if (currentUser && currentUser.token) {
+      syncAllDrivers(currentUser.token);
+    }
+  }, [currentUser, syncAllDrivers]);
 
   // Reset page to 1 when search or filter changes
   useEffect(() => {

@@ -6,12 +6,18 @@ import { formatDate } from '../../../../utils/storage';
 import { Search, Car as CarIcon, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const CompanyCarVerification = ({ onShowDetail }) => {
-  const { state, verifyCompanyCar, rejectCompanyCar } = useApp();
+  const { state, verifyCompanyCar, rejectCompanyCar, currentUser, syncAllCompanyCars } = useApp();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const [rejectModal, setRejectModal] = useState({ open: false, carId: null, reason: '' });
+
+  useEffect(() => {
+    if (currentUser && currentUser.token) {
+      syncAllCompanyCars(currentUser.token);
+    }
+  }, [currentUser, syncAllCompanyCars]);
 
   // Reset page to 1 when search or filter changes
   useEffect(() => {

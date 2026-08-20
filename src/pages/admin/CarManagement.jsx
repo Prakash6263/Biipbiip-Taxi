@@ -31,9 +31,15 @@ const defaultForm = {
 };
 
 const CarManagement = ({ onShowDetail, editCarId, clearEditCarId }) => {
-  const { state, currentUser, addCar, updateCar, updateCarStatus, deleteCar } = useApp();
+  const { state, currentUser, addCar, updateCar, updateCarStatus, deleteCar, syncCompanyCars } = useApp();
   const company = state.companies.find((item) => item.id === currentUser?.companyId);
   const cars = state.cars.filter((car) => car.companyId === company?.id);
+
+  useEffect(() => {
+    if (currentUser && currentUser.token) {
+      syncCompanyCars(currentUser.token);
+    }
+  }, [currentUser, syncCompanyCars]);
 
   const [form, setForm] = useState(defaultForm);
   // Multiple vehicle photos (up to 6)

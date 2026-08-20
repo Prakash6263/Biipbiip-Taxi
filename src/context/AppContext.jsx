@@ -163,20 +163,6 @@ export const AppProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-  useEffect(() => {
-    if (currentUser && currentUser.role === 'admin' && currentUser.token) {
-      syncCompanyCars(currentUser.token);
-    }
-  }, [currentUser?.token]);
-
-  useEffect(() => {
-    if (currentUser && currentUser.role === 'super_admin' && currentUser.token) {
-      syncAllDrivers(currentUser.token);
-      syncAllCompanies(currentUser.token);
-      syncAllCompanyCars(currentUser.token);
-    }
-  }, [currentUser?.token, currentUser?.role]);
-
   const login = async ({ email, password }) => {
     // 1. Try Super Admin Login first
     const superAdminResult = await loginSuperAdminApi(email, password);
@@ -1271,6 +1257,9 @@ export const AppProvider = ({ children }) => {
       addSupportTicketMessage,
       updateSupportTicketStatus,
       deleteSupportTicket,
+      syncAllDrivers,
+      syncAllCompanies,
+      syncAllCompanyCars,
     }),
     [state, currentUser],
   );
