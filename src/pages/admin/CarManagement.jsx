@@ -39,7 +39,8 @@ const CarManagement = ({ onShowDetail, editCarId, clearEditCarId }) => {
     if (currentUser && currentUser.token) {
       syncCompanyCars(currentUser.token);
     }
-  }, [currentUser, syncCompanyCars]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [form, setForm] = useState(defaultForm);
   // Multiple vehicle photos (up to 6)
