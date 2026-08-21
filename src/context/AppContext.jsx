@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { seedState } from '../data/mockData';
 import { loadState, saveState, uid } from '../utils/storage';
-import { registerCompanyApi, loginCompanyApi, fetchCompanyCarsApi, loginSuperAdminApi, fetchAllDriversApi, updateDriverStatusApi, fetchAllCompaniesApi, updateCompanyStatusApi, fetchAllCompanyCarsApi, updateCompanyCarStatusApi } from '../utils/api';
+import { registerCompanyApi, loginCompanyApi, fetchCompanyCarsApi, loginSuperAdminApi, fetchAllDriversApi, updateDriverStatusApi, fetchAllCompaniesApi, updateCompanyStatusApi, fetchAllCompanyCarsApi, updateCompanyCarStatusApi, fetchDashboardStatsApi } from '../utils/api';
 
 const AppContext = createContext(null);
 
@@ -635,6 +635,18 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
+  const syncDashboardStats = async (token) => {
+    const apiResult = await fetchDashboardStatsApi(token);
+    if (!apiResult.success) {
+      console.error('Failed to sync dashboard stats from backend:', apiResult.message);
+      return;
+    }
+    setState((prev) => ({
+      ...prev,
+      dashboardStats: apiResult.stats,
+    }));
+  };
+
   const addCar = (backendCar) => {
     const newCar = mapBackendCar(backendCar);
     if (newCar) {
@@ -1260,6 +1272,7 @@ export const AppProvider = ({ children }) => {
       syncAllDrivers,
       syncAllCompanies,
       syncAllCompanyCars,
+      syncDashboardStats,
     }),
     [state, currentUser],
   );

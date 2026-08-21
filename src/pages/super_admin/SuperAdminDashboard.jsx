@@ -4,23 +4,26 @@ import { formatDate } from '../../utils/storage';
 import StatCard from '../../components/StatCard';
 
 const SuperAdminDashboard = () => {
-  const { state, currentUser, syncAllCompanies, syncAllCompanyCars } = useApp();
+  const { state, currentUser, syncAllCompanies, syncAllCompanyCars, syncDashboardStats } = useApp();
 
   useEffect(() => {
     if (currentUser && currentUser.token) {
       syncAllCompanies(currentUser.token);
       syncAllCompanyCars(currentUser.token);
+      syncDashboardStats(currentUser.token);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?.token]);
 
-  const pending  = state.companies.filter(c => c.status === 'pending');
-  const verified = state.companies.filter(c => c.status === 'verified');
-
-  // Demo driver stats
-  const totalDrivers   = 124;
-  const activeDrivers  = 87;
-  const totalRides     = 1420;
+  // Use live API stats if available, fallback to local state counts
+  const stats = state.dashboardStats || {};
+  const totalCompanies        = stats.totalCompanies              ?? state.companies.length;
+  const verifiedCompanies     = stats.verifiedCompanies           ?? state.companies.filter(c => c.status === 'verified').length;
+  const pendingCompanies      = stats.pendingVerificationCompanies ?? state.companies.filter(c => c.status === 'pending').length;
+  const totalCarsListed       = stats.totalCarsListed             ?? state.cars.length;
+  const totalDrivers          = stats.totalDrivers                ?? 0;
+  const totalRides            = stats.totalRides                  ?? 0;
+  const platformRevenue       = stats.platformRevenue             ?? 0;
 
   return (
     <div className="space-y-6">
@@ -30,7 +33,7 @@ const SuperAdminDashboard = () => {
         <div className="col-xl-3 col-sm-6 col-12">
           <StatCard
             title="Total Companies"
-            value={state.companies.length}
+            value={totalCompanies}
             subtitle="Registered on platform"
             colorVariant="purple"
             faIcon="fa-solid fa-building"
@@ -39,7 +42,7 @@ const SuperAdminDashboard = () => {
         <div className="col-xl-3 col-sm-6 col-12">
           <StatCard
             title="Pending Verification"
-            value={pending.length}
+            value={pendingCompanies}
             subtitle="Awaiting review"
             colorVariant="amber"
             faIcon="fa-solid fa-clock-rotate-left"
@@ -48,7 +51,7 @@ const SuperAdminDashboard = () => {
         <div className="col-xl-3 col-sm-6 col-12">
           <StatCard
             title="Verified Companies"
-            value={verified.length}
+            value={verifiedCompanies}
             subtitle="Approved & active"
             colorVariant="green"
             faIcon="fa-solid fa-check-double"
@@ -57,7 +60,7 @@ const SuperAdminDashboard = () => {
         <div className="col-xl-3 col-sm-6 col-12">
           <StatCard
             title="Total Cars Listed"
-            value={state.cars.length}
+            value={totalCarsListed}
             subtitle="Available for rental"
             colorVariant="teal"
             faIcon="fa-solid fa-car"
@@ -88,7 +91,7 @@ const SuperAdminDashboard = () => {
         <div className="col-xl-4 col-sm-12 col-12">
           <StatCard
             title="Platform Revenue"
-            value="₹9,04,250"
+            value={`₹${Number(platformRevenue).toLocaleString()}`}
             subtitle="Total earnings collected"
             colorVariant="green"
             faIcon="fa-solid fa-sack-dollar"

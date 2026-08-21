@@ -526,6 +526,37 @@ export const updateCompanyCarStatusApi = async (carId, status, token) => {
   }
 };
 
+export const fetchDashboardStatsApi = async (token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/dashboard-stats`, {
+      method: 'GET',
+      headers: {
+        'accept': '*/*',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
 
+    const resJson = await response.json();
+
+    if (!response.ok || !resJson.success) {
+      return {
+        success: false,
+        message: resJson.message || 'Fetching dashboard stats failed from server',
+      };
+    }
+
+    return {
+      success: true,
+      stats: resJson.data,
+      message: resJson.message,
+    };
+  } catch (error) {
+    console.error('API Error in fetchDashboardStatsApi:', error);
+    return {
+      success: false,
+      message: error.message || 'Network error occurred during fetching dashboard stats.',
+    };
+  }
+};
 
 
